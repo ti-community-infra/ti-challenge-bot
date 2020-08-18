@@ -7,7 +7,6 @@
 - label 作用:
     - 指明当前 issue 参与该 challenge program。
  
-
 ### picked 
 
 - label 作用:
