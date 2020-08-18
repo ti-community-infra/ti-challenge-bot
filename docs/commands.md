@@ -12,7 +12,7 @@
     - 为当前 issue 打上 `picked` 标签。
     - 在 issue 的描述中标明当前 challenger，格式如:
     `Current Challenger: @xxxx`
-- 操作权限:
+- **操作权限**:
     - GitHub User
     
 ### /give-up
@@ -23,7 +23,7 @@
 - 操作效果:
     - 移除 `picked` 标签。
     - 删除 issue 描述中的 challenger 标注。
-- 操作权限:
+- **操作权限**:
     - Current Challenger
 
 ## PR 相关命令
@@ -37,5 +37,5 @@
 - 操作效果:
     - 记录 reward 分数给 PR。
     - 打上 `rewarded` 标签。
-- 操作权限:
+- **操作权限**:
     - 关联 issue 的 mentor。
