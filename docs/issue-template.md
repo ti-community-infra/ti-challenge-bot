@@ -2,7 +2,7 @@
 
 ## Title
 
-Challenge: ${issue title}
+${issue title}
 
 ## Description
 
@@ -30,6 +30,6 @@ ${score}
 ## Learning Materials(optional)
 
 <!-- 注意事项：-->
-<!-- 1. title 需要以 Challenge: 开始。-->
+<!-- 1.该 issue 所参与赛事需要在 label 中指明。-->
 <!-- 2.该模板中无难度，但是难度系数必须指定在 label 中。-->
 <!-- 3.该模板中只有一个 mentor，因为后续要对 mentor 指导情况记录统计。-->

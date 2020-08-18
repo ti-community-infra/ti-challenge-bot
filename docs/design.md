@@ -9,9 +9,9 @@
 ## 主要监听事件
 
 ### issue_comment.created(注意 GitHub API 中 issue 和 PR 的 comment 接口是同一个)
-- /pick-up-challenge: 申请挑战 issue。
+- /pick-up: 申请挑战 issue。
     - 附加操作:　将该 issue 分配给 challenge-bot，并在 issue 描述中声明目前的 pickup 情况。**并且打上 picked 的标签。**
-- /give-up-challenge: 放弃挑战 issue。
+- /give-up: 放弃挑战 issue。
 - /reward(PR): 指定该 PR 可获得奖励数值。
     - 附加操作: **打上 reward 的标签。**
     - 要求1: 该 PR 关联了 challenge 的 issue。
