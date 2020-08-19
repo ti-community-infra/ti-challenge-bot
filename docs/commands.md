@@ -6,7 +6,7 @@
 - 命令作用:
     - 认领任务，如果是多人协作完成，派一个代表 pick 即可，对外只是标记这个任务已经有人在处理了。
 - 操作要求: 
-    - 当前 issue 已经打上了 `challenge-program-${theme}`。
+    - 当前 issue 已经打上了 `challenge-program`。
     - 当前 issue 无人 pick-up。
 - 操作效果:
     - 为当前 issue 打上 `picked` 标签。

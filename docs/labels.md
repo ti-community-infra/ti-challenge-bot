@@ -2,7 +2,7 @@
 
 ## issue 相关 label
 
-### challenge-program-${theme}
+### challenge-program
 
 - label 作用:
     - 指明当前 issue 参与该 challenge program。
