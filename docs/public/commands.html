@@ -64,6 +64,8 @@
     <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
 
     
+    <link rel="next" href="labels.html" />
+    
     
     <link rel="prev" href="PR-template.html" />
     
@@ -159,6 +161,19 @@
             
         </li>
     
+        <li class="chapter " data-level="1.6" data-path="labels.html">
+            
+                <a href="labels.html">
+            
+                    
+                    labels
+            
+                </a>
+            
+
+            
+        </li>
+    
 
     
 
@@ -206,28 +221,67 @@
                                 
                                 <h1 id="&#x547D;&#x4EE4;&#x8BBE;&#x8BA1;">&#x547D;&#x4EE4;&#x8BBE;&#x8BA1;</h1>
 <h2 id="issue-&#x76F8;&#x5173;&#x547D;&#x4EE4;">issue &#x76F8;&#x5173;&#x547D;&#x4EE4;</h2>
+<h3 id="pick-up">/pick-up</h3>
 <ul>
-<li><p>/pick-up-challenge</p>
-<ul>
-<li>&#x4F5C;&#x7528;: pick up &#x5F53;&#x524D; challenge issue&#x3002;</li>
-<li>&#x8981;&#x6C42;: issue &#x5FC5;&#x987B;&#x6EE1;&#x8DB3; challenge &#x7684; template &#x7684;&#x8981;&#x6C42;&#x3002;</li>
-<li>&#x6743;&#x9650;: anyone</li>
+<li>&#x547D;&#x4EE4;&#x4F5C;&#x7528;:<ul>
+<li>&#x8BA4;&#x9886;&#x4EFB;&#x52A1;&#xFF0C;&#x5982;&#x679C;&#x662F;&#x591A;&#x4EBA;&#x534F;&#x4F5C;&#x5B8C;&#x6210;&#xFF0C;&#x6D3E;&#x4E00;&#x4E2A;&#x4EE3;&#x8868; pick &#x5373;&#x53EF;&#xFF0C;&#x5BF9;&#x5916;&#x53EA;&#x662F;&#x6807;&#x8BB0;&#x8FD9;&#x4E2A;&#x4EFB;&#x52A1;&#x5DF2;&#x7ECF;&#x6709;&#x4EBA;&#x5728;&#x5904;&#x7406;&#x4E86;&#x3002;</li>
 </ul>
 </li>
-<li><p>/give-up-challenege</p>
+<li>&#x64CD;&#x4F5C;&#x8981;&#x6C42;: <ul>
+<li>&#x5F53;&#x524D; issue &#x5DF2;&#x7ECF;&#x6253;&#x4E0A;&#x4E86; <code>challenge-program</code>&#x3002;</li>
+<li>&#x5F53;&#x524D; issue &#x65E0;&#x4EBA; pick-up&#x3002;</li>
+</ul>
+</li>
+<li>&#x64CD;&#x4F5C;&#x6548;&#x679C;:<ul>
+<li>&#x4E3A;&#x5F53;&#x524D; issue &#x6253;&#x4E0A; <code>picked</code> &#x6807;&#x7B7E;&#x3002;</li>
+<li>&#x5728; issue &#x7684;&#x63CF;&#x8FF0;&#x4E2D;&#x6807;&#x660E;&#x5F53;&#x524D; challenger&#xFF0C;&#x683C;&#x5F0F;&#x5982;:
+<code>Current Challenger: @xxxx</code></li>
+</ul>
+</li>
+<li><strong>&#x64CD;&#x4F5C;&#x6743;&#x9650;</strong>:<ul>
+<li>GitHub User</li>
+</ul>
+</li>
+</ul>
+<h3 id="give-up">/give-up</h3>
 <ul>
-<li>&#x4F5C;&#x7528;: give up &#x5F53;&#x524D; pick &#x7684; issue&#x3002;</li>
-<li>&#x8981;&#x6C42;: &#x5F53;&#x524D; issue &#x88AB;&#x5176; pick&#x3002;</li>
-<li>&#x6743;&#x9650;: &#x5F53;&#x524D; challenger&#x3002;</li>
+<li>&#x547D;&#x4EE4;&#x4F5C;&#x7528;:<ul>
+<li>give up &#x5F53;&#x524D; pick &#x7684; issue&#x3002;</li>
+</ul>
+</li>
+<li>&#x64CD;&#x4F5C;&#x8981;&#x6C42;:<ul>
+<li>&#x5F53;&#x524D; issue &#x5DF2;&#x7ECF;&#x88AB; pick-up&#xFF0C;&#x5E76;&#x6253;&#x4E0A;&#x4E86; <code>picked</code> &#x6807;&#x7B7E;&#x3002;</li>
+</ul>
+</li>
+<li>&#x64CD;&#x4F5C;&#x6548;&#x679C;:<ul>
+<li>&#x79FB;&#x9664; <code>picked</code> &#x6807;&#x7B7E;&#x3002;</li>
+<li>&#x5220;&#x9664; issue &#x63CF;&#x8FF0;&#x4E2D;&#x7684; challenger &#x6807;&#x6CE8;&#x3002;</li>
+</ul>
+</li>
+<li><strong>&#x64CD;&#x4F5C;&#x6743;&#x9650;</strong>:<ul>
+<li>Current Challenger</li>
 </ul>
 </li>
 </ul>
 <h2 id="pr-&#x76F8;&#x5173;&#x547D;&#x4EE4;">PR &#x76F8;&#x5173;&#x547D;&#x4EE4;</h2>
+<h3 id="reward-score">/reward ${score}</h3>
 <ul>
-<li>/reward ${score}<ul>
-<li>&#x4F5C;&#x7528;: &#x7ED9;&#x5F53;&#x524D; PR  reward&#x3002;</li>
-<li>&#x8981;&#x6C42;: &#x5F53;&#x524D; PR &#x5173;&#x8054;&#x4E86; challenge issue&#x3002;</li>
-<li>&#x6743;&#x9650;: &#x5173;&#x8054; issue &#x7684; mentor&#x3002;</li>
+<li>&#x547D;&#x4EE4;&#x4F5C;&#x7528;:<ul>
+<li>&#x7ED9;&#x5F53;&#x524D; PR &#x6307;&#x5B9A;&#x5206;&#x6570;&#x3002;</li>
+</ul>
+</li>
+<li>&#x64CD;&#x4F5C;&#x8981;&#x6C42;:<ul>
+<li>&#x5F53;&#x524D; PR &#x5173;&#x8054;&#x4E86; challenge &#x76F8;&#x5173;&#x7684; issue&#x3002;</li>
+<li>&#x5F53;&#x524D; PR &#x4F5C;&#x8005;&#x4E0E; issue &#x7684; challenger &#x4E00;&#x81F4;&#x3002;</li>
+</ul>
+</li>
+<li>&#x64CD;&#x4F5C;&#x6548;&#x679C;:<ul>
+<li>&#x8BB0;&#x5F55; reward &#x5206;&#x6570;&#x7ED9; PR&#x3002;</li>
+<li>&#x6253;&#x4E0A; <code>rewarded</code> &#x6807;&#x7B7E;&#x3002;</li>
+</ul>
+</li>
+<li><strong>&#x64CD;&#x4F5C;&#x6743;&#x9650;</strong>:<ul>
+<li>&#x5173;&#x8054; issue &#x7684; mentor&#x3002;</li>
 </ul>
 </li>
 </ul>
@@ -258,10 +312,14 @@
 
             
                 
-                <a href="PR-template.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page: PR template">
+                <a href="PR-template.html" class="navigation navigation-prev " aria-label="Previous page: PR template">
                     <i class="fa fa-angle-left"></i>
                 </a>
                 
+                
+                <a href="labels.html" class="navigation navigation-next " aria-label="Next page: labels">
+                    <i class="fa fa-angle-right"></i>
+                </a>
                 
             
         
@@ -270,7 +328,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"commands","level":"1.5","depth":1,"previous":{"title":"PR template","level":"1.4","depth":1,"path":"PR-template.md","ref":"PR-template.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["mermaid-v8"],"pluginsConfig":{"mermaid-v8":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"commands.md","mtime":"2020-08-17T11:39:20.134Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-08-17T11:59:55.851Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"commands","level":"1.5","depth":1,"next":{"title":"labels","level":"1.6","depth":1,"path":"labels.md","ref":"labels.md","articles":[]},"previous":{"title":"PR template","level":"1.4","depth":1,"path":"PR-template.md","ref":"PR-template.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["mermaid-v8"],"pluginsConfig":{"mermaid-v8":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"commands.md","mtime":"2020-08-19T06:59:08.041Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-08-19T07:01:34.591Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>

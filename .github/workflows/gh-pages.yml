@@ -1,9 +1,9 @@
-name: github pages
+name: docs
 
 on:
   push:
     branches:
-      - master  # default branch
+      - master
 
 jobs:
   deploy:
