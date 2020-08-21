@@ -5,9 +5,9 @@
   "description": "A challenge bot for PingCAP challenge program.",
   "author": "Rustin-Liu <rustin.liu@gmail.com>",
   "license": "ISC",
-  "repository": "https://github.com/Rustin-Liu/challenge-bot.git",
-  "homepage": "https://github.com/Rustin-Liu/challenge-bot",
-  "bugs": "https://github.com/Rustin-Liu/challenge-bot/issues",
+  "repository": "https://github.com/tidb-community-bots/challenge-bot",
+  "homepage": "https://github.com/tidb-community-bots/challenge-bot",
+  "bugs": "https://github.com/tidb-community-bots/challenge-bot/issues",
   "keywords": [
     "probot",
     "github",
@@ -19,7 +19,7 @@
     "dev": "npm run build:watch",
     "start": "probot run ./lib/index.js",
     "lint": "standard **/*.ts --fix",
-    "test": "jest && standard **/*.ts",
+    "test": "jest --coverage && standard **/*.ts",
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
