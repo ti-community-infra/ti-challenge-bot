@@ -31,6 +31,7 @@
     "@types/node": "^13.1.0",
     "@typescript-eslint/parser": "^2.4.0",
     "eslint-plugin-typescript": "^0.14.0",
+    "husky": "^4.2.5",
     "jest": "^24.9.0",
     "nock": "^12.0.0",
     "nodemon": "^2.0.0",
@@ -40,7 +41,7 @@
     "typescript": "^3.6.4"
   },
   "engines": {
-    "node": ">= 8.3.0"
+    "node": ">= 10"
   },
   "standard": {
     "parser": "@typescript-eslint/parser",
@@ -50,6 +51,11 @@
     "plugins": [
       "typescript"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test"
+    }
   },
   "jest": {
     "testEnvironment": "node"
