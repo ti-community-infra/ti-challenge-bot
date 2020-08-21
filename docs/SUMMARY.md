@@ -6,4 +6,5 @@
 * [PR template](PR-template.md)
 * [commands](commands.md)
 * [labels](labels.md)
+* [database design](database.md)
 
