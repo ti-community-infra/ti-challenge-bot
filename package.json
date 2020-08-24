@@ -30,6 +30,7 @@
     "jest": "^24.9.0",
     "nock": "^12.0.0",
     "nodemon": "^2.0.0",
+    "sequelize-cli": "^6.2.0",
     "smee-client": "^1.1.0",
     "standard": "^14.3.1"
   },
