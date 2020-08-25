@@ -8,8 +8,12 @@
 # Install dependencies
 npm install
 
-# Run the bot
-npm start
+# Run with hot reload
+npm run build:watch
+
+# Compile and run
+npm run build
+npm run start
 ```
 
 ## Contributing

@@ -1,0 +1,22 @@
+{
+   "type": "mysql",
+   "host": "localhost",
+   "port": 3306,
+   "username": "root",
+   "password": "123456",
+   "database": "community",
+   "entities": [
+      "src/db/entity/**/*.ts"
+   ],
+   "migrations": [
+      "src/db/migration/**/*.ts"
+   ],
+   "subscribers": [
+      "src/db/subscriber/**/*.ts"
+   ],
+   "cli": {
+      "entitiesDir": "src/db/entity",
+      "migrationsDir": "src/db/migration",
+      "subscribersDir": "src/db/subscriber"
+   }
+}
