@@ -1,4 +1,3 @@
-// @ts-ignore
 import {MigrationInterface, QueryRunner, Table} from "typeorm";
 
 export class ChallengePrograms1598320483479 implements MigrationInterface {
