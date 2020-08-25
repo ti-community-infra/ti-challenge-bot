@@ -6,13 +6,13 @@
    "password": "123456",
    "database": "community",
    "entities": [
-      "src/db/entity/**/*.ts"
+      "/src/db/entity/**/*.ts"
    ],
    "migrations": [
-      "src/db/migration/**/*.ts"
+      "/src/db/migration/**/*.ts"
    ],
    "subscribers": [
-      "src/db/subscriber/**/*.ts"
+      "/src/db/subscriber/**/*.ts"
    ],
    "cli": {
       "entitiesDir": "src/db/entity",
