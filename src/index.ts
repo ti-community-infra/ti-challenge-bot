@@ -1,13 +1,20 @@
-import { Application } from 'probot' // eslint-disable-line no-unused-vars
+import { Application, Context } from 'probot' // eslint-disable-line no-unused-vars
+
+// @ts-ignore
+import commands from 'probot-commands-pro'
 
 export = (app: Application) => {
-  app.on('issues.opened', async (context) => {
-    const issueComment = context.issue({ body: 'Thanks for opening this issue!' })
-    await context.github.issues.createComment(issueComment)
+  commands(app, 'ping', async (context: Context) => {
+    await context.github.issues.createComment(context.issue({ body: 'pong! I am challenge bot.' }))
   })
-  // For more information on building apps:
-  // https://probot.github.io/docs/
-
-  // To get your app running against GitHub, see:
-  // https://probot.github.io/docs/development/
+  commands(app, 'pick-up', async (context: Context) => {
+    await context.github.issues.createComment(context.issue({ body: 'Thanks for your pick-up!' }))
+  })
+  commands(app, 'give-up', async (context: Context) => {
+    await context.github.issues.createComment(context.issue({ body: 'Thanks for your give-up!' }))
+  })
+  commands(app, 'reward', async (context: Context, command: any) => {
+    const score = command.arguments
+    await context.github.issues.createComment(context.issue({ body: `Thanks for your reward! Your reward score is: ${score}` }))
+  })
 }
