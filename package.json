@@ -18,8 +18,8 @@
     "build:watch": "tsc && (tsc -w --preserveWatchOutput & nodemon)",
     "dev": "npm run build:watch",
     "start": "probot run ./lib/index.js",
-    "lint": "standard **/*.ts --fix",
-    "test": "jest --coverage && standard **/*.ts",
+    "lint": "standard src/**/*.ts test/**/*.ts --fix",
+    "test": "jest --coverage && standard src/**/*.ts test/**/*.ts",
     "test:watch": "jest --watch --notify --notifyMode=change --coverage",
     "typeorm": "ts-node ./node_modules/.bin/typeorm"
   },

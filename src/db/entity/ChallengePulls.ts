@@ -1,19 +1,19 @@
-import {Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn} from "typeorm";
+import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 
-@Entity({name: "challenge_pulls"})
+@Entity({ name: 'challenge_pulls' })
 export class ChallengePulls {
-    @PrimaryColumn({name: "pull_id", nullable: false})
+    @PrimaryColumn({ name: 'pull_id', nullable: false })
     pullId: number;
 
-    @Column({name: "reward", nullable: false, default: 0})
+    @Column({ name: 'reward', nullable: false, default: 0 })
     reward: number;
 
-    @Column({name: "challenge_issue_id", nullable: false})
+    @Column({ name: 'challenge_issue_id', nullable: false })
     challengeIssueId: number;
 
-    @CreateDateColumn({name: "created_at"})
+    @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
-    @UpdateDateColumn({name: "update_at"})
+    @UpdateDateColumn({ name: 'update_at' })
     updatedAt: Date;
 }
