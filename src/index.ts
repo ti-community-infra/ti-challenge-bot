@@ -4,8 +4,8 @@ import { Application, Context } from 'probot' // eslint-disable-line no-unused-v
 import commands from 'probot-commands-pro'
 
 export = (app: Application) => {
-  commands(app, 'ping-challenge-bot', async (context: Context) => {
-    await context.github.issues.createComment(context.issue({ body: 'pong!' }))
+  commands(app, 'ping', async (context: Context) => {
+    await context.github.issues.createComment(context.issue({ body: 'pong! I am challenge bot.' }))
   })
   commands(app, 'pick-up', async (context: Context) => {
     await context.github.issues.createComment(context.issue({ body: 'Thanks for your pick-up!' }))

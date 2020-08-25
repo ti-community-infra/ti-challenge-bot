@@ -7,7 +7,7 @@ import myProbotApp from '../src'
 import { Probot } from 'probot'
 // Requiring our fixtures
 import payload from './fixtures/issues.ping.comment.json'
-const pongBody = { body: 'pong!' }
+const pongBody = { body: 'pong! I am challenge bot.' }
 const fs = require('fs')
 const path = require('path')
 
