@@ -20,7 +20,8 @@
     "start": "probot run ./lib/index.js",
     "lint": "standard **/*.ts --fix",
     "test": "jest --coverage && standard **/*.ts",
-    "test:watch": "jest --watch --notify --notifyMode=change --coverage"
+    "test:watch": "jest --watch --notify --notifyMode=change --coverage",
+    "typeorm": "ts-node ./node_modules/.bin/typeorm"
   },
   "dependencies": {
     "probot": "^9.5.3",
@@ -31,7 +32,7 @@
   "devDependencies": {
     "@types/jest": "^25.1.0",
     "@types/nock": "^11.1.0",
-    "@types/node": "^13.1.0",
+    "@types/node": "^8.0.29",
     "@typescript-eslint/parser": "^2.4.0",
     "eslint-plugin-typescript": "^0.14.0",
     "husky": "^4.2.5",
@@ -41,9 +42,7 @@
     "smee-client": "^1.1.0",
     "standard": "^14.3.1",
     "ts-jest": "^25.1.0",
-    "typescript": "^3.6.4",
-    "ts-node": "3.3.0",
-    "@types/node": "^8.0.29",
+    "ts-node": "^9.0.0",
     "typescript": "3.3.3333"
   },
   "engines": {
@@ -53,6 +52,9 @@
     "parser": "@typescript-eslint/parser",
     "env": [
       "jest"
+    ],
+    "ignore": [
+      "/docs"
     ],
     "plugins": [
       "typescript"
