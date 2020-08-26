@@ -13,6 +13,7 @@ export = (app: Application) => {
 
   createConnection().then(() => {
     app.log.info('Connect to db success')
+
     commands(app, 'ping', async (context: Context) => {
       await context.github.issues.createComment(context.issue({ body: 'pong! I am challenge bot.' }))
     })

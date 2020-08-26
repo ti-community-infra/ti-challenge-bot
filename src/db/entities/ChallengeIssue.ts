@@ -1,8 +1,8 @@
 import { Entity, PrimaryColumn, JoinColumn, Column, CreateDateColumn, OneToOne, UpdateDateColumn } from 'typeorm'
-import { Issues } from './Issues'
+import { Issue } from './Issue'
 
 @Entity({ name: 'challenge_issues' })
-export class ChallengeIssues {
+export class ChallengeIssue {
     @PrimaryColumn({ name: 'issue_id', nullable: false })
     issueId: number;
 
@@ -34,7 +34,7 @@ export class ChallengeIssues {
     updatedAt: Date;
 
     // @ts-ignore
-    @OneToOne(type => Issues)
+    @OneToOne(type => Issue)
     @JoinColumn({ name: 'issue_id', referencedColumnName: 'id' })
-    issue: Issues
+    issue: Issue
 }

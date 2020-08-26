@@ -1,15 +1,16 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
-import { ChallengeIssues } from '../../db/entities/ChallengeIssues'
+import { ChallengeIssue } from '../../db/entities/ChallengeIssue'
 // eslint-disable-next-line no-unused-vars
 import { Repository } from 'typeorm/repository/Repository'
-import { Issues } from '../../db/entities/Issues'
+import { Issue } from '../../db/entities/Issue'
 // eslint-disable-next-line no-unused-vars
 import { PickUpQuery } from '../../commands/queries/PickUpQuery'
 // eslint-disable-next-line no-unused-vars
-import { Response, Status } from '../response'
+import { Response, Status } from '../responses'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../../commands/queries/LabelQuery'
+import { PickUpMessage } from '../messages/PickUpMessage'
 
 const challengeProgramLabel = 'challenge-program'
 
@@ -17,10 +18,10 @@ const challengeProgramLabel = 'challenge-program'
 class PickUpService {
   // eslint-disable-next-line no-useless-constructor
   constructor (
-        @InjectRepository(ChallengeIssues)
-        private challengeIssuesRepository: Repository<ChallengeIssues>,
-        @InjectRepository(Issues)
-        private issuesRepository: Repository<Issues>
+        @InjectRepository(ChallengeIssue)
+        private challengeIssuesRepository: Repository<ChallengeIssue>,
+        @InjectRepository(Issue)
+        private issuesRepository: Repository<Issue>
   ) {
   }
 
@@ -31,15 +32,9 @@ class PickUpService {
     return challengeLabel.length > 0
   }
 
-  public async pickUp (pickUpQuery: PickUpQuery): Promise<Response<null>> {
+  private async findOrCreateIssue (pickUpQuery: PickUpQuery): Promise<Issue> {
     const { issue: issueQuery } = pickUpQuery
-    if (!this.isChallengeIssue(issueQuery.labels)) {
-      return {
-        data: null,
-        status: Status.Failed,
-        message: 'This is not a challenge program issue!'
-      }
-    }
+
     let issue = await this.issuesRepository.findOne({
       where: {
         issueNumber: issueQuery.number
@@ -48,7 +43,7 @@ class PickUpService {
 
     if (issue === undefined) {
       // No issue in database we need save this issue into database.
-      const newIssue = new Issues()
+      const newIssue = new Issue()
       newIssue.owner = pickUpQuery.owner
       newIssue.repo = pickUpQuery.repo
       newIssue.issueNumber = issueQuery.number
@@ -65,6 +60,37 @@ class PickUpService {
       issue = await this.issuesRepository.save(newIssue)
     }
 
+    return issue
+  }
+
+  private findSigLabel (labels: LabelQuery[]): LabelQuery | undefined {
+    return labels.find((l: LabelQuery) => {
+      return l.name.startsWith('sig/')
+    })
+  }
+
+  public async pickUp (pickUpQuery: PickUpQuery): Promise<Response<null>> {
+    const { issue: issueQuery } = pickUpQuery
+
+    if (!this.isChallengeIssue(issueQuery.labels)) {
+      return {
+        data: null,
+        status: Status.Failed,
+        message: PickUpMessage.NotChallengeProgramIssue
+      }
+    }
+
+    const sigLabel = this.findSigLabel(issueQuery.labels)
+    if (sigLabel === undefined) {
+      return {
+        data: null,
+        status: Status.Failed,
+        message: PickUpMessage.NoSigInfo
+      }
+    }
+
+    const issue = await this.findOrCreateIssue(pickUpQuery)
+
     const challengeIssue = await this.challengeIssuesRepository.findOne({
       where: {
         issueId: issue.id
@@ -72,7 +98,7 @@ class PickUpService {
     })
 
     if (challengeIssue === undefined) {
-      const newChallengeIssue = new ChallengeIssues()
+      const newChallengeIssue = new ChallengeIssue()
       newChallengeIssue.issueId = issue.id
       // FIXME: use real sig id.
       newChallengeIssue.sigId = 1003
@@ -88,14 +114,14 @@ class PickUpService {
       return {
         data: null,
         status: Status.Success,
-        message: 'Pickup success'
+        message: PickUpMessage.PickUpSuccess
       }
     } else {
       if (challengeIssue.hasPicked) {
         return {
           data: null,
           status: Status.Failed,
-          message: `Pickup failed, because ${challengeIssue.currentChallengerGitHubId} already picked this issue.`
+          message: PickUpMessage.failed(`${pickUpQuery.challenger} already picked this issue.`)
         }
       } else {
         challengeIssue.hasPicked = true
@@ -105,7 +131,7 @@ class PickUpService {
         return {
           data: null,
           status: Status.Success,
-          message: 'Pickup success'
+          message: PickUpMessage.PickUpSuccess
         }
       }
     }
