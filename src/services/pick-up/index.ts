@@ -11,6 +11,8 @@ import { Response, Status } from '../responses'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../../commands/queries/LabelQuery'
 import { PickUpMessage } from '../messages/PickUpMessage'
+import { ProjectSig } from '../../db/entities/ProjectSig'
+import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 
 const challengeProgramLabel = 'challenge-program'
 
@@ -21,7 +23,9 @@ class PickUpService {
         @InjectRepository(ChallengeIssue)
         private challengeIssuesRepository: Repository<ChallengeIssue>,
         @InjectRepository(Issue)
-        private issuesRepository: Repository<Issue>
+        private issuesRepository: Repository<Issue>,
+        @InjectRepository(ProjectSig)
+        private projectSigRepository: Repository<ProjectSig>
   ) {
   }
 
@@ -63,10 +67,19 @@ class PickUpService {
     return issue
   }
 
-  private findSigLabel (labels: LabelQuery[]): LabelQuery | undefined {
+  // TODO: move it into utils.
+  static findSigLabel (labels: LabelQuery[]): LabelQuery | undefined {
     return labels.find((l: LabelQuery) => {
       return l.name.startsWith('sig/')
     })
+  }
+
+  private async findSigIdByLabel (labelQuery: LabelQuery): Promise<number | undefined> {
+    const projectSig = await this.projectSigRepository.createQueryBuilder('ps')
+      .leftJoinAndSelect(GithubLabelSig, 'gls', 'ps.project_sig_id = gls.project_sig_id')
+      .where(`gls.label = '${labelQuery.name.split('/')[1]}'`).getOne() // FIXME: can not use this magic.
+
+    return projectSig?.sigId
   }
 
   public async pickUp (pickUpQuery: PickUpQuery): Promise<Response<null>> {
@@ -80,12 +93,21 @@ class PickUpService {
       }
     }
 
-    const sigLabel = this.findSigLabel(issueQuery.labels)
+    const sigLabel = PickUpService.findSigLabel(issueQuery.labels)
     if (sigLabel === undefined) {
       return {
         data: null,
         status: Status.Failed,
         message: PickUpMessage.NoSigInfo
+      }
+    }
+
+    const sigId = await this.findSigIdByLabel(sigLabel)
+    if (sigId === undefined) {
+      return {
+        data: null,
+        status: Status.Failed,
+        message: PickUpMessage.IllegalSigInfo
       }
     }
 
@@ -101,7 +123,7 @@ class PickUpService {
       const newChallengeIssue = new ChallengeIssue()
       newChallengeIssue.issueId = issue.id
       // FIXME: use real sig id.
-      newChallengeIssue.sigId = 1003
+      newChallengeIssue.sigId = sigId
       // FIXME: use real score.
       newChallengeIssue.score = 100
       // FIXME: use real score.
