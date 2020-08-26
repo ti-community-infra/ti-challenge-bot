@@ -1,13 +1,13 @@
 // eslint-disable-next-line no-unused-vars
 import { Context } from 'probot'
+// eslint-disable-next-line no-unused-vars
 import PickUpService from '../../services/pick-up'
 // eslint-disable-next-line no-unused-vars
 import { PickUpQuery } from '../queries/PickUpQuery'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../queries/LabelQuery'
 
-const pickUp = async (context: Context) => {
-  const pickUpService = new PickUpService()
+const pickUp = async (context: Context, pickUpService: PickUpService) => {
   const issueResponse = await context.github.issues.get(context.issue())
   const issue = context.issue()
   const { data } = issueResponse

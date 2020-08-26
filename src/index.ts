@@ -1,11 +1,16 @@
 // eslint-disable-next-line no-unused-vars
 import { Application, Context } from 'probot'
-import { createConnection } from 'typeorm'
+import 'reflect-metadata'
+import { createConnection, useContainer } from 'typeorm'
+import { Container } from 'typedi'
 import pickUp from './commands/pick-up'
+import PickUpService from './services/pick-up'
 
 const commands = require('probot-commands-pro')
 
 export = (app: Application) => {
+  useContainer(Container)
+
   createConnection().then(() => {
     app.log.info('Connect to db success')
     commands(app, 'ping', async (context: Context) => {
@@ -13,7 +18,7 @@ export = (app: Application) => {
     })
 
     commands(app, 'pick-up', async (context: Context) => {
-      await pickUp(context)
+      await pickUp(context, Container.get(PickUpService))
     })
 
     commands(app, 'give-up', async (context: Context) => {
