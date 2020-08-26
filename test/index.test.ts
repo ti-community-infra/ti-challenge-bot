@@ -13,8 +13,6 @@ const pongBody = { body: 'pong! I am challenge bot.' }
 const fs = require('fs')
 const path = require('path')
 
-jest.mock('typeorm')
-
 describe('My Probot app', () => {
   let probot: any
   let mockCert: string
@@ -29,7 +27,7 @@ describe('My Probot app', () => {
 
   beforeEach(() => {
     // @ts-ignore
-    typeorm.createConnection.mockResolvedValue(null)
+    typeorm.createConnection = jest.fn().mockResolvedValue(null)
     nock.disableNetConnect()
     probot = new Probot({ id: 123, cert: mockCert })
     // Load our app into probot

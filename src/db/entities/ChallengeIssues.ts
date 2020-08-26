@@ -1,4 +1,5 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, PrimaryColumn, JoinColumn, Column, CreateDateColumn, OneToOne, UpdateDateColumn } from 'typeorm'
+import { Issues } from './Issues'
 
 @Entity({ name: 'challenge_issues' })
 export class ChallengeIssues {
@@ -29,6 +30,11 @@ export class ChallengeIssues {
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
-    @UpdateDateColumn({ name: 'update_at' })
+    @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
+
+    // @ts-ignore
+    @OneToOne(type => Issues)
+    @JoinColumn({ name: 'issue_id', referencedColumnName: 'id' })
+    issue: Issues
 }
