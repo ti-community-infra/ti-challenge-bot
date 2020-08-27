@@ -18,11 +18,11 @@ export class ChallengeIssue {
     @Column({ name: 'has_picked', nullable: false, default: false })
     hasPicked: boolean;
 
-    @Column({ name: 'current_challenger_github_id', nullable: true, default: null })
-    currentChallengerGitHubId: string;
+    @Column({ name: 'current_challenger_github_id', type: 'varchar', length: 255, nullable: true, default: null })
+    currentChallengerGitHubId?: string | null;
 
     @Column({ name: 'picked_at', type: 'timestamp', nullable: true, default: null })
-    pickedAt: string;
+    pickedAt?: string | null;
 
     @Column({ name: 'challenge_program_id', nullable: true, default: null })
     challengeProgramId: number;
@@ -34,7 +34,7 @@ export class ChallengeIssue {
     updatedAt: string;
 
     // @ts-ignore
-    @OneToOne(type => Issue)
+    @OneToOne(type => Issue, issue => issue.challengeIssue)
     @JoinColumn({ name: 'issue_id', referencedColumnName: 'id' })
     issue: Issue
 }

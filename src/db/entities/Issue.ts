@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
+import { Entity, OneToOne, PrimaryGeneratedColumn, Column } from 'typeorm'
+import { ChallengeIssue } from './ChallengeIssue'
 @Entity({ name: 'issues' })
 export class Issue {
     @PrimaryGeneratedColumn({ name: 'id' })
@@ -43,4 +44,8 @@ export class Issue {
 
     @Column({ name: 'closed_at', type: 'timestamp', nullable: true, default: null })
     closedAt: string;
+
+    // @ts-ignore
+    @OneToOne(type => ChallengeIssue, challengeIssue => challengeIssue.issue)
+    challengeIssue: ChallengeIssue
 }
