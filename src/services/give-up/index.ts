@@ -16,7 +16,7 @@ export default class GiveUpService {
   // eslint-disable-next-line no-useless-constructor
   constructor (
         @InjectRepository(ChallengeIssue)
-        private challengeIssuesRepository: Repository<ChallengeIssue>,
+        private challengeIssueRepository: Repository<ChallengeIssue>,
         @InjectRepository(Issue)
         private issueRepository: Repository<Issue>
   ) {
@@ -61,7 +61,7 @@ export default class GiveUpService {
     challengeIssue.pickedAt = null
     challengeIssue.currentChallengerGitHubId = null
 
-    await this.challengeIssuesRepository.save(challengeIssue)
+    await this.challengeIssueRepository.save(challengeIssue)
     return {
       data: null,
       status: Status.Success,

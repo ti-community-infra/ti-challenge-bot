@@ -1,4 +1,5 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from 'typeorm'
+import { Pull } from './Pull'
 
 @Entity({ name: 'challenge_pulls' })
 export class ChallengePull {
@@ -16,4 +17,9 @@ export class ChallengePull {
 
     @UpdateDateColumn({ name: 'update_at' })
     updatedAt: Date;
+
+    // @ts-ignore
+    @OneToOne(type => Pull, pull => pull.challengePull)
+    @JoinColumn({ name: 'pull_id', referencedColumnName: 'id' })
+    pull: Pull
 }
