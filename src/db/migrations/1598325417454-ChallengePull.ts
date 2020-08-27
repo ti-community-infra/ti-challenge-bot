@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm' // eslint-disable-line
 
-export class ChallengePulls1598325417454 implements MigrationInterface {
+export class ChallengePull1598325417454 implements MigrationInterface {
   public async up (queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(new Table({
       name: 'challenge_pulls',

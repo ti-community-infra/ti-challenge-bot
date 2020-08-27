@@ -13,16 +13,16 @@ import { LabelQuery } from '../../commands/queries/LabelQuery'
 import { pickUpFailedMessage, PickUpMessage } from '../messages/PickUpMessage'
 import { ProjectSig } from '../../db/entities/ProjectSig'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
-import { findSigLabel, isChallengeIssue, issueUtil } from '../utils/IssueUtil'
+import { findSigLabel, isChallengeIssue, findMentorAndScore } from '../utils/IssueUtil'
 
 @Service()
 class PickUpService {
   // eslint-disable-next-line no-useless-constructor
   constructor (
         @InjectRepository(ChallengeIssue)
-        private challengeIssuesRepository: Repository<ChallengeIssue>,
+        private challengeIssueRepository: Repository<ChallengeIssue>,
         @InjectRepository(Issue)
-        private issuesRepository: Repository<Issue>,
+        private issueRepository: Repository<Issue>,
         @InjectRepository(ProjectSig)
         private projectSigRepository: Repository<ProjectSig>
   ) {
@@ -31,7 +31,7 @@ class PickUpService {
   private async findOrCreateIssue (pickUpQuery: PickUpQuery): Promise<Issue> {
     const { issue: issueQuery } = pickUpQuery
 
-    let issue = await this.issuesRepository.findOne({
+    let issue = await this.issueRepository.findOne({
       where: {
         issueNumber: issueQuery.number
       }
@@ -53,7 +53,7 @@ class PickUpService {
       newIssue.status = issueQuery.state
       newIssue.updatedAt = issueQuery.updatedAt
       newIssue.closedAt = issueQuery.closedAt
-      issue = await this.issuesRepository.save(newIssue)
+      issue = await this.issueRepository.save(newIssue)
     }
 
     return issue
@@ -99,7 +99,7 @@ class PickUpService {
     }
 
     // Check the mentor and score info.
-    const mentorAndScore = issueUtil(issueQuery.body)
+    const mentorAndScore = findMentorAndScore(issueQuery.body)
     if (mentorAndScore === undefined) {
       return {
         ...baseFailedMessage,
@@ -111,7 +111,8 @@ class PickUpService {
     const issue = await this.findOrCreateIssue(pickUpQuery)
 
     // Pick up.
-    const challengeIssue = await this.challengeIssuesRepository.findOne({
+    // TODO: we can use the one to one.
+    const challengeIssue = await this.challengeIssueRepository.findOne({
       where: {
         issueId: issue.id
       }
@@ -127,7 +128,7 @@ class PickUpService {
       newChallengeIssue.currentChallengerGitHubId = pickUpQuery.challenger
       newChallengeIssue.pickedAt = new Date().toLocaleString()
       newChallengeIssue.issue = issue
-      await this.challengeIssuesRepository.save(newChallengeIssue)
+      await this.challengeIssueRepository.save(newChallengeIssue)
       return {
         data: null,
         status: Status.Success,
@@ -144,7 +145,7 @@ class PickUpService {
       challengeIssue.hasPicked = true
       challengeIssue.currentChallengerGitHubId = pickUpQuery.challenger
       challengeIssue.pickedAt = new Date().toLocaleString()
-      await this.challengeIssuesRepository.save(challengeIssue)
+      await this.challengeIssueRepository.save(challengeIssue)
       return {
         data: null,
         status: Status.Success,

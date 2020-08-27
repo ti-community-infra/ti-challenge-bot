@@ -7,6 +7,8 @@ import pickUp from './commands/pick-up'
 import PickUpService from './services/pick-up'
 import giveUp from './commands/give-up'
 import GiveUpService from './services/give-up'
+import reward from './commands/reward'
+import RewardService from './services/reward'
 
 const commands = require('probot-commands-pro')
 
@@ -28,9 +30,14 @@ export = (app: Application) => {
       await giveUp(context, Container.get(GiveUpService))
     })
 
-    commands(app, 'reward', async (context: Context, command: any) => {
-      const score = command.arguments
-      await context.github.issues.createComment(context.issue({ body: `Thanks for your reward! Your reward score is: ${score}` }))
+    commands(app, 'reward', async (context: Context, command: { arguments: string }) => {
+      const rewardData = command.arguments
+      const rewardValue = Number(rewardData)
+      if (!Number.isInteger(rewardValue)) {
+        await context.github.issues.createComment(context.issue({ body: 'The reward invalid.' }))
+        return
+      }
+      await reward(context, rewardValue, Container.get(RewardService))
     })
   }).catch(err => {
     app.log.fatal('Connect to db failed', err)

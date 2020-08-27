@@ -10,7 +10,7 @@ export interface MentorAndScore{
     score: number,
 }
 
-export function issueUtil (issueBody: string):MentorAndScore | undefined {
+export function findMentorAndScore (issueBody: string):MentorAndScore | undefined {
   const mentorData = issueBody.match(MENTOR_REGEX)
   if (mentorData?.length !== 3) {
     return undefined
