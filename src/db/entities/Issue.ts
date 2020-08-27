@@ -36,11 +36,11 @@ export class Issue {
 
     // FIXME: maybe this means issue created time.
     @Column({ name: 'created_at', type: 'timestamp', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
-    createdAt: Date
+    createdAt: string
 
     @Column({ name: 'updated_at', type: 'timestamp', nullable: true, default: null })
-    updatedAt: Date;
+    updatedAt: string;
 
     @Column({ name: 'closed_at', type: 'timestamp', nullable: true, default: null })
-    closedAt: Date;
+    closedAt: string;
 }

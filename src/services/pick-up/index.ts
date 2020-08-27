@@ -13,8 +13,7 @@ import { LabelQuery } from '../../commands/queries/LabelQuery'
 import { PickUpMessage } from '../messages/PickUpMessage'
 import { ProjectSig } from '../../db/entities/ProjectSig'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
-
-const challengeProgramLabel = 'challenge-program'
+import { findSigLabel, isChallengeIssue, issueUtil } from '../utils/IssueUtil'
 
 @Service()
 class PickUpService {
@@ -27,13 +26,6 @@ class PickUpService {
         @InjectRepository(ProjectSig)
         private projectSigRepository: Repository<ProjectSig>
   ) {
-  }
-
-  private isChallengeIssue (labels: LabelQuery[]): boolean {
-    const challengeLabel = labels.filter((l: LabelQuery) => {
-      return l.name === challengeProgramLabel
-    })
-    return challengeLabel.length > 0
   }
 
   private async findOrCreateIssue (pickUpQuery: PickUpQuery): Promise<Issue> {
@@ -59,33 +51,26 @@ class PickUpService {
         return label.name
       }).join(',')
       newIssue.status = issueQuery.state
-      newIssue.updatedAt = new Date(Date.parse(issueQuery.updatedAt))
-      newIssue.closedAt = new Date(Date.parse(issueQuery.closedAt))
+      newIssue.updatedAt = issueQuery.updatedAt
+      newIssue.closedAt = issueQuery.closedAt
       issue = await this.issuesRepository.save(newIssue)
     }
 
     return issue
   }
 
-  // TODO: move it into utils.
-  static findSigLabel (labels: LabelQuery[]): LabelQuery | undefined {
-    return labels.find((l: LabelQuery) => {
-      return l.name.startsWith('sig/')
-    })
-  }
-
   private async findSigIdByLabel (labelQuery: LabelQuery): Promise<number | undefined> {
     const projectSig = await this.projectSigRepository.createQueryBuilder('ps')
       .leftJoinAndSelect(GithubLabelSig, 'gls', 'ps.project_sig_id = gls.project_sig_id')
-      .where(`gls.label = '${labelQuery.name.split('/')[1]}'`).getOne() // FIXME: can not use this magic.
+      .where(`gls.label = '${labelQuery.name}'`).getOne()
 
     return projectSig?.sigId
   }
 
   public async pickUp (pickUpQuery: PickUpQuery): Promise<Response<null>> {
+    // Check is a challenge program issue.
     const { issue: issueQuery } = pickUpQuery
-
-    if (!this.isChallengeIssue(issueQuery.labels)) {
+    if (!isChallengeIssue(issueQuery.labels)) {
       return {
         data: null,
         status: Status.Failed,
@@ -93,7 +78,8 @@ class PickUpService {
       }
     }
 
-    const sigLabel = PickUpService.findSigLabel(issueQuery.labels)
+    // Check the sig info.
+    const sigLabel = findSigLabel(issueQuery.labels)
     if (sigLabel === undefined) {
       return {
         data: null,
@@ -101,7 +87,6 @@ class PickUpService {
         message: PickUpMessage.NoSigInfo
       }
     }
-
     const sigId = await this.findSigIdByLabel(sigLabel)
     if (sigId === undefined) {
       return {
@@ -111,8 +96,20 @@ class PickUpService {
       }
     }
 
+    // Check the mentor and score info.
+    const mentorAndScore = issueUtil(issueQuery.body)
+    if (mentorAndScore === undefined) {
+      return {
+        data: null,
+        status: Status.Failed,
+        message: PickUpMessage.IllegalIssueFormat
+      }
+    }
+
+    // Check the issue if exist in database.
     const issue = await this.findOrCreateIssue(pickUpQuery)
 
+    // Pick up.
     const challengeIssue = await this.challengeIssuesRepository.findOne({
       where: {
         issueId: issue.id
@@ -122,15 +119,12 @@ class PickUpService {
     if (challengeIssue === undefined) {
       const newChallengeIssue = new ChallengeIssue()
       newChallengeIssue.issueId = issue.id
-      // FIXME: use real sig id.
       newChallengeIssue.sigId = sigId
-      // FIXME: use real score.
-      newChallengeIssue.score = 100
-      // FIXME: use real score.
-      newChallengeIssue.mentor = 'test'
+      newChallengeIssue.score = mentorAndScore.score
+      newChallengeIssue.mentor = mentorAndScore.mentor
       newChallengeIssue.hasPicked = true
       newChallengeIssue.currentChallengerGitHubId = pickUpQuery.challenger
-      newChallengeIssue.pickedAt = new Date()
+      newChallengeIssue.pickedAt = new Date().toLocaleString()
       newChallengeIssue.issue = issue
       await this.challengeIssuesRepository.save(newChallengeIssue)
       return {
@@ -138,23 +132,23 @@ class PickUpService {
         status: Status.Success,
         message: PickUpMessage.PickUpSuccess
       }
+    }
+
+    if (challengeIssue.hasPicked) {
+      return {
+        data: null,
+        status: Status.Failed,
+        message: PickUpMessage.failed(`${pickUpQuery.challenger} already picked this issue.`)
+      }
     } else {
-      if (challengeIssue.hasPicked) {
-        return {
-          data: null,
-          status: Status.Failed,
-          message: PickUpMessage.failed(`${pickUpQuery.challenger} already picked this issue.`)
-        }
-      } else {
-        challengeIssue.hasPicked = true
-        challengeIssue.currentChallengerGitHubId = pickUpQuery.challenger
-        challengeIssue.pickedAt = new Date()
-        await this.challengeIssuesRepository.save(challengeIssue)
-        return {
-          data: null,
-          status: Status.Success,
-          message: PickUpMessage.PickUpSuccess
-        }
+      challengeIssue.hasPicked = true
+      challengeIssue.currentChallengerGitHubId = pickUpQuery.challenger
+      challengeIssue.pickedAt = new Date().toLocaleString()
+      await this.challengeIssuesRepository.save(challengeIssue)
+      return {
+        data: null,
+        status: Status.Success,
+        message: PickUpMessage.PickUpSuccess
       }
     }
   }

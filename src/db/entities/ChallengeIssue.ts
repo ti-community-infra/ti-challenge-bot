@@ -21,17 +21,17 @@ export class ChallengeIssue {
     @Column({ name: 'current_challenger_github_id', nullable: true, default: null })
     currentChallengerGitHubId: string;
 
-    @Column({ name: 'picked_at', nullable: true, default: null })
-    pickedAt: Date;
+    @Column({ name: 'picked_at', type: 'timestamp', nullable: true, default: null })
+    pickedAt: string;
 
     @Column({ name: 'challenge_program_id', nullable: true, default: null })
     challengeProgramId: number;
 
     @CreateDateColumn({ name: 'created_at' })
-    createdAt: Date;
+    createdAt: string;
 
     @UpdateDateColumn({ name: 'updated_at' })
-    updatedAt: Date;
+    updatedAt: string;
 
     // @ts-ignore
     @OneToOne(type => Issue)
