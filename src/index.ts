@@ -32,11 +32,12 @@ export = (app: Application) => {
 
     commands(app, 'reward', async (context: Context, command: { arguments: string }) => {
       const rewardData = command.arguments
-      if (!Number.isInteger(rewardData)) {
+      const rewardValue = Number(rewardData)
+      if (!Number.isInteger(rewardValue)) {
         await context.github.issues.createComment(context.issue({ body: 'The reward invalid.' }))
         return
       }
-      await reward(context, Number(rewardData), Container.get(RewardService))
+      await reward(context, rewardValue, Container.get(RewardService))
     })
   }).catch(err => {
     app.log.fatal('Connect to db failed', err)

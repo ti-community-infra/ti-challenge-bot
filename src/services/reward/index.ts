@@ -10,6 +10,9 @@ import { RewardQuery } from '../../commands/queries/RewardQuery'
 import { Pull } from '../../db/entities/Pull'
 import { Issue } from '../../db/entities/Issue'
 import { findLinkedIssueNumber } from '../utils/PullUtil'
+// eslint-disable-next-line no-unused-vars
+import { LabelQuery } from '../../commands/queries/LabelQuery'
+import { RewardMessage } from '../messages/RewardMessage'
 
 @Service()
 export default class RewardService {
@@ -24,57 +27,11 @@ export default class RewardService {
   ) {
   }
 
-  public async reward (rewardQuery: RewardQuery): Promise<Response<number|null>> {
+  private async findOrCreatPull (rewardQuery: RewardQuery): Promise<Pull> {
     const { pull: pullQuery } = rewardQuery
-    const issueNumber = findLinkedIssueNumber(pullQuery.body)
-    if (issueNumber === undefined) {
-      return {
-        data: null,
-        status: Status.Failed,
-        message: 'Can not find any linked challenge issue number!'
-      }
-    }
-
-    const issue = await this.issueRepository.findOne({
-      relations: ['challengeIssue'],
-      where: {
-        issueNumber
-      }
-    })
-    if (issue === undefined || issue.challengeIssue === undefined) {
-      return {
-        data: null,
-        status: Status.Failed,
-        message: 'Your linked issue not a challenge program issue.'
-      }
-    }
-
-    const { challengeIssue } = issue
-    if (!challengeIssue.hasPicked) {
-      return {
-        data: null,
-        status: Status.Failed,
-        message: 'Your linked issue not picked.'
-      }
-    }
-
-    if (rewardQuery.mentor !== challengeIssue.mentor) {
-      return {
-        data: null,
-        status: Status.Failed,
-        message: 'Your not the issue mentor, so you can not reward to this pull request.'
-      }
-    }
-
-    if (rewardQuery.reward > challengeIssue.score) {
-      return {
-        data: null,
-        status: Status.Failed,
-        message: 'The reward score can not more than the issue score.'
-      }
-    }
 
     let pull = await this.pullRepository.findOne({
+      relations: ['challengePull'],
       where: {
         pullNumber: pullQuery.number
       }
@@ -90,7 +47,7 @@ export default class RewardService {
       newPull.user = pullQuery.user.login
       // FIXME: add relations.
       newPull.association = pullQuery.authorAssociation
-      newPull.label = pullQuery.labels.map(l => {
+      newPull.label = pullQuery.labels.map((l:LabelQuery) => {
         return l.name
       }).join(',')
       newPull.status = pullQuery.state
@@ -99,16 +56,75 @@ export default class RewardService {
       pull = await this.pullRepository.save(newPull)
     }
 
-    const newChallengeIssue = new ChallengePull()
-    newChallengeIssue.pullId = pull.id
-    newChallengeIssue.reward = rewardQuery.reward
-    newChallengeIssue.challengeIssueId = challengeIssue.issueId
-    await this.challengePullRepository.save(newChallengeIssue)
+    return pull
+  }
+
+  public async reward (rewardQuery: RewardQuery): Promise<Response<number|null>> {
+    const { pull: pullQuery } = rewardQuery
+    const baseFailedMessage = {
+      data: null,
+      status: Status.Failed
+    }
+    const issueNumber = findLinkedIssueNumber(pullQuery.body)
+    if (issueNumber === undefined) {
+      return {
+        ...baseFailedMessage,
+        message: RewardMessage.CanNotFindLinkedIssue
+      }
+    }
+
+    const issue = await this.issueRepository.findOne({
+      relations: ['challengeIssue'],
+      where: {
+        issueNumber
+      }
+    })
+    if (issue === undefined || issue.challengeIssue === undefined) {
+      return {
+        ...baseFailedMessage,
+        message: RewardMessage.LinkedNotChallengeIssue
+      }
+    }
+
+    const { challengeIssue } = issue
+    if (!challengeIssue.hasPicked) {
+      return {
+        ...baseFailedMessage,
+        message: RewardMessage.NotPicked
+      }
+    }
+
+    if (rewardQuery.mentor !== challengeIssue.mentor) {
+      return {
+        ...baseFailedMessage,
+        message: RewardMessage.NotMentor
+      }
+    }
+
+    if (rewardQuery.reward < 0 || rewardQuery.reward > challengeIssue.score) {
+      return {
+        ...baseFailedMessage,
+        message: RewardMessage.NotValidReward
+      }
+    }
+
+    const pull = await this.findOrCreatPull(rewardQuery)
+    const { challengePull } = pull
+    if (pull.challengePull === undefined) {
+      const newChallengeIssue = new ChallengePull()
+      newChallengeIssue.pullId = pull.id
+      newChallengeIssue.reward = rewardQuery.reward
+      newChallengeIssue.challengeIssueId = challengeIssue.issueId
+      await this.challengePullRepository.save(newChallengeIssue)
+    } else {
+      challengePull.reward = rewardQuery.reward
+      await this.challengePullRepository.save(challengePull)
+    }
 
     return {
       data: rewardQuery.reward,
       status: Status.Success,
-      message: 'Reward success.'
+      message: RewardMessage.RewardSuccess
     }
   }
 }

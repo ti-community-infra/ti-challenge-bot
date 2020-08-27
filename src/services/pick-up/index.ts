@@ -111,6 +111,7 @@ class PickUpService {
     const issue = await this.findOrCreateIssue(pickUpQuery)
 
     // Pick up.
+    // TODO: we can use the one to one.
     const challengeIssue = await this.challengeIssueRepository.findOne({
       where: {
         issueId: issue.id
