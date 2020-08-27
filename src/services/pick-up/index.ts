@@ -10,7 +10,7 @@ import { PickUpQuery } from '../../commands/queries/PickUpQuery'
 import { Response, Status } from '../responses'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../../commands/queries/LabelQuery'
-import { PickUpMessage } from '../messages/PickUpMessage'
+import { pickUpFailedMessage, PickUpMessage } from '../messages/PickUpMessage'
 import { ProjectSig } from '../../db/entities/ProjectSig'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 import { findSigLabel, isChallengeIssue, issueUtil } from '../utils/IssueUtil'
@@ -68,12 +68,16 @@ class PickUpService {
   }
 
   public async pickUp (pickUpQuery: PickUpQuery): Promise<Response<null>> {
+    const baseFailedMessage = {
+      data: null,
+      status: Status.Failed
+    }
+
     // Check is a challenge program issue.
     const { issue: issueQuery } = pickUpQuery
     if (!isChallengeIssue(issueQuery.labels)) {
       return {
-        data: null,
-        status: Status.Failed,
+        ...baseFailedMessage,
         message: PickUpMessage.NotChallengeProgramIssue
       }
     }
@@ -82,16 +86,14 @@ class PickUpService {
     const sigLabel = findSigLabel(issueQuery.labels)
     if (sigLabel === undefined) {
       return {
-        data: null,
-        status: Status.Failed,
+        ...baseFailedMessage,
         message: PickUpMessage.NoSigInfo
       }
     }
     const sigId = await this.findSigIdByLabel(sigLabel)
     if (sigId === undefined) {
       return {
-        data: null,
-        status: Status.Failed,
+        ...baseFailedMessage,
         message: PickUpMessage.IllegalSigInfo
       }
     }
@@ -100,8 +102,7 @@ class PickUpService {
     const mentorAndScore = issueUtil(issueQuery.body)
     if (mentorAndScore === undefined) {
       return {
-        data: null,
-        status: Status.Failed,
+        ...baseFailedMessage,
         message: PickUpMessage.IllegalIssueFormat
       }
     }
@@ -136,9 +137,8 @@ class PickUpService {
 
     if (challengeIssue.hasPicked) {
       return {
-        data: null,
-        status: Status.Failed,
-        message: PickUpMessage.failed(`${pickUpQuery.challenger} already picked this issue.`)
+        ...baseFailedMessage,
+        message: pickUpFailedMessage(`${pickUpQuery.challenger} already picked this issue.`)
       }
     } else {
       challengeIssue.hasPicked = true

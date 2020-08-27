@@ -5,6 +5,8 @@ import { createConnection, useContainer } from 'typeorm'
 import { Container } from 'typedi'
 import pickUp from './commands/pick-up'
 import PickUpService from './services/pick-up'
+import giveUp from './commands/give-up'
+import GiveUpService from './services/give-up'
 
 const commands = require('probot-commands-pro')
 
@@ -23,7 +25,7 @@ export = (app: Application) => {
     })
 
     commands(app, 'give-up', async (context: Context) => {
-      await context.github.issues.createComment(context.issue({ body: 'Thanks for your give-up!' }))
+      await giveUp(context, Container.get(GiveUpService))
     })
 
     commands(app, 'reward', async (context: Context, command: any) => {
