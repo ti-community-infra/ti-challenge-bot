@@ -1,7 +1,8 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, PrimaryColumn, JoinColumn, Column, CreateDateColumn, OneToOne, UpdateDateColumn } from 'typeorm'
+import { Issue } from './Issue'
 
 @Entity({ name: 'challenge_issues' })
-export class ChallengeIssues {
+export class ChallengeIssue {
     @PrimaryColumn({ name: 'issue_id', nullable: false })
     issueId: number;
 
@@ -20,15 +21,20 @@ export class ChallengeIssues {
     @Column({ name: 'current_challenger_github_id', nullable: true, default: null })
     currentChallengerGitHubId: string;
 
-    @Column({ name: 'picked_at', nullable: true, default: null })
-    pickedAt: Date;
+    @Column({ name: 'picked_at', type: 'timestamp', nullable: true, default: null })
+    pickedAt: string;
 
     @Column({ name: 'challenge_program_id', nullable: true, default: null })
     challengeProgramId: number;
 
     @CreateDateColumn({ name: 'created_at' })
-    createdAt: Date;
+    createdAt: string;
 
-    @UpdateDateColumn({ name: 'update_at' })
-    updatedAt: Date;
+    @UpdateDateColumn({ name: 'updated_at' })
+    updatedAt: string;
+
+    // @ts-ignore
+    @OneToOne(type => Issue)
+    @JoinColumn({ name: 'issue_id', referencedColumnName: 'id' })
+    issue: Issue
 }

@@ -5,8 +5,10 @@ import nock from 'nock'
 // Requiring our app implementation
 import myProbotApp from '../src'
 import { Probot } from 'probot'
+
 // Requiring our fixtures
 import payload from './fixtures/issues.ping.comment.json'
+import typeorm = require('typeorm');
 const pongBody = { body: 'pong! I am challenge bot.' }
 const fs = require('fs')
 const path = require('path')
@@ -24,6 +26,8 @@ describe('My Probot app', () => {
   })
 
   beforeEach(() => {
+    // @ts-ignore
+    typeorm.createConnection = jest.fn().mockResolvedValue(null)
     nock.disableNetConnect()
     probot = new Probot({ id: 123, cert: mockCert })
     // Load our app into probot

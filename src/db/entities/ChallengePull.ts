@@ -1,7 +1,7 @@
 import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 
 @Entity({ name: 'challenge_pulls' })
-export class ChallengePulls {
+export class ChallengePull {
     @PrimaryColumn({ name: 'pull_id', nullable: false })
     pullId: number;
 
