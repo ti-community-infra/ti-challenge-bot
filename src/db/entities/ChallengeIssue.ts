@@ -1,5 +1,6 @@
-import { Entity, PrimaryColumn, JoinColumn, Column, CreateDateColumn, OneToOne, UpdateDateColumn } from 'typeorm'
+import { Entity, PrimaryColumn, ManyToOne, JoinColumn, Column, CreateDateColumn, OneToOne, UpdateDateColumn } from 'typeorm'
 import { Issue } from './Issue'
+import { ChallengeProgram } from './ChallengeProgram'
 
 @Entity({ name: 'challenge_issues' })
 export class ChallengeIssue {
@@ -25,7 +26,7 @@ export class ChallengeIssue {
     pickedAt?: string | null;
 
     @Column({ name: 'challenge_program_id', nullable: true, default: null })
-    challengeProgramId: number;
+    challengeProgramId?: number;
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt: string;
@@ -37,4 +38,9 @@ export class ChallengeIssue {
     @OneToOne(type => Issue, issue => issue.challengeIssue)
     @JoinColumn({ name: 'issue_id', referencedColumnName: 'id' })
     issue: Issue
+
+    // @ts-ignore
+    @ManyToOne(type => ChallengeProgram, program => program.challengeIssues)
+    @JoinColumn({ name: 'challenge_program_id', referencedColumnName: 'id' })
+    challengeProgram: ChallengeProgram;
 }

@@ -1,5 +1,6 @@
 // @ts-ignore
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { ChallengeIssue } from './ChallengeIssue'
 
 @Entity({ name: 'challenge_programs' })
 export class ChallengeProgram {
@@ -24,6 +25,10 @@ export class ChallengeProgram {
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
-    @UpdateDateColumn({ name: 'update_at' })
+    @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
+
+    // @ts-ignore
+    @OneToMany(type => ChallengeIssue, challengeIssue => challengeIssue.challengeProgram)
+    challengeIssues: ChallengeIssue[]
 }
