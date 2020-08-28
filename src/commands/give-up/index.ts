@@ -1,11 +1,13 @@
 // eslint-disable-next-line no-unused-vars
 import { Context } from 'probot'
+
 // eslint-disable-next-line no-unused-vars
 import { GiveUpQuery } from '../queries/GiveUpQuery'
 // eslint-disable-next-line no-unused-vars
 import GiveUpService from '../../services/give-up'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../queries/LabelQuery'
+import { Status } from '../../services/responses'
 
 const giveUp = async (context: Context, giveUpService: GiveUpService) => {
   const issueResponse = await context.github.issues.get(context.issue())
@@ -13,10 +15,7 @@ const giveUp = async (context: Context, giveUpService: GiveUpService) => {
   const { sender } = context.payload
   const labels: LabelQuery[] = data.labels.map(label => {
     return {
-      id: label.id,
-      name: label.name,
-      description: label.description,
-      default: label.default
+      ...label
     }
   })
   const giveUpQuery: GiveUpQuery = {
@@ -26,6 +25,17 @@ const giveUp = async (context: Context, giveUpService: GiveUpService) => {
   }
 
   const result = await giveUpService.giveUp(giveUpQuery)
+
+  switch (result.status) {
+    case Status.Failed: {
+      context.log.error(`Give up ${giveUpQuery} failed because ${result.message}.`)
+      break
+    }
+    case Status.Success: {
+      context.log.info(`Give up ${giveUpQuery} success.`)
+      break
+    }
+  }
 
   await context.github.issues.createComment(context.issue({ body: result.message }))
 }

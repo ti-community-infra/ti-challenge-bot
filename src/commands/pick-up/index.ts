@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import { Context } from 'probot'
+
 // eslint-disable-next-line no-unused-vars
 import PickUpService from '../../services/pick-up'
 // eslint-disable-next-line no-unused-vars
