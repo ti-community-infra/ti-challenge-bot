@@ -1,38 +1,31 @@
 // eslint-disable-next-line no-unused-vars
 import { Context } from 'probot'
+
 // eslint-disable-next-line no-unused-vars
 import { PullPayload } from '../payloads/PullPayload'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../../commands/queries/LabelQuery'
 // eslint-disable-next-line no-unused-vars
 import CountService from '../../services/count'
+import { Status } from '../../services/responses'
 
-const handlePullClose = async (context: Context, countService: CountService) => {
+const handlePullClosed = async (context: Context, countService: CountService) => {
   const { pull_request: pullRequest } = context.payload
-
   const labels: LabelQuery[] = pullRequest.labels.map((label: LabelQuery) => {
     return {
-      id: label.id,
-      name: label.name,
-      description: label.description,
-      default: label.default
+      ...label
     }
   })
+  const { payload } = context
+  const { user } = pullRequest
 
   const pullPayload: PullPayload = {
-    action: context.payload.action,
-    number: context.payload.number,
+    ...payload,
     pull: {
-      id: pullRequest.id,
-      number: pullRequest.number,
-      state: pullRequest.state,
-      title: pullRequest.title,
+      ...pullRequest,
       user: {
-        login: pullRequest.user.login,
-        id: pullRequest.user.id,
-        type: pullRequest.user.type
+        ...user
       },
-      body: pullRequest.body,
       labels: labels,
       createdAt: pullRequest.created_at,
       updatedAt: pullRequest.updated_at,
@@ -44,10 +37,22 @@ const handlePullClose = async (context: Context, countService: CountService) => 
 
   const result = await countService.count(pullPayload)
   if (result === undefined) {
+    context.log.trace(`Do not need to count ${pullPayload}.`)
     return
+  }
+
+  switch (result.status) {
+    case Status.Failed: {
+      context.log.error(`Count ${pullPayload} failed because ${result.message}.`)
+      break
+    }
+    case Status.Success: {
+      context.log.info(`Count ${pullPayload} success.`)
+      break
+    }
   }
 
   await context.github.issues.createComment(context.issue({ body: result.message }))
 }
 
-export { handlePullClose }
+export { handlePullClosed }

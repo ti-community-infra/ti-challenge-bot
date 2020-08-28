@@ -2,6 +2,7 @@ import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 // eslint-disable-next-line no-unused-vars
 import { Repository } from 'typeorm/repository/Repository'
+
 import { Pull } from '../../db/entities/Pull'
 // eslint-disable-next-line no-unused-vars
 import { PullPayload } from '../../events/payloads/PullPayload'
@@ -13,7 +14,7 @@ import { Issue } from '../../db/entities/Issue'
 import { LabelQuery } from '../../commands/queries/LabelQuery'
 import { ChallengeIssue } from '../../db/entities/ChallengeIssue'
 import { ChallengePull } from '../../db/entities/ChallengePull'
-import { countFailedMessage, countSuccessMessage, countSuccessMessageWithTheme } from '../messages/CountMessage'
+import { countFailedNotChallengerMessage, countSuccessMessage, countSuccessMessageWithTheme } from '../messages/CountMessage'
 import { ChallengeProgram } from '../../db/entities/ChallengeProgram'
 
 enum PullStatus {
@@ -38,7 +39,7 @@ export default class CountService {
   ) {
   }
 
-  private async calculateScoreInProgram (theme: string, username: string): Promise<number> {
+  private async countScoreInProgram (theme: string, username: string): Promise<number> {
     const { score } = await this.challengeIssueRepository.createQueryBuilder('ci')
       .leftJoinAndSelect(ChallengeProgram, 'cpg', 'ci.challenge_program_id = cpg.id')
       .leftJoinAndSelect(ChallengePull, 'cp', ' ci.issue_id = cp.challenge_issue_id')
@@ -50,7 +51,7 @@ export default class CountService {
     return score
   }
 
-  private async calculateScoreInLongTermProgram (username:string): Promise<number> {
+  private async countScoreInLongTermProgram (username:string): Promise<number> {
     const { score } = await this.challengeIssueRepository.createQueryBuilder('ci').leftJoinAndSelect(ChallengePull, 'cp', ' ci.issue_id = cp.challenge_issue_id')
       .leftJoinAndSelect(Pull, 'p', 'cp.pull_id = p.id')
       .where(`ci.challenge_program_id is null and ci.current_challenger_github_id = '${username}' and p.status = '${PullStatus.Merged}'`)
@@ -69,16 +70,19 @@ export default class CountService {
       }
     })
 
+    // Can not find the pull it means this pull request not reward, so we do not need to count this.
     // FIXME: maybe we should add this pull.
     if (pull === undefined) {
-      return undefined
+      return
     }
 
+    // Can not find linked issue.
     const issueNumber = findLinkedIssueNumber(pullQuery.body)
     if (issueNumber === undefined) {
-      return undefined
+      return
     }
 
+    // Can not find issue or challenge issue info.
     const issue = await this.issueRepository.findOne({
       relations: ['challengeIssue', 'challengeIssue.challengeProgram'],
       where: {
@@ -87,19 +91,21 @@ export default class CountService {
     })
 
     if (issue === undefined || issue.challengeIssue === undefined) {
-      return undefined
+      return
     }
 
+    // Not challenger or not picked.
     const { login: username } = pullQuery.user
     const { challengeIssue } = issue
     if (!challengeIssue.hasPicked || challengeIssue.currentChallengerGitHubId !== username) {
       return {
         data: null,
         status: Status.Failed,
-        message: countFailedMessage(username)
+        message: countFailedNotChallengerMessage(username)
       }
     }
 
+    // Update pull info.
     pull.title = pullQuery.title
     pull.body = pullQuery.body
     pull.label = pullQuery.labels.map((l:LabelQuery) => {
@@ -111,17 +117,18 @@ export default class CountService {
     pull.mergedAt = pullQuery.mergedAt
     await this.pullRepository.save(pull)
 
+    // Count the score.
     const { challengeProgram } = challengeIssue
 
     if (challengeProgram) {
-      const score = await this.calculateScoreInProgram(challengeProgram.programTheme, username)
+      const score = await this.countScoreInProgram(challengeProgram.programTheme, username)
       return {
         data: score,
         status: Status.Success,
         message: countSuccessMessageWithTheme(username, score, challengeProgram.programTheme)
       }
     } else {
-      const score = await this.calculateScoreInLongTermProgram(username)
+      const score = await this.countScoreInLongTermProgram(username)
       return {
         data: score,
         status: Status.Success,

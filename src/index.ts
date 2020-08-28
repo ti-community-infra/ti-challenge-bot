@@ -9,7 +9,7 @@ import giveUp from './commands/give-up'
 import GiveUpService from './services/give-up'
 import reward from './commands/reward'
 import RewardService from './services/reward'
-import { handlePullClose } from './events/pull-close'
+import { handlePullClosed } from './events/pull-close'
 import CountService from './services/count'
 
 import 'reflect-metadata'
@@ -45,7 +45,7 @@ export = (app: Application) => {
     })
 
     app.on('pull_request.closed', async (context:Context) => {
-      await handlePullClose(context, Container.get(CountService))
+      await handlePullClosed(context, Container.get(CountService))
     }
     )
   }).catch(err => {
