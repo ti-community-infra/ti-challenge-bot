@@ -1,8 +1,8 @@
 // eslint-disable-next-line no-unused-vars
 import { Application, Context } from 'probot'
-import 'reflect-metadata'
 import { createConnection, useContainer } from 'typeorm'
 import { Container } from 'typedi'
+
 import pickUp from './commands/pick-up'
 import PickUpService from './services/pick-up'
 import giveUp from './commands/give-up'
@@ -12,6 +12,7 @@ import RewardService from './services/reward'
 import { handlePullClose } from './events/pull-close'
 import CountService from './services/count'
 
+import 'reflect-metadata'
 const commands = require('probot-commands-pro')
 
 export = (app: Application) => {
