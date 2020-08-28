@@ -1,8 +1,10 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
-import { ChallengeIssue } from '../../db/entities/ChallengeIssue'
 // eslint-disable-next-line no-unused-vars
 import { Repository } from 'typeorm/repository/Repository'
+
+import { ChallengeIssue } from '../../db/entities/ChallengeIssue'
+// eslint-disable-next-line no-unused-vars
 import { Issue } from '../../db/entities/Issue'
 // eslint-disable-next-line no-unused-vars
 import { PickUpQuery } from '../../commands/queries/PickUpQuery'
@@ -32,6 +34,7 @@ class PickUpService {
     const { issue: issueQuery } = pickUpQuery
 
     let issue = await this.issueRepository.findOne({
+      relations: ['challengeIssue'],
       where: {
         issueNumber: issueQuery.number
       }
@@ -111,12 +114,7 @@ class PickUpService {
     const issue = await this.findOrCreateIssue(pickUpQuery)
 
     // Pick up.
-    // TODO: we can use the one to one.
-    const challengeIssue = await this.challengeIssueRepository.findOne({
-      where: {
-        issueId: issue.id
-      }
-    })
+    const { challengeIssue } = issue
 
     if (challengeIssue === undefined) {
       const newChallengeIssue = new ChallengeIssue()
