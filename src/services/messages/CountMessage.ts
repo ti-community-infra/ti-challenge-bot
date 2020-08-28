@@ -1,4 +1,4 @@
-export function countFailedMessage (username: string): string {
+export function countFailedNotChallengerMessage (username: string): string {
   return `@${username}, because the linked challenge issue challenger not you, so you can not this score!`
 }
 
