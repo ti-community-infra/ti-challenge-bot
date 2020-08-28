@@ -46,6 +46,9 @@ export class Pull {
     @Column({ name: 'closed_at', type: 'timestamp', nullable: true, default: null })
     closedAt: string;
 
+    @Column({ name: 'merged_at', type: 'timestamp', nullable: true, default: null })
+    mergedAt: string;
+
     // @ts-ignore
     @OneToOne(type => ChallengePull, challengePull => challengePull.pull)
     challengePull: ChallengePull
