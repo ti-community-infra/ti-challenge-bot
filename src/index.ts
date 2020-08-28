@@ -40,6 +40,7 @@ export = (app: Application) => {
         await context.github.issues.createComment(context.issue({ body: 'The reward invalid.' }))
         return
       }
+
       await reward(context, rewardValue, Container.get(RewardService))
     })
 

@@ -2,6 +2,7 @@ import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 // eslint-disable-next-line no-unused-vars
 import { Repository } from 'typeorm/repository/Repository'
+
 import { ChallengePull } from '../../db/entities/ChallengePull'
 // eslint-disable-next-line no-unused-vars
 import { Response, Status } from '../responses'
@@ -65,6 +66,7 @@ export default class RewardService {
       data: null,
       status: Status.Failed
     }
+
     const issueNumber = findLinkedIssueNumber(pullQuery.body)
     if (issueNumber === undefined) {
       return {
@@ -110,7 +112,7 @@ export default class RewardService {
 
     const pull = await this.findOrCreatePull(rewardQuery)
     const { challengePull } = pull
-    if (pull.challengePull === undefined) {
+    if (challengePull === undefined) {
       const newChallengeIssue = new ChallengePull()
       newChallengeIssue.pullId = pull.id
       newChallengeIssue.reward = rewardQuery.reward
