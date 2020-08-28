@@ -16,6 +16,7 @@ import { pickUpFailedMessage, PickUpMessage } from '../messages/PickUpMessage'
 import { ProjectSig } from '../../db/entities/ProjectSig'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 import { findSigLabel, isChallengeIssue, findMentorAndScore } from '../utils/IssueUtil'
+import { ChallengeProgram } from '../../db/entities/ChallengeProgram'
 
 @Service()
 class PickUpService {
@@ -26,7 +27,9 @@ class PickUpService {
         @InjectRepository(Issue)
         private issueRepository: Repository<Issue>,
         @InjectRepository(ProjectSig)
-        private projectSigRepository: Repository<ProjectSig>
+        private projectSigRepository: Repository<ProjectSig>,
+        @InjectRepository(ChallengeProgram)
+        private challengeProgramRepository: Repository<ChallengeProgram>
   ) {
   }
 
@@ -70,6 +73,20 @@ class PickUpService {
     return projectSig?.sigId
   }
 
+  private async findChallengeProgram (labels: LabelQuery[]): Promise<ChallengeProgram|undefined> {
+    const programs = await this.challengeProgramRepository.createQueryBuilder().getMany()
+    let program
+    programs.forEach(p => {
+      labels.forEach(l => {
+        if (p.programTheme === l.name) {
+          program = p
+        }
+      })
+    })
+
+    return program
+  }
+
   public async pickUp (pickUpQuery: PickUpQuery): Promise<Response<null>> {
     const baseFailedMessage = {
       data: null,
@@ -110,6 +127,8 @@ class PickUpService {
       }
     }
 
+    const program = await this.findChallengeProgram(issueQuery.labels)
+
     // Check the issue if exist in database.
     const issue = await this.findOrCreateIssue(pickUpQuery)
 
@@ -126,6 +145,7 @@ class PickUpService {
       newChallengeIssue.currentChallengerGitHubId = pickUpQuery.challenger
       newChallengeIssue.pickedAt = new Date().toLocaleString()
       newChallengeIssue.issue = issue
+      newChallengeIssue.challengeProgramId = program?.id
       await this.challengeIssueRepository.save(newChallengeIssue)
       return {
         data: null,
@@ -143,6 +163,7 @@ class PickUpService {
       challengeIssue.hasPicked = true
       challengeIssue.currentChallengerGitHubId = pickUpQuery.challenger
       challengeIssue.pickedAt = new Date().toLocaleString()
+      challengeIssue.challengeProgramId = program?.id
       await this.challengeIssueRepository.save(challengeIssue)
       return {
         data: null,

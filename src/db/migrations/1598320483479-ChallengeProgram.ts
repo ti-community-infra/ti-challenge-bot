@@ -9,6 +9,7 @@ export class ChallengeProgram1598320483479 implements MigrationInterface {
           name: 'id',
           type: 'int(11)',
           isGenerated: true,
+          generationStrategy: 'increment',
           isPrimary: true
         },
         {
