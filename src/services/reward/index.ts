@@ -27,7 +27,7 @@ export default class RewardService {
   ) {
   }
 
-  private async findOrCreatPull (rewardQuery: RewardQuery): Promise<Pull> {
+  private async findOrCreatePull (rewardQuery: RewardQuery): Promise<Pull> {
     const { pull: pullQuery } = rewardQuery
 
     let pull = await this.pullRepository.findOne({
@@ -108,7 +108,7 @@ export default class RewardService {
       }
     }
 
-    const pull = await this.findOrCreatPull(rewardQuery)
+    const pull = await this.findOrCreatePull(rewardQuery)
     const { challengePull } = pull
     if (pull.challengePull === undefined) {
       const newChallengeIssue = new ChallengePull()
