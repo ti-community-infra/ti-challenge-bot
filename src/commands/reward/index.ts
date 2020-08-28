@@ -1,11 +1,13 @@
 // eslint-disable-next-line no-unused-vars
 import { Context } from 'probot'
+
 // eslint-disable-next-line no-unused-vars
 import RewardService from '../../services/reward'
 // eslint-disable-next-line no-unused-vars
 import { RewardQuery } from '../queries/RewardQuery'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../queries/LabelQuery'
+import { Status } from '../../services/responses'
 
 const reward = async (context: Context, rewardData: number, rewardService: RewardService) => {
   const pullResponse = await context.github.pulls.get(context.issue())
@@ -13,29 +15,20 @@ const reward = async (context: Context, rewardData: number, rewardService: Rewar
   const { sender } = context.payload
   const labels: LabelQuery[] = data.labels.map(label => {
     return {
-      id: label.id,
-      name: label.name,
-      description: label.description,
-      default: label.default
+      ...label
     }
   })
   const issue = context.issue()
+  const { user } = data
 
   const rewardQuery: RewardQuery = {
     mentor: sender.login,
-    owner: issue.owner,
-    repo: issue.repo,
+    ...issue,
     pull: {
-      id: data.id,
-      number: data.number,
-      state: data.state,
-      title: data.title,
+      ...data,
       user: {
-        login: data.user.login,
-        id: data.user.id,
-        type: data.user.type
+        ...user
       },
-      body: data.body,
       labels: labels,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
@@ -47,6 +40,17 @@ const reward = async (context: Context, rewardData: number, rewardService: Rewar
   }
 
   const result = await rewardService.reward(rewardQuery)
+
+  switch (result.status) {
+    case Status.Failed: {
+      context.log.error(`Reward ${rewardQuery} failed because ${result.message}.`)
+      break
+    }
+    case Status.Success: {
+      context.log.info(`Reward ${rewardQuery} success.`)
+      break
+    }
+  }
 
   await context.github.issues.createComment(context.issue({ body: result.message }))
 }
