@@ -1,8 +1,9 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
-import { ChallengeIssue } from '../../db/entities/ChallengeIssue'
 // eslint-disable-next-line no-unused-vars
 import { Repository } from 'typeorm/repository/Repository'
+
+import { ChallengeIssue } from '../../db/entities/ChallengeIssue'
 // eslint-disable-next-line no-unused-vars
 import { GiveUpQuery } from '../../commands/queries/GiveUpQuery'
 // eslint-disable-next-line no-unused-vars
