@@ -1,6 +1,7 @@
-import { Entity, PrimaryColumn, ManyToOne, JoinColumn, Column, CreateDateColumn, OneToOne, UpdateDateColumn } from 'typeorm'
+import { Entity, PrimaryColumn, ManyToOne, JoinColumn, Column, CreateDateColumn, OneToOne, UpdateDateColumn, OneToMany } from 'typeorm'
 import { Issue } from './Issue'
 import { ChallengeProgram } from './ChallengeProgram'
+import { ChallengePull } from './ChallengePull'
 
 @Entity({ name: 'challenge_issues' })
 export class ChallengeIssue {
@@ -43,4 +44,8 @@ export class ChallengeIssue {
     @ManyToOne(type => ChallengeProgram, program => program.challengeIssues)
     @JoinColumn({ name: 'challenge_program_id', referencedColumnName: 'id' })
     challengeProgram: ChallengeProgram;
+
+    // @ts-ignore
+    @OneToMany(type => ChallengePull, challengePull => challengePull.challengeIssue)
+    challengePulls: ChallengePull[];
 }

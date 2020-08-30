@@ -13,7 +13,9 @@ import { Issue } from '../../db/entities/Issue'
 import { findLinkedIssueNumber } from '../utils/PullUtil'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../../commands/queries/LabelQuery'
-import { RewardMessage } from '../messages/RewardMessage'
+import { RewardMessage, rewardFailedNotEnoughLeftScoreMessage } from '../messages/RewardMessage'
+// eslint-disable-next-line no-unused-vars
+import ScoreRepository from '../../repositoies/score'
 
 @Service()
 export default class RewardService {
@@ -24,7 +26,9 @@ export default class RewardService {
         @InjectRepository(ChallengePull)
         private challengePullRepository: Repository<ChallengePull>,
         @InjectRepository(Pull)
-        private pullRepository: Repository<Pull>
+        private pullRepository: Repository<Pull>,
+        @InjectRepository()
+        private scoreRepository: ScoreRepository
   ) {
   }
 
@@ -81,6 +85,7 @@ export default class RewardService {
         issueNumber
       }
     })
+
     if (issue === undefined || issue.challengeIssue === undefined) {
       return {
         ...baseFailedMessage,
@@ -111,6 +116,22 @@ export default class RewardService {
     }
 
     const pull = await this.findOrCreatePull(rewardQuery)
+
+    const currentLeftScore = await this.scoreRepository.getCurrentLeftScore(challengeIssue.issueId, pull.id)
+    if (currentLeftScore === undefined) {
+      return {
+        ...baseFailedMessage,
+        message: RewardMessage.LinkedNotChallengeIssue
+      }
+    }
+
+    if (rewardQuery.reward > currentLeftScore) {
+      return {
+        ...baseFailedMessage,
+        message: rewardFailedNotEnoughLeftScoreMessage(currentLeftScore)
+      }
+    }
+
     const { challengePull } = pull
     if (challengePull === undefined) {
       const newChallengeIssue = new ChallengePull()

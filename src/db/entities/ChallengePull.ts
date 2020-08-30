@@ -1,5 +1,15 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from 'typeorm'
+import {
+  Entity,
+  PrimaryColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToOne,
+  JoinColumn,
+  ManyToOne
+} from 'typeorm'
 import { Pull } from './Pull'
+import { ChallengeIssue } from './ChallengeIssue'
 
 @Entity({ name: 'challenge_pulls' })
 export class ChallengePull {
@@ -22,4 +32,9 @@ export class ChallengePull {
     @OneToOne(type => Pull, pull => pull.challengePull)
     @JoinColumn({ name: 'pull_id', referencedColumnName: 'id' })
     pull: Pull
+
+    // @ts-ignore
+    @ManyToOne(type => ChallengeIssue, challengeIssue => challengeIssue.challengePulls)
+    @JoinColumn({ name: 'challenge_issue_id', referencedColumnName: 'issueId' })
+    challengeIssue: ChallengeIssue;
 }

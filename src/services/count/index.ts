@@ -12,19 +12,9 @@ import { findLinkedIssueNumber } from '../utils/PullUtil'
 import { Issue } from '../../db/entities/Issue'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../../commands/queries/LabelQuery'
-import { ChallengeIssue } from '../../db/entities/ChallengeIssue'
-import { ChallengePull } from '../../db/entities/ChallengePull'
 import { countFailedNotChallengerMessage, countSuccessMessage, countSuccessMessageWithTheme } from '../messages/CountMessage'
-import { ChallengeProgram } from '../../db/entities/ChallengeProgram'
-
-enum PullStatus {
-  // eslint-disable-next-line no-unused-vars
-  Open = 'open',
-  // eslint-disable-next-line no-unused-vars
-  Closed = 'closed',
-  // eslint-disable-next-line no-unused-vars
-  Merged = 'merged'
-}
+// eslint-disable-next-line no-unused-vars
+import ScoreRepository, { PullStatus } from '../../repositoies/score'
 
 @Service()
 export default class CountService {
@@ -34,31 +24,9 @@ export default class CountService {
         private issueRepository: Repository<Issue>,
         @InjectRepository(Pull)
         private pullRepository: Repository<Pull>,
-        @InjectRepository(ChallengeIssue)
-        private challengeIssueRepository: Repository<ChallengeIssue>
+        @InjectRepository()
+        private scoreRepository: ScoreRepository
   ) {
-  }
-
-  private async countScoreInProgram (theme: string, username: string): Promise<number> {
-    const { score } = await this.challengeIssueRepository.createQueryBuilder('ci')
-      .leftJoinAndSelect(ChallengeProgram, 'cpg', 'ci.challenge_program_id = cpg.id')
-      .leftJoinAndSelect(ChallengePull, 'cp', ' ci.issue_id = cp.challenge_issue_id')
-      .leftJoinAndSelect(Pull, 'p', 'cp.pull_id = p.id')
-      .where(`cpg.program_theme = '${theme}' and ci.current_challenger_github_id = '${username}' and p.status = '${PullStatus.Merged}'`)
-      .select('sum(cp.reward)', 'score')
-      .getRawOne()
-
-    return score
-  }
-
-  private async countScoreInLongTermProgram (username:string): Promise<number> {
-    const { score } = await this.challengeIssueRepository.createQueryBuilder('ci').leftJoinAndSelect(ChallengePull, 'cp', ' ci.issue_id = cp.challenge_issue_id')
-      .leftJoinAndSelect(Pull, 'p', 'cp.pull_id = p.id')
-      .where(`ci.challenge_program_id is null and ci.current_challenger_github_id = '${username}' and p.status = '${PullStatus.Merged}'`)
-      .select('sum(cp.reward)', 'score')
-      .getRawOne()
-
-    return score
   }
 
   public async count (pullPayload: PullPayload): Promise<Response<number|null> | undefined> {
@@ -121,14 +89,14 @@ export default class CountService {
     const { challengeProgram } = challengeIssue
 
     if (challengeProgram) {
-      const score = await this.countScoreInProgram(challengeProgram.programTheme, username)
+      const score = await this.scoreRepository.getCurrentScoreInProgram(challengeProgram.programTheme, username)
       return {
         data: score,
         status: Status.Success,
         message: countSuccessMessageWithTheme(username, score, challengeProgram.programTheme)
       }
     } else {
-      const score = await this.countScoreInLongTermProgram(username)
+      const score = await this.scoreRepository.getCurrentScoreInLongTermProgram(username)
       return {
         data: score,
         status: Status.Success,

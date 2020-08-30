@@ -7,3 +7,6 @@ export enum RewardMessage{
     NotValidReward = 'Not a valid reward.',
     RewardSuccess = 'Reward success.'
 }
+export function rewardFailedNotEnoughLeftScoreMessage (leftScore: number) {
+  return `Reward failed, because this issue left score is ${leftScore}.`
+}
