@@ -2,7 +2,7 @@
 export enum PickUpMessage{
     IssueAlreadyClosed = 'This issue already closed!',
     NotChallengeProgramIssue = 'This issue not a challenge program issue!',
-    PickUpSuccess = 'Pickup success.',
+    PickUpSuccess = 'Pick up success.',
     NoSigInfo = 'Can not find any sig info on this issue, please contact the issue author to add sig info label.',
     IllegalSigInfo = 'This issue have a wrong sig info, please contact the issue author to add a correct sig info label.',
     IllegalIssueFormat = 'This issue have a wrong format description, please contact the issue author to modify the issue description.',
