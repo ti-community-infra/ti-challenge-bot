@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  ti-challenge-bot:
+    build: ./
+    image: ti-challenge-bot:latest
+    ports:
+      - 3001:3000
+    volumes:
+      - /var/log/:${PWD}/bot-logs/
+    restart: always
