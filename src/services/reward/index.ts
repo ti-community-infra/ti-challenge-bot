@@ -15,7 +15,7 @@ import { findLinkedIssueNumber } from '../utils/PullUtil'
 import { LabelQuery } from '../../commands/queries/LabelQuery'
 import { RewardMessage, rewardFailedNotEnoughLeftScoreMessage } from '../messages/RewardMessage'
 // eslint-disable-next-line no-unused-vars
-import ScoreRepository from '../../repositoies/score'
+import ScoreRepository, {IssueOrPullStatus} from '../../repositoies/score'
 
 @Service()
 export default class RewardService {
@@ -69,6 +69,13 @@ export default class RewardService {
     const baseFailedMessage = {
       data: null,
       status: Status.Failed
+    }
+
+    if(pullQuery.state === IssueOrPullStatus.Closed){
+      return {
+        ...baseFailedMessage,
+        message: RewardMessage.PullRequestAlreadyClosed
+      }
     }
 
     const issueNumber = findLinkedIssueNumber(pullQuery.body)
