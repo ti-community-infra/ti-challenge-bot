@@ -17,6 +17,9 @@ const commands = require('probot-commands-pro')
 
 export = (app: Application) => {
   useContainer(Container)
+  app.log.target.addStream({
+    path: './app.log',
+  })
 
   createConnection().then(() => {
     app.log.info('Connect to db success')
