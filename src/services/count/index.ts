@@ -14,7 +14,7 @@ import { Issue } from '../../db/entities/Issue'
 import { LabelQuery } from '../../commands/queries/LabelQuery'
 import { countFailedNotChallengerMessage, countSuccessMessage, countSuccessMessageWithTheme } from '../messages/CountMessage'
 // eslint-disable-next-line no-unused-vars
-import ScoreRepository, { PullStatus } from '../../repositoies/score'
+import ScoreRepository, { IssueOrPullStatus } from '../../repositoies/score'
 
 @Service()
 export default class CountService {
@@ -79,7 +79,7 @@ export default class CountService {
     pull.label = pullQuery.labels.map((l:LabelQuery) => {
       return l.name
     }).join(',')
-    pull.status = PullStatus.Merged
+    pull.status = IssueOrPullStatus.Merged
     pull.updatedAt = pullQuery.updatedAt
     pull.closedAt = pullQuery.closedAt
     pull.mergedAt = pullQuery.mergedAt

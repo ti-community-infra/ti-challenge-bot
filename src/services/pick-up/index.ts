@@ -17,7 +17,7 @@ import { ProjectSig } from '../../db/entities/ProjectSig'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 import { findSigLabel, isChallengeIssue, findMentorAndScore } from '../utils/IssueUtil'
 import { ChallengeProgram } from '../../db/entities/ChallengeProgram'
-import {PullStatus} from "../../repositoies/score";
+import {IssueOrPullStatus} from "../../repositoies/score";
 
 @Service()
 class PickUpService {
@@ -96,7 +96,7 @@ class PickUpService {
 
     // Check if issue closed.
     const { issue: issueQuery } = pickUpQuery
-    if(issueQuery.state === PullStatus.Closed){
+    if(issueQuery.state === IssueOrPullStatus.Closed){
       return {
         ...baseFailedMessage,
         message: PickUpMessage.IssueAlreadyClosed
