@@ -6,4 +6,5 @@ export interface PickUpQuery{
     owner:string;
     repo: string;
     issue:IssueQuery;
+    defaultSigLabel?: string
 }

@@ -65,10 +65,10 @@ class PickUpService {
     return issue
   }
 
-  private async findSigIdByLabel (labelQuery: LabelQuery): Promise<number | undefined> {
+  private async findSigIdByLabelName (labelQueryName: string): Promise<number | undefined> {
     const projectSig = await this.projectSigRepository.createQueryBuilder('ps')
       .leftJoinAndSelect(GithubLabelSig, 'gls', 'ps.project_sig_id = gls.project_sig_id')
-      .where(`gls.label = '${labelQuery.name}'`).getOne()
+      .where(`gls.label = '${labelQueryName}'`).getOne()
 
     return projectSig?.sigId
   }
@@ -103,14 +103,14 @@ class PickUpService {
     }
 
     // Check the sig info.
-    const sigLabel = findSigLabel(issueQuery.labels)
-    if (sigLabel === undefined) {
+    const sigLabelName = pickUpQuery.defaultSigLabel || findSigLabel(issueQuery.labels)?.name
+    if (sigLabelName === undefined) {
       return {
         ...baseFailedMessage,
         message: PickUpMessage.NoSigInfo
       }
     }
-    const sigId = await this.findSigIdByLabel(sigLabel)
+    const sigId = await this.findSigIdByLabelName(sigLabelName)
     if (sigId === undefined) {
       return {
         ...baseFailedMessage,

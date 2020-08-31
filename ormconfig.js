@@ -1,10 +1,10 @@
 module.exports = {
   type: 'mysql',
-  host: 'localhost',
-  port: 3306,
+  host: process.env.BOT_DB_HOST,
+  port: process.env.BOT_DB_PORT,
   username: 'root',
-  password: '123456',
-  database: 'community',
+  password: process.env.BOT_DB_PASSWORD,
+  database: process.env.BOT_DB_NAME,
   timezone: 'Z',
   // FIXME: this config can not working on cli migration.
   entities: [
