@@ -8,6 +8,7 @@ import { PickUpQuery } from '../queries/PickUpQuery'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../queries/LabelQuery'
 import { Status } from '../../services/responses'
+import {Config, DEFAULT_CONFIG_FILE_PATH} from "../../config/Config";
 
 const pickUp = async (context: Context, pickUpService: PickUpService) => {
   const issueResponse = await context.github.issues.get(context.issue())
@@ -20,6 +21,7 @@ const pickUp = async (context: Context, pickUpService: PickUpService) => {
     }
   })
   const { user } = data
+  const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH)
 
   const pickUpQuery: PickUpQuery = {
     challenger: sender.login,
@@ -34,7 +36,8 @@ const pickUp = async (context: Context, pickUpService: PickUpService) => {
       closedAt: data.closed_at,
       createdAt: data.created_at,
       updatedAt: data.updated_at
-    }
+    },
+    defaultSigLabel: config?.defaultSigLabel
   }
 
   const result = await pickUpService.pickUp(pickUpQuery)
