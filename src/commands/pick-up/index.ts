@@ -9,6 +9,7 @@ import { PickUpQuery } from '../queries/PickUpQuery'
 import { LabelQuery } from '../queries/LabelQuery'
 import { Status } from '../../services/responses'
 import {Config, DEFAULT_CONFIG_FILE_PATH} from "../../config/Config";
+import {PICKED_LABEL} from "../labels";
 
 const pickUp = async (context: Context, pickUpService: PickUpService) => {
   const issueResponse = await context.github.issues.get(context.issue())
@@ -48,6 +49,8 @@ const pickUp = async (context: Context, pickUpService: PickUpService) => {
       break
     }
     case Status.Success: {
+      // Add picked label.
+      await context.github.issues.addLabels(context.issue({labels:[PICKED_LABEL]}))
       context.log.info(`Pick up ${pickUpQuery} success.`)
       break
     }
