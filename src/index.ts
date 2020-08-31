@@ -19,7 +19,7 @@ export = (app: Application) => {
   useContainer(Container)
   app.log.target.addStream({
     type: 'rotating-file',
-    path: './log/ti-challenge-bot.log',
+    path: './bot-logs/ti-challenge-bot.log',
     period: '1d',   // daily rotation
     count: 10        // keep 3 back copies
   })
