@@ -111,6 +111,3 @@ dist
 # IDEA
 .idea
 /docs/_book/
-
-# Log
-app.log

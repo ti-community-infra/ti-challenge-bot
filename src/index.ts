@@ -18,7 +18,10 @@ const commands = require('probot-commands-pro')
 export = (app: Application) => {
   useContainer(Container)
   app.log.target.addStream({
-    path: './app.log',
+    type: 'rotating-file',
+    path: './log/ti-challenge-bot.log',
+    period: '1d',   // daily rotation
+    count: 10        // keep 3 back copies
   })
 
   createConnection().then(() => {
