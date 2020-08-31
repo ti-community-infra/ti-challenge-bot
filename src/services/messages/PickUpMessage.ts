@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 export enum PickUpMessage{
+    IssueAlreadyClosed = 'This issue already closed!',
     NotChallengeProgramIssue = 'This issue not a challenge program issue!',
     PickUpSuccess = 'Pickup success.',
     NoSigInfo = 'Can not find any sig info on this issue, please contact the issue author to add sig info label.',
