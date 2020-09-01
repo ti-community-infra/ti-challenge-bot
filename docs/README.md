@@ -1,5 +1,5 @@
 # challenge-bot
-A bot for pingcap challenge program.
+A bot for challenge program.
 
 > 0.A robot may not harm humanity, or through inaction allow humanity to come to harm.
 >
