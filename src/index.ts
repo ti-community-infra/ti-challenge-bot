@@ -13,6 +13,7 @@ import { handlePullClosed } from './events/pull-close'
 import CountService from './services/count'
 
 import 'reflect-metadata'
+import help from "./commands/help";
 const commands = require('probot-commands-pro')
 
 export = (app: Application) => {
@@ -29,6 +30,10 @@ export = (app: Application) => {
 
     commands(app, 'ping', async (context: Context) => {
       await context.github.issues.createComment(context.issue({ body: 'pong! I am challenge bot.' }))
+    })
+
+    commands(app, 'help', async (context: Context) => {
+      await help(context)
     })
 
     commands(app, 'pick-up', async (context: Context) => {

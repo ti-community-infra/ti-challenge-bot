@@ -7,3 +7,6 @@
 - Issue Number: #xxx
 - Issue Number: close #xxx
 
+## 注意事项：
+- 1.目前的关联格式只支持 `#xxx`，虽然粘贴 issue 链接也会被 GitHub 识别，**但目前还未做到这个关联语义支持**。
+
