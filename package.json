@@ -33,7 +33,7 @@
     "typeorm-typedi-extensions": "^0.2.3"
   },
   "devDependencies": {
-    "@types/jest": "^25.1.0",
+    "@types/jest": "^26.0.12",
     "@types/nock": "^11.1.0",
     "@types/node": "^8.0.29",
     "@typescript-eslint/parser": "^2.4.0",
