@@ -2,8 +2,8 @@
 import { LabelQuery } from '../../commands/queries/LabelQuery'
 
 const challengeProgramLabel = 'challenge-program'
-const MENTOR_REGEX = /(Mentor)[\r\n]+[-]+ ([@a-zA-Z_\-\d]*)/
-const SCORE_REGEX = /(Score)[\r\n]+[-]+ ([0-9]*)/
+const MENTOR_REGEX = /(Mentor).*[\r\n]*[-|* ]*(.*)/
+const SCORE_REGEX = /(Score).*[\r\n]+[-|* ]*([0-9]*)/
 
 export interface MentorAndScore{
     mentor: string,
@@ -23,7 +23,7 @@ export function findMentorAndScore (issueBody: string):MentorAndScore | undefine
   }
 
   return {
-    mentor: mentorData[2].replace('@', ''),
+    mentor: mentorData[2].replace('@', '').trim(),
     score: Number(scoreData[2])
   }
 }
