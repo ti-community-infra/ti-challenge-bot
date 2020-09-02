@@ -1,13 +1,13 @@
 /* eslint-disable no-unused-vars */
 export enum PickUpMessage{
-    IssueAlreadyClosed = 'This issue already closed!',
-    NotChallengeProgramIssue = 'This issue not a challenge program issue!',
+    IssueAlreadyClosed = 'This issue is already closed!',
+    NotChallengeProgramIssue = 'It is not a pickable issue!',
     PickUpSuccess = 'Pick up success.',
-    NoSigInfo = 'Can not find any sig info on this issue, please contact the issue author to add sig info label.',
-    IllegalSigInfo = 'This issue have a wrong sig info, please contact the issue author to add a correct sig info label.',
-    IllegalIssueFormat = 'This issue have a wrong format description, please contact the issue author to modify the issue description.',
+    NoSigInfo = 'This issue does not belong to any SIG.',
+    IllegalSigInfo = 'The SIG information for this issue is wrong.',
+    IllegalIssueFormat = 'The desc format for this issue is wrong.',
 }
 
-export function pickUpFailedMessage (reason: string) {
-  return `Pickup failed, because ${reason}`
+export function alreadyPickedMessage (currentChallenger: string) {
+  return `This issue os already picked by ${currentChallenger}.`
 }
