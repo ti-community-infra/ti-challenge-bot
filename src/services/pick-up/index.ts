@@ -119,7 +119,7 @@ class PickUpService {
         message: PickUpMessage.NoSigInfo
       }
     }
-    const sigId = await this.findSigIdByLabelName(sigLabelName)
+    const sigId = await this.findSigIdByLabelName(sigLabelName.toLowerCase())
     if (sigId === undefined) {
       return {
         ...baseFailedMessage,
