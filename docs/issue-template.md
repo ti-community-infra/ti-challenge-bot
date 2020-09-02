@@ -12,7 +12,7 @@ ${issue background}
 
 ## Score
 
-${score}
+- ${score}
 
 ## Mentor
 
