@@ -129,12 +129,6 @@ class PickUpService {
 
     // Check the mentor and score info.
     const mentorAndScore = findMentorAndScore(issueQuery.body)
-    if (mentorAndScore === undefined) {
-      return {
-        ...baseFailedMessage,
-        message: PickUpMessage.IllegalIssueFormat
-      }
-    }
 
     const program = await this.findChallengeProgram(issueQuery.labels)
 
@@ -148,8 +142,8 @@ class PickUpService {
       const newChallengeIssue = new ChallengeIssue()
       newChallengeIssue.issueId = issue.id
       newChallengeIssue.sigId = sigId
-      newChallengeIssue.score = mentorAndScore.score
-      newChallengeIssue.mentor = mentorAndScore.mentor
+      newChallengeIssue.score = mentorAndScore?.score || 0
+      newChallengeIssue.mentor = mentorAndScore?.mentor || pickUpQuery.issue.user.login
       newChallengeIssue.hasPicked = true
       newChallengeIssue.currentChallengerGitHubId = pickUpQuery.challenger
       newChallengeIssue.pickedAt = new Date().toLocaleString()
