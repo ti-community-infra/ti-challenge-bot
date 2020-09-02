@@ -23,9 +23,8 @@ const createScheduler = require('probot-scheduler')
 export = (app: Application) => {
   useContainer(Container)
 
-  createScheduler(app,{
-    interval: 60 * 1000
-  })
+  createScheduler(app)
+
   app.log.target.addStream({
     type: 'rotating-file',
     path: './bot-logs/ti-challenge-bot.log',
