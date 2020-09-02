@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 export enum GiveUpMessage{
-    NotChallengeProgramIssue = 'This issue not a challenge program issue!',
+    // FIXME: we should ignore this case.
+    NotChallengeProgramIssue = 'It is not a pickable issue!',
     GiveUpSuccess = 'Give up success.',
-    NotChallenger = 'You did not pick up this issue.',
+    NotChallenger = 'Give up restricted to the one who already picked the issue.',
 }

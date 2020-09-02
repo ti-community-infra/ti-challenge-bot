@@ -12,7 +12,7 @@ import { PickUpQuery } from '../../commands/queries/PickUpQuery'
 import { Response, Status } from '../responses'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../../commands/queries/LabelQuery'
-import { pickUpFailedMessage, PickUpMessage } from '../messages/PickUpMessage'
+import { alreadyPickedMessage, PickUpMessage } from '../messages/PickUpMessage'
 import { ProjectSig } from '../../db/entities/ProjectSig'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 import { findSigLabel, isChallengeIssue, findMentorAndScore } from '../utils/IssueUtil'
@@ -163,10 +163,10 @@ class PickUpService {
       }
     }
 
-    if (challengeIssue.hasPicked) {
+    if (challengeIssue.hasPicked && challengeIssue.currentChallengerGitHubId) {
       return {
         ...baseFailedMessage,
-        message: pickUpFailedMessage(`${challengeIssue.currentChallengerGitHubId} already picked this issue.`)
+        message: alreadyPickedMessage(challengeIssue.currentChallengerGitHubId)
       }
     } else {
       challengeIssue.hasPicked = true

@@ -56,7 +56,7 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
 
     const { challengePulls } = challengeIssue
 
-    if (challengePulls === undefined) {
+    if (challengePulls.length === 0) {
       return challengeIssue.score
     } else {
       return challengeIssue.score - challengePulls.filter(c => {
@@ -65,7 +65,7 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
         return c.reward
       }).reduce((total, currentNum) => {
         return total + currentNum
-      })
+      },0)
     }
   }
 }

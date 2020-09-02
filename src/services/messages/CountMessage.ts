@@ -1,11 +1,7 @@
-export function countFailedNotChallengerMessage (username: string): string {
-  return `@${username}, because the linked challenge issue challenger not you, so you can not this score!`
+export enum CountMessage {
+    LinkedIssueNotPicked = 'This PR\'s linked issue is not picked, so you cannot be given a score for this PR'
 }
 
-export function countSuccessMessage (username: string, score: number): string {
-  return `@${username},Current you score is ${score}.`
-}
-
-export function countSuccessMessageWithTheme (username: string, score: number, theme: string): string {
-  return `@${username},Current you score is ${score} in ${theme} challenge program.`
+export function countSuccessMessage(username: string, prScore: number, score: number, theme?: string): string {
+    return `@${username}, Congratulations, you get ${prScore} in this PR, and your total score is ${score} ` + (theme ? `in ${theme} challenge program.` : 'in challenge program.')
 }

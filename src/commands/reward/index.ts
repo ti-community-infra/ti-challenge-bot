@@ -8,6 +8,7 @@ import { RewardQuery } from '../queries/RewardQuery'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../queries/LabelQuery'
 import { Status } from '../../services/responses'
+import { REWARDED_LABEL } from "../labels";
 
 const reward = async (context: Context, rewardData: number, rewardService: RewardService) => {
   const pullResponse = await context.github.pulls.get(context.issue())
@@ -47,6 +48,8 @@ const reward = async (context: Context, rewardData: number, rewardService: Rewar
       break
     }
     case Status.Success: {
+      // Add rewarded label.
+      await context.github.issues.addLabels(context.issue({labels:[REWARDED_LABEL]}))
       context.log.info(`Reward ${rewardQuery} success.`)
       break
     }
