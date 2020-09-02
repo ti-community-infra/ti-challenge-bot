@@ -23,7 +23,7 @@ export function findMentorAndScore (issueBody: string):MentorAndScore | undefine
   }
 
   return {
-    mentor: mentorData[2].replace('@', ''),
+    mentor: mentorData[2].replace('@', '').trim(),
     score: Number(scoreData[2])
   }
 }
