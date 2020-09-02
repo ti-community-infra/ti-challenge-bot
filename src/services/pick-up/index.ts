@@ -166,7 +166,7 @@ class PickUpService {
     if (challengeIssue.hasPicked) {
       return {
         ...baseFailedMessage,
-        message: pickUpFailedMessage(`${pickUpQuery.challenger} already picked this issue.`)
+        message: pickUpFailedMessage(`${challengeIssue.currentChallengerGitHubId} already picked this issue.`)
       }
     } else {
       challengeIssue.hasPicked = true
