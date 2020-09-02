@@ -11,22 +11,29 @@ import reward from './commands/reward'
 import RewardService from './services/reward'
 import { handlePullClosed } from './events/pull-close'
 import CountService from './services/count'
+import help from "./commands/help";
 
 import 'reflect-metadata'
-import help from "./commands/help";
+import autoGiveUp from "./tasks/auto-give-up";
+import AutoGiveUpService from "./services/auto-give-up";
+
 const commands = require('probot-commands-pro')
+const createScheduler = require('probot-scheduler')
 
 export = (app: Application) => {
   useContainer(Container)
+
+  createScheduler(app)
+
   app.log.target.addStream({
     type: 'rotating-file',
     path: './bot-logs/ti-challenge-bot.log',
     period: '1d',   // daily rotation
-    count: 10        // keep 3 back copies
+    count: 10        // keep 10 back copies
   })
 
   createConnection().then(() => {
-    app.log.info('Connect to db success')
+    app.log.info('App starting...')
 
     commands(app, 'ping', async (context: Context) => {
       await context.github.issues.createComment(context.issue({ body: 'pong! I am challenge bot.' }))
@@ -57,8 +64,12 @@ export = (app: Application) => {
 
     app.on('pull_request.closed', async (context:Context) => {
       await handlePullClosed(context, Container.get(CountService))
-    }
-    )
+    })
+
+    app.on('schedule.repository', async (context: Context) => {
+      app.log.info('Scheduling coming...')
+      await autoGiveUp(context, Container.get(AutoGiveUpService))
+    })
   }).catch(err => {
     app.log.fatal('Connect to db failed', err)
   })
