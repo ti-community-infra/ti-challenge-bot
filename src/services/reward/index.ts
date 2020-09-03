@@ -5,7 +5,7 @@ import { Repository } from 'typeorm/repository/Repository'
 
 import { ChallengePull } from '../../db/entities/ChallengePull'
 // eslint-disable-next-line no-unused-vars
-import { Response, Status } from '../responses'
+import { Reply, Status } from '../reply'
 // eslint-disable-next-line no-unused-vars
 import { RewardQuery } from '../../commands/queries/RewardQuery'
 import { Pull } from '../../db/entities/Pull'
@@ -64,7 +64,7 @@ export default class RewardService {
     return pull
   }
 
-  public async reward (rewardQuery: RewardQuery): Promise<Response<number|null>> {
+  public async reward (rewardQuery: RewardQuery): Promise<Reply<number|null>> {
     const { pull: pullQuery } = rewardQuery
     const baseFailedMessage = {
       data: null,

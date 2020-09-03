@@ -15,4 +15,5 @@ export interface IssueQuery{
     closedAt: string;
     createdAt: string;
     updatedAt: string;
+    authorAssociation: string;
 }

@@ -2,17 +2,17 @@
 import { Context } from 'probot'
 
 // eslint-disable-next-line no-unused-vars
-import PickUpService from '../../services/pick-up'
-// eslint-disable-next-line no-unused-vars
 import { PickUpQuery } from '../queries/PickUpQuery'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../queries/LabelQuery'
-import { Status } from '../../services/responses'
+import { Status } from '../../services/reply'
 // eslint-disable-next-line no-unused-vars
 import { Config, DEFAULT_CONFIG_FILE_PATH } from '../../config/Config'
 import { PICKED_LABEL } from '../labels'
+// eslint-disable-next-line no-unused-vars
+import ChallengeIssueService from '../../services/challenge-issue'
 
-const pickUp = async (context: Context, pickUpService: PickUpService) => {
+const pickUp = async (context: Context, challengeIssueService: ChallengeIssueService) => {
   const issueResponse = await context.github.issues.get(context.issue())
   const issue = context.issue()
   const { data } = issueResponse
@@ -42,7 +42,7 @@ const pickUp = async (context: Context, pickUpService: PickUpService) => {
     defaultSigLabel: config?.defaultSigLabel
   }
 
-  const result = await pickUpService.pickUp(pickUpQuery)
+  const result = await challengeIssueService.pickUp(pickUpQuery)
 
   switch (result.status) {
     case Status.Failed: {
