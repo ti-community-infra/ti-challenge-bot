@@ -229,19 +229,8 @@ export default class ChallengeIssueService {
     }
   }
 
-  public async add (challengeIssueQuery: ChallengeIssueQuery):Promise<Reply<ChallengeIssue|undefined>> {
+  public async createWhenIssueOpened (issueId: number, challengeIssueQuery: ChallengeIssueQuery):Promise<Reply<ChallengeIssue|undefined>> {
     const { issue: issueQuery } = challengeIssueQuery
-
-    let issue = await this.issueRepository.findOne({
-      where: {
-        issueNumber: issueQuery.number
-      }
-    })
-
-    if (issue === undefined) {
-      issue = await this.findOrAddIssue(challengeIssueQuery)
-    }
-
     const baseFailedMessage = {
       data: undefined,
       status: Status.Failed
@@ -266,18 +255,83 @@ export default class ChallengeIssueService {
     const program = await this.findChallengeProgram(issueQuery.labels)
 
     const newChallengeIssue = new ChallengeIssue()
-    newChallengeIssue.issueId = issue.id
+    newChallengeIssue.issueId = issueId
     newChallengeIssue.sigId = sigId
     newChallengeIssue.score = mentorAndScore?.score
     newChallengeIssue.mentor = mentorAndScore?.mentor
     newChallengeIssue.challengeProgramId = program?.id
     const data = await this.challengeIssueRepository.save(newChallengeIssue)
 
+    if (warning !== undefined) {
+      return {
+        data,
+        status: Status.Problematic,
+        message: PickUpMessage.AddedButMissInfo,
+        warning
+      }
+    }
+
     return {
       data,
       status: Status.Success,
-      message: PickUpMessage.AddedButMissInfo,
-      warning
+      message: PickUpMessage.Created
+    }
+  }
+
+  public async updateWhenIssueEdited (issueId:number, challengeIssueQuery: ChallengeIssueQuery): Promise<Reply<ChallengeIssue|undefined>|undefined> {
+    const { issue: issueQuery } = challengeIssueQuery
+    const baseFailedMessage = {
+      data: undefined,
+      status: Status.Failed
+    }
+
+    // Check the sig info.
+    const sigId = await this.findSigId(issueQuery.labels, challengeIssueQuery.defaultSigLabel)
+    if (sigId === undefined) {
+      return {
+        ...baseFailedMessage,
+        message: PickUpMessage.NoSigInfo
+      }
+    }
+
+    const challengeIssue = await this.challengeIssueRepository.findOne({
+      where: {
+        issueId
+      }
+    })
+
+    let warning
+    const mentorAndScore = findMentorAndScore(issueQuery.body)
+    if (mentorAndScore === undefined) {
+      // FIXME: need define a waring for it.
+      warning = PickUpMessage.IllegalIssueFormat
+    }
+
+    const program = await this.findChallengeProgram(issueQuery.labels)
+
+    if (challengeIssue === undefined) {
+      return
+    }
+    challengeIssue.sigId = sigId
+    // FIXME: if the issue remove the mentor and score, we should update it.
+    challengeIssue.score = mentorAndScore?.score
+    challengeIssue.mentor = mentorAndScore?.mentor
+    challengeIssue.challengeProgramId = program?.id
+    await this.challengeIssueRepository.save(challengeIssue)
+
+    if (warning !== undefined) {
+      return {
+        data: challengeIssue,
+        status: Status.Problematic,
+        message: PickUpMessage.UpdatedButStillMissInfo,
+        warning
+      }
+    }
+
+    return {
+      data: challengeIssue,
+      status: Status.Success,
+      message: PickUpMessage.Updated
     }
   }
 }

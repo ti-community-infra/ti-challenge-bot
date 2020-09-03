@@ -16,7 +16,7 @@ import { Config, DEFAULT_CONFIG_FILE_PATH } from '../../config/Config'
 import { Status } from '../../services/reply'
 import { combineReplay } from '../../services/utils/ReplyUtil'
 
-const handleIssuesOpened = async (context: Context, issueService: IssueService, challengeIssueService: ChallengeIssueService) => {
+const handleIssuesEdited = async (context: Context, issueService: IssueService, challengeIssueService: ChallengeIssueService) => {
   const { issue: issuePayload } = context.payload
   const labels: LabelQuery[] = issuePayload.labels.map((label: LabelQuery) => {
     return {
@@ -42,7 +42,10 @@ const handleIssuesOpened = async (context: Context, issueService: IssueService, 
     }
   }
 
-  const issue = await issueService.add(payload)
+  const issue = await issueService.update(payload)
+  if (issue === undefined) {
+    return
+  }
 
   if (isChallengeIssue(labels)) {
     const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH)
@@ -53,7 +56,10 @@ const handleIssuesOpened = async (context: Context, issueService: IssueService, 
       defaultSigLabel: config?.defaultSigLabel
     }
 
-    const reply = await challengeIssueService.createWhenIssueOpened(issue.id, challengeIssueQuery)
+    const reply = await challengeIssueService.updateWhenIssueEdited(issue.id, challengeIssueQuery)
+    if (reply === undefined) {
+      return
+    }
 
     if (reply.status === Status.Failed) {
       await context.github.issues.createComment(context.issue({ body: reply.message }))
@@ -65,4 +71,4 @@ const handleIssuesOpened = async (context: Context, issueService: IssueService, 
   }
 }
 
-export default handleIssuesOpened
+export default handleIssuesEdited
