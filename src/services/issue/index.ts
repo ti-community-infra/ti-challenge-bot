@@ -30,7 +30,8 @@ export default class IssueService {
     newIssue.title = issueQuery.title
     newIssue.body = issueQuery.body
     newIssue.user = issueQuery.user.login
-    // FIXME: we need add association and relation.
+    // FIXME: we need add relation.
+    newIssue.association = issueQuery.authorAssociation
     newIssue.label = issueQuery.labels.map(label => {
       return label.name
     }).join(',')

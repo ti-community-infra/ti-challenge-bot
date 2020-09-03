@@ -37,7 +37,7 @@ const pickUp = async (context: Context, challengeIssueService: ChallengeIssueSer
       // @ts-ignore
       closedAt: data.closed_at,
       createdAt: data.created_at,
-      updatedAt: data.updated_at
+      updatedAt: data.updated_at,
     },
     defaultSigLabel: config?.defaultSigLabel
   }
