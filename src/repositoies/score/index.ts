@@ -50,7 +50,7 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
 
     const { challengePulls } = challengeIssue
 
-    if (challengePulls.length === 0) {
+    if (challengePulls === undefined || challengePulls === null || challengePulls.length === 0) {
       return challengeIssue.score
     } else {
       return challengeIssue.score - challengePulls.filter(c => {
