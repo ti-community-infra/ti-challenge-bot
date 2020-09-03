@@ -313,6 +313,7 @@ export default class ChallengeIssueService {
       return
     }
     challengeIssue.sigId = sigId
+    // FIXME: if the issue remove the mentor and score, we should update it.
     challengeIssue.score = mentorAndScore?.score
     challengeIssue.mentor = mentorAndScore?.mentor
     challengeIssue.challengeProgramId = program?.id
