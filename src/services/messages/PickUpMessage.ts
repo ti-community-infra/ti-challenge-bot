@@ -6,7 +6,10 @@ export enum PickUpMessage{
     NoSigInfo = 'This issue does not belong to any SIG.',
     IllegalSigInfo = 'The SIG information for this issue is wrong.',
     IllegalIssueFormat = 'The desc format for this issue is wrong.',
-    AddedButMissInfo = 'It has been added to the challenge program, but your issue description has some problems.'
+    AddedButMissInfo = 'It has been added to the challenge program, but your issue description has some problems.',
+    UpdatedButStillMissInfo = 'The description of issue updated, but still has some problems.',
+    Created = 'The challenge issue created.',
+    Updated = 'The challenge issue updated.',
 }
 
 export function alreadyPickedMessage (currentChallenger: string) {

@@ -2,7 +2,10 @@ export enum Status{
     // eslint-disable-next-line no-unused-vars
     Success,
     // eslint-disable-next-line no-unused-vars
-    Failed
+    Problematic,
+    // eslint-disable-next-line no-unused-vars
+    Failed,
+
 }
 
 export interface Reply<T>{
@@ -10,6 +13,5 @@ export interface Reply<T>{
     status:Status;
     message:string;
     warning?: string;
-    error?: string;
     tip?: string;
 }

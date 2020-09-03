@@ -11,8 +11,6 @@ ${replay.message}
 **Tip**    : ${replay.tip ? replay.tip : 'None'}
 
 **Warning**: ${replay.warning ? replay.warning : 'None'}
-
-**Error**  : ${replay.error ? replay.error : 'None'}
 </details>
     `
 }
