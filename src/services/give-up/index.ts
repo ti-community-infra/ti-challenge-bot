@@ -43,10 +43,10 @@ export default class GiveUpService {
       }
     })
 
-    if (issue === undefined) {
+    if (issue === undefined || issue.challengeIssue === undefined || issue.challengeIssue === null) {
       return {
         ...baseFailedMessage,
-        message: GiveUpMessage.NotChallenger
+        message: GiveUpMessage.NotChallengeProgramIssue
       }
     }
 

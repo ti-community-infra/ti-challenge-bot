@@ -11,11 +11,11 @@ import reward from './commands/reward'
 import RewardService from './services/reward'
 import { handlePullClosed } from './events/pull-close'
 import CountService from './services/count'
-import help from "./commands/help";
+import help from './commands/help'
 
 import 'reflect-metadata'
-import autoGiveUp from "./tasks/auto-give-up";
-import AutoGiveUpService from "./services/auto-give-up";
+import autoGiveUp from './tasks/auto-give-up'
+import AutoGiveUpService from './services/auto-give-up'
 
 const commands = require('probot-commands-pro')
 const createScheduler = require('probot-scheduler')
@@ -28,8 +28,8 @@ export = (app: Application) => {
   app.log.target.addStream({
     type: 'rotating-file',
     path: './bot-logs/ti-challenge-bot.log',
-    period: '1d',   // daily rotation
-    count: 10        // keep 10 back copies
+    period: '1d', // daily rotation
+    count: 10 // keep 10 back copies
   })
 
   createConnection().then(() => {

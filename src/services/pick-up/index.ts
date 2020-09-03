@@ -17,7 +17,7 @@ import { ProjectSig } from '../../db/entities/ProjectSig'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 import { findSigLabel, isChallengeIssue, findMentorAndScore } from '../utils/IssueUtil'
 import { ChallengeProgram } from '../../db/entities/ChallengeProgram'
-import {IssueOrPullStatus} from "../../repositoies/score";
+import { IssueOrPullStatus } from '../../repositoies/score'
 
 @Service()
 class PickUpService {
@@ -27,8 +27,8 @@ class PickUpService {
         private challengeIssueRepository: Repository<ChallengeIssue>,
         @InjectRepository(Issue)
         private issueRepository: Repository<Issue>,
-        @InjectRepository(ProjectSig)
-        private projectSigRepository: Repository<ProjectSig>,
+        @InjectRepository(GithubLabelSig)
+        private githubLabelSigRepository: Repository<GithubLabelSig>,
         @InjectRepository(ChallengeProgram)
         private challengeProgramRepository: Repository<ChallengeProgram>
   ) {
@@ -67,11 +67,13 @@ class PickUpService {
   }
 
   private async findSigIdByLabelName (labelQueryName: string): Promise<number | undefined> {
-    const projectSig = await this.projectSigRepository.createQueryBuilder('ps')
-      .leftJoinAndSelect(GithubLabelSig, 'gls', 'ps.project_sig_id = gls.project_sig_id')
-      .where(`gls.label = '${labelQueryName}'`).getOne()
+    const { sigId } = await this.githubLabelSigRepository.createQueryBuilder('gls')
+      .leftJoinAndSelect(ProjectSig, 'ps', 'ps.project_sig_id = gls.project_sig_id')
+      .where(`gls.label = '${labelQueryName}'`)
+      .select('ps.sig_id', 'sigId')
+      .getRawOne()
 
-    return projectSig?.sigId
+    return sigId
   }
 
   private async findChallengeProgram (labels: LabelQuery[]): Promise<ChallengeProgram|undefined> {
@@ -96,7 +98,7 @@ class PickUpService {
 
     // Check if issue closed.
     const { issue: issueQuery } = pickUpQuery
-    if(issueQuery.state === IssueOrPullStatus.Closed){
+    if (issueQuery.state === IssueOrPullStatus.Closed) {
       return {
         ...baseFailedMessage,
         message: PickUpMessage.IssueAlreadyClosed
@@ -119,6 +121,7 @@ class PickUpService {
         message: PickUpMessage.NoSigInfo
       }
     }
+    // FIXME: now we use lower case sig label name, maybe we should fix it on github.
     const sigId = await this.findSigIdByLabelName(sigLabelName.toLowerCase())
     if (sigId === undefined) {
       return {
@@ -138,12 +141,12 @@ class PickUpService {
     // Pick up.
     const { challengeIssue } = issue
 
-    if (challengeIssue === undefined) {
+    if (challengeIssue === undefined || challengeIssue === null) {
       const newChallengeIssue = new ChallengeIssue()
       newChallengeIssue.issueId = issue.id
       newChallengeIssue.sigId = sigId
-      newChallengeIssue.score = mentorAndScore?.score || 0
-      newChallengeIssue.mentor = mentorAndScore?.mentor || pickUpQuery.issue.user.login
+      newChallengeIssue.score = mentorAndScore?.score || null
+      newChallengeIssue.mentor = mentorAndScore?.mentor || null
       newChallengeIssue.hasPicked = true
       newChallengeIssue.currentChallengerGitHubId = pickUpQuery.challenger
       newChallengeIssue.pickedAt = new Date().toLocaleString()

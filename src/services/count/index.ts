@@ -12,7 +12,7 @@ import { findLinkedIssueNumber } from '../utils/PullUtil'
 import { Issue } from '../../db/entities/Issue'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../../commands/queries/LabelQuery'
-import {CountMessage, countSuccessMessage} from '../messages/CountMessage'
+import { CountMessage, countSuccessMessage } from '../messages/CountMessage'
 // eslint-disable-next-line no-unused-vars
 import ScoreRepository, { IssueOrPullStatus } from '../../repositoies/score'
 
@@ -33,7 +33,7 @@ export default class CountService {
     const { pull: pullQuery } = pullPayload
 
     const pull = await this.pullRepository.findOne({
-      relations:['challengePull'],
+      relations: ['challengePull'],
       where: {
         pullNumber: pullPayload.number
       }
@@ -41,7 +41,7 @@ export default class CountService {
 
     // Can not find the pull it means this pull request not reward, so we do not need to count this.
     // FIXME: maybe we should add this pull.
-    if (pull === undefined || pull.challengePull === null) {
+    if (pull === undefined || pull.challengePull === undefined || pull.challengePull === null) {
       return
     }
 
@@ -59,7 +59,7 @@ export default class CountService {
       }
     })
 
-    if (issue === undefined || issue.challengeIssue === undefined) {
+    if (issue === undefined || issue.challengeIssue === undefined || issue.challengeIssue === null) {
       return
     }
 
@@ -89,19 +89,19 @@ export default class CountService {
     // Count the score.
     const { challengeProgram } = challengeIssue
 
-    if (challengeProgram) {
+    if (challengeProgram !== undefined && challengeProgram !== null) {
       const score = await this.scoreRepository.getCurrentScoreInProgram(challengeProgram.programTheme, username)
       return {
         data: score,
         status: Status.Success,
-        message: countSuccessMessage(username,pull.challengePull.reward, score, challengeProgram.programTheme)
+        message: countSuccessMessage(username, pull.challengePull.reward, score, challengeProgram.programTheme)
       }
     } else {
       const score = await this.scoreRepository.getCurrentScoreInLongTermProgram(username)
       return {
         data: score,
         status: Status.Success,
-        message: countSuccessMessage(username,pull.challengePull.reward,score)
+        message: countSuccessMessage(username, pull.challengePull.reward, score)
       }
     }
   }

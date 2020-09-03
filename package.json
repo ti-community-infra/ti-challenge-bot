@@ -18,7 +18,7 @@
     "build:watch": "tsc && (tsc -w --preserveWatchOutput & nodemon)",
     "dev": "npm run build:watch",
     "start": "probot run ./lib/index.js",
-    "lint": "standard src/**/*.ts test/**/*.ts --fix",
+    "lint": "standard src/**/**/**/**/**/*.ts test/**/*.ts --fix",
     "test": "jest --coverage && standard src/**/*.ts test/**/*.ts",
     "test:watch": "jest --watch --notify --notifyMode=change --coverage",
     "typeorm": "ts-node ./node_modules/.bin/typeorm"
@@ -44,7 +44,7 @@
     "nock": "^12.0.0",
     "nodemon": "^2.0.0",
     "smee-client": "^1.1.0",
-    "standard": "^14.3.1",
+    "standard": "^14.3.4",
     "ts-jest": "^25.1.0",
     "ts-node": "^9.0.0",
     "typescript": "^3.6.4"
