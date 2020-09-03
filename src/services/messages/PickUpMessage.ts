@@ -9,5 +9,5 @@ export enum PickUpMessage{
 }
 
 export function alreadyPickedMessage (currentChallenger: string) {
-  return `This issue os already picked by ${currentChallenger}.`
+  return `This issue already picked by ${currentChallenger}.`
 }
