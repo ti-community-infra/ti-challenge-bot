@@ -1,6 +1,7 @@
-import {Context} from "probot";
+// eslint-disable-next-line no-unused-vars
+import { Context } from 'probot'
 
-const helpMessage =`
+const helpMessage = `
 Usage:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**/command [argument]**
@@ -20,7 +21,7 @@ The commands are:
 >If you think the bot is dead, please contact [Rustin-Liu](https://github.com/Rustin-Liu) to fix it.
 `
 const help = async (context: Context) => {
-    await context.github.issues.createComment(context.issue({ body: helpMessage }))
+  await context.github.issues.createComment(context.issue({ body: helpMessage }))
 }
 
 export default help

@@ -8,7 +8,7 @@ import GiveUpService from '../../services/give-up'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../queries/LabelQuery'
 import { Status } from '../../services/responses'
-import {PICKED_LABEL} from "../labels";
+import { PICKED_LABEL } from '../labels'
 
 const giveUp = async (context: Context, giveUpService: GiveUpService) => {
   const issueResponse = await context.github.issues.get(context.issue())

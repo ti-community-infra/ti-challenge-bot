@@ -11,11 +11,11 @@ export class ChallengeIssue {
     @Column({ name: 'sig_id', nullable: false })
     sigId: number;
 
-    @Column({ name: 'score', nullable: false })
-    score: number;
+    @Column({ name: 'score', type: 'int', nullable: true, default: null })
+    score?: number | null;
 
-    @Column({ name: 'mentor', nullable: false })
-    mentor: string;
+    @Column({ name: 'mentor', type: 'varchar', nullable: true, default: null })
+    mentor?: string | null;
 
     @Column({ name: 'has_picked', nullable: false, default: false })
     hasPicked: boolean;

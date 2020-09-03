@@ -15,7 +15,7 @@ import { findLinkedIssueNumber } from '../utils/PullUtil'
 import { LabelQuery } from '../../commands/queries/LabelQuery'
 import { RewardMessage, rewardFailedNotEnoughLeftScoreMessage } from '../messages/RewardMessage'
 // eslint-disable-next-line no-unused-vars
-import ScoreRepository, {IssueOrPullStatus} from '../../repositoies/score'
+import ScoreRepository, { IssueOrPullStatus } from '../../repositoies/score'
 
 @Service()
 export default class RewardService {
@@ -71,7 +71,7 @@ export default class RewardService {
       status: Status.Failed
     }
 
-    if(pullQuery.state === IssueOrPullStatus.Closed){
+    if (pullQuery.state === IssueOrPullStatus.Closed) {
       return {
         ...baseFailedMessage,
         message: RewardMessage.PullRequestAlreadyClosed
@@ -93,7 +93,7 @@ export default class RewardService {
       }
     })
 
-    if (issue === undefined || issue.challengeIssue === undefined) {
+    if (issue === undefined || issue.challengeIssue === undefined || issue.challengeIssue === null) {
       return {
         ...baseFailedMessage,
         message: RewardMessage.LinkedNotChallengeIssue
@@ -108,10 +108,24 @@ export default class RewardService {
       }
     }
 
+    if (challengeIssue.mentor === undefined || challengeIssue.mentor === null) {
+      return {
+        ...baseFailedMessage,
+        message: RewardMessage.LinkedIssueMissMentorInfo
+      }
+    }
+
     if (rewardQuery.mentor !== challengeIssue.mentor) {
       return {
         ...baseFailedMessage,
         message: RewardMessage.NotMentor
+      }
+    }
+
+    if (challengeIssue.score === null || challengeIssue.score === undefined) {
+      return {
+        ...baseFailedMessage,
+        message: RewardMessage.LinkedIssueMissScoreInfo
       }
     }
 
@@ -124,11 +138,11 @@ export default class RewardService {
 
     const pull = await this.findOrCreatePull(rewardQuery)
 
-    const currentLeftScore = await this.scoreRepository.getCurrentLeftScore(challengeIssue.issueId, pull.id)
-    if (currentLeftScore === undefined) {
+    const currentLeftScore = await this.scoreRepository.getCurrentLeftScore(challengeIssue, pull.id)
+    if (currentLeftScore === null) {
       return {
         ...baseFailedMessage,
-        message: RewardMessage.LinkedNotChallengeIssue
+        message: RewardMessage.LinkedIssueMissScoreInfo
       }
     }
 
@@ -140,7 +154,7 @@ export default class RewardService {
     }
 
     const { challengePull } = pull
-    if (challengePull === undefined) {
+    if (challengePull === undefined || challengePull === null) {
       const newChallengeIssue = new ChallengePull()
       newChallengeIssue.pullId = pull.id
       newChallengeIssue.reward = rewardQuery.reward
