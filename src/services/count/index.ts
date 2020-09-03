@@ -7,7 +7,7 @@ import { Pull } from '../../db/entities/Pull'
 // eslint-disable-next-line no-unused-vars
 import { PullPayload } from '../../events/payloads/PullPayload'
 // eslint-disable-next-line no-unused-vars
-import { Response, Status } from '../responses'
+import { Reply, Status } from '../reply'
 import { findLinkedIssueNumber } from '../utils/PullUtil'
 import { Issue } from '../../db/entities/Issue'
 // eslint-disable-next-line no-unused-vars
@@ -29,7 +29,7 @@ export default class CountService {
   ) {
   }
 
-  public async count (pullPayload: PullPayload): Promise<Response<number|null> | undefined> {
+  public async count (pullPayload: PullPayload): Promise<Reply<number|null> | undefined> {
     const { pull: pullQuery } = pullPayload
 
     const pull = await this.pullRepository.findOne({

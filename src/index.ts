@@ -4,9 +4,7 @@ import { createConnection, useContainer } from 'typeorm'
 import { Container } from 'typedi'
 
 import pickUp from './commands/pick-up'
-import PickUpService from './services/pick-up'
 import giveUp from './commands/give-up'
-import GiveUpService from './services/give-up'
 import reward from './commands/reward'
 import RewardService from './services/reward'
 import { handlePullClosed } from './events/pull-close'
@@ -16,6 +14,9 @@ import help from './commands/help'
 import 'reflect-metadata'
 import autoGiveUp from './tasks/auto-give-up'
 import AutoGiveUpService from './services/auto-give-up'
+import handleIssuesOpened from './events/issues-opened'
+import IssueService from './services/issue'
+import ChallengeIssueService from './services/challenge-issue'
 
 const commands = require('probot-commands-pro')
 const createScheduler = require('probot-scheduler')
@@ -44,11 +45,11 @@ export = (app: Application) => {
     })
 
     commands(app, 'pick-up', async (context: Context) => {
-      await pickUp(context, Container.get(PickUpService))
+      await pickUp(context, Container.get(ChallengeIssueService))
     })
 
     commands(app, 'give-up', async (context: Context) => {
-      await giveUp(context, Container.get(GiveUpService))
+      await giveUp(context, Container.get(ChallengeIssueService))
     })
 
     commands(app, 'reward', async (context: Context, command: { arguments: string }) => {
@@ -60,6 +61,10 @@ export = (app: Application) => {
       }
 
       await reward(context, rewardValue, Container.get(RewardService))
+    })
+
+    app.on('issues.opened', async (context:Context) => {
+      await handleIssuesOpened(context, Container.get(IssueService), Container.get(ChallengeIssueService))
     })
 
     app.on('pull_request.closed', async (context:Context) => {

@@ -5,8 +5,11 @@ export enum Status{
     Failed
 }
 
-export interface Response<T>{
+export interface Reply<T>{
     data: T,
     status:Status;
     message:string;
+    warning?: string;
+    error?: string;
+    tip?: string;
 }

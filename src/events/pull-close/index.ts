@@ -7,7 +7,7 @@ import { PullPayload } from '../payloads/PullPayload'
 import { LabelQuery } from '../../commands/queries/LabelQuery'
 // eslint-disable-next-line no-unused-vars
 import CountService from '../../services/count'
-import { Status } from '../../services/responses'
+import { Status } from '../../services/reply'
 
 const handlePullClosed = async (context: Context, countService: CountService) => {
   const { pull_request: pullRequest } = context.payload

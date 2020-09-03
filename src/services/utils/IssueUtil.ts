@@ -1,5 +1,8 @@
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../../commands/queries/LabelQuery'
+// eslint-disable-next-line no-unused-vars
+import { IssueQuery } from '../../commands/queries/IssueQuery'
+import { IssueOrPullStatus } from '../../repositoies/score'
 
 const challengeProgramLabel = 'challenge-program'
 const MENTOR_REGEX = /(Mentor).*[\r\n]*[-|* ]*(.*)/
@@ -39,4 +42,8 @@ export function isChallengeIssue (labels: LabelQuery[]): boolean {
     return l.name === challengeProgramLabel
   })
   return challengeLabel.length > 0
+}
+
+export function isClosed (issue: IssueQuery): boolean {
+  return issue.state === IssueOrPullStatus.Closed
 }

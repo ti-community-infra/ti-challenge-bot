@@ -7,7 +7,7 @@ import RewardService from '../../services/reward'
 import { RewardQuery } from '../queries/RewardQuery'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../queries/LabelQuery'
-import { Status } from '../../services/responses'
+import { Status } from '../../services/reply'
 import { REWARDED_LABEL } from '../labels'
 
 const reward = async (context: Context, rewardData: number, rewardService: RewardService) => {

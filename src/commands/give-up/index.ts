@@ -4,13 +4,13 @@ import { Context } from 'probot'
 // eslint-disable-next-line no-unused-vars
 import { GiveUpQuery } from '../queries/GiveUpQuery'
 // eslint-disable-next-line no-unused-vars
-import GiveUpService from '../../services/give-up'
+import ChallengeIssueService from '../../services/challenge-issue'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../queries/LabelQuery'
-import { Status } from '../../services/responses'
+import { Status } from '../../services/reply'
 import { PICKED_LABEL } from '../labels'
 
-const giveUp = async (context: Context, giveUpService: GiveUpService) => {
+const giveUp = async (context: Context, challengeIssueService: ChallengeIssueService) => {
   const issueResponse = await context.github.issues.get(context.issue())
   const { data } = issueResponse
   const { sender } = context.payload
@@ -25,7 +25,7 @@ const giveUp = async (context: Context, giveUpService: GiveUpService) => {
     labels
   }
 
-  const result = await giveUpService.giveUp(giveUpQuery)
+  const result = await challengeIssueService.giveUp(giveUpQuery)
 
   switch (result.status) {
     case Status.Failed: {
