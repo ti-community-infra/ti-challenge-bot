@@ -2,15 +2,15 @@
 import { Context } from 'probot'
 
 // eslint-disable-next-line no-unused-vars
-import RewardService from '../../services/reward'
-// eslint-disable-next-line no-unused-vars
 import { RewardQuery } from '../queries/RewardQuery'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../queries/LabelQuery'
 import { Status } from '../../services/reply'
 import { REWARDED_LABEL } from '../labels'
+// eslint-disable-next-line no-unused-vars
+import ChallengePullService from '../../services/challenge-pull'
 
-const reward = async (context: Context, rewardData: number, rewardService: RewardService) => {
+const reward = async (context: Context, rewardData: number, challengePullService: ChallengePullService) => {
   const pullResponse = await context.github.pulls.get(context.issue())
   const { data } = pullResponse
   const { sender } = context.payload
@@ -40,7 +40,7 @@ const reward = async (context: Context, rewardData: number, rewardService: Rewar
     reward: rewardData
   }
 
-  const result = await rewardService.reward(rewardQuery)
+  const result = await challengePullService.reward(rewardQuery)
 
   switch (result.status) {
     case Status.Failed: {

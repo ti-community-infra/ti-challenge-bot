@@ -6,10 +6,11 @@ import { PullPayload } from '../payloads/PullPayload'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../../commands/queries/LabelQuery'
 // eslint-disable-next-line no-unused-vars
-import CountService from '../../services/count'
 import { Status } from '../../services/reply'
+// eslint-disable-next-line no-unused-vars
+import ChallengePullService from '../../services/challenge-pull'
 
-const handlePullClosed = async (context: Context, countService: CountService) => {
+const handlePullClosed = async (context: Context, challengePullService: ChallengePullService) => {
   const { pull_request: pullRequest } = context.payload
   const labels: LabelQuery[] = pullRequest.labels.map((label: LabelQuery) => {
     return {
@@ -35,7 +36,7 @@ const handlePullClosed = async (context: Context, countService: CountService) =>
     }
   }
 
-  const result = await countService.count(pullPayload)
+  const result = await challengePullService.count(pullPayload)
   if (result === undefined) {
     context.log.trace(`Do not need to count ${pullPayload}.`)
     return

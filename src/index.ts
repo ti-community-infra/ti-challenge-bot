@@ -6,9 +6,7 @@ import { Container } from 'typedi'
 import pickUp from './commands/pick-up'
 import giveUp from './commands/give-up'
 import reward from './commands/reward'
-import RewardService from './services/reward'
 import { handlePullClosed } from './events/pull-close'
-import CountService from './services/count'
 import help from './commands/help'
 
 import 'reflect-metadata'
@@ -17,6 +15,7 @@ import AutoGiveUpService from './services/auto-give-up'
 import IssueService from './services/issue'
 import ChallengeIssueService from './services/challenge-issue'
 import handleIssueEvents from './events/issues'
+import ChallengePullService from './services/challenge-pull'
 
 const commands = require('probot-commands-pro')
 const createScheduler = require('probot-scheduler')
@@ -60,7 +59,7 @@ export = (app: Application) => {
         return
       }
 
-      await reward(context, rewardValue, Container.get(RewardService))
+      await reward(context, rewardValue, Container.get(ChallengePullService))
     })
 
     app.on('issues', async (context:Context) => {
@@ -68,7 +67,7 @@ export = (app: Application) => {
     })
 
     app.on('pull_request.closed', async (context:Context) => {
-      await handlePullClosed(context, Container.get(CountService))
+      await handlePullClosed(context, Container.get(ChallengePullService))
     })
 
     app.on('schedule.repository', async (context: Context) => {
