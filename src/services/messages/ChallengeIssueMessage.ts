@@ -31,6 +31,14 @@ export enum ChallengeIssueTip{
 
     - \${mentor}
     \`\`\`
+    `,
+    AddChallengeProgramLabel = 'If you want this issue to be picked, you need to add a `challenge-program` label to it.'
+}
+
+export function pickUpSuccessMissInfoWarning (author: string) : string {
+  return `
+Pick up success, but the issue miss mentor or score information. 
+cc: @${author}
     `
 }
 

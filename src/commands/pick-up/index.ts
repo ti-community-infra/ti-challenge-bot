@@ -11,8 +11,16 @@ import { Config, DEFAULT_CONFIG_FILE_PATH } from '../../config/Config'
 import { PICKED_LABEL } from '../labels'
 // eslint-disable-next-line no-unused-vars
 import ChallengeIssueService from '../../services/challenge-issue'
+import { combineReplay } from '../../services/utils/ReplyUtil'
 
+/**
+ * Pick up the issue.
+ * @param context
+ * @param challengeIssueService
+ */
 const pickUp = async (context: Context, challengeIssueService: ChallengeIssueService) => {
+  // Notice: because the context come form issue_comment.created event,
+  // so we need to get this issue.
   const issueResponse = await context.github.issues.get(context.issue())
   const issue = context.issue()
   const { data } = issueResponse
@@ -42,21 +50,31 @@ const pickUp = async (context: Context, challengeIssueService: ChallengeIssueSer
     defaultSigLabel: config?.defaultSigLabel
   }
 
-  const result = await challengeIssueService.pickUp(pickUpQuery)
+  const reply = await challengeIssueService.pickUp(pickUpQuery)
 
-  switch (result.status) {
+  switch (reply.status) {
     case Status.Failed: {
-      context.log.error(`Pick up ${pickUpQuery} failed because ${result.message}.`)
+      context.log.error(`Pick up ${pickUpQuery} failed because ${reply.message}.`)
+      await context.github.issues.createComment(context.issue({ body: reply.message }))
       break
     }
     case Status.Success: {
       // Add picked label.
-      await context.github.issues.addLabels(context.issue({ labels: [PICKED_LABEL] }))
       context.log.info(`Pick up ${pickUpQuery} success.`)
+      await context.github.issues.addLabels(context.issue({ labels: [PICKED_LABEL] }))
+      if (reply.warning !== undefined || reply.tip !== undefined) {
+        await context.github.issues.createComment(context.issue({ body: combineReplay(reply) }))
+      } else {
+        await context.github.issues.createComment(context.issue({ body: reply.message }))
+      }
+      break
+    }
+    case Status.Problematic: {
+      context.log.warn(`Pick up ${pickUpQuery} has some problems.`)
+      await context.github.issues.createComment(context.issue({ body: combineReplay(reply) }))
       break
     }
   }
-  await context.github.issues.createComment(context.issue({ body: result.message }))
 }
 
 export default pickUp

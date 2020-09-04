@@ -18,7 +18,7 @@ import {
   alreadyPickedMessage,
   ChallengeIssueMessage,
   ChallengeIssueTip,
-  ChallengeIssueWarning
+  ChallengeIssueWarning, pickUpSuccessMissInfoWarning
 } from '../messages/ChallengeIssueMessage'
 import { findMentorAndScore, findSigLabel, isChallengeIssue, isClosed } from '../utils/IssueUtil'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
@@ -106,6 +106,10 @@ export default class ChallengeIssueService {
     return sigId
   }
 
+  /**
+   * Pick up challenge issue.
+   * @param pickUpQuery
+   */
   public async pickUp (pickUpQuery: PickUpQuery): Promise<Reply<null>> {
     const baseFailedMessage = {
       data: null,
@@ -124,8 +128,10 @@ export default class ChallengeIssueService {
     // Check is a challenge program issue.
     if (!isChallengeIssue(issueQuery.labels)) {
       return {
-        ...baseFailedMessage,
-        message: ChallengeIssueMessage.NotChallengeProgramIssue
+        data: null,
+        status: Status.Problematic,
+        message: ChallengeIssueMessage.NotChallengeProgramIssue,
+        tip: ChallengeIssueTip.AddChallengeProgramLabel
       }
     }
 
@@ -133,13 +139,19 @@ export default class ChallengeIssueService {
     const sigId = await this.findSigId(issueQuery.labels, pickUpQuery.defaultSigLabel)
     if (sigId === undefined) {
       return {
-        ...baseFailedMessage,
+        data: null,
+        status: Status.Problematic,
         message: ChallengeIssueMessage.NoSigInfo
       }
     }
 
     // Check the mentor and score info.
     const mentorAndScore = findMentorAndScore(issueQuery.body)
+    let warning, tip
+    if (mentorAndScore === undefined) {
+      warning = pickUpSuccessMissInfoWarning(issueQuery.user.login)
+      tip = ChallengeIssueTip.RefineIssueFormat
+    }
 
     const program = await this.findChallengeProgram(issueQuery.labels)
 
@@ -164,7 +176,9 @@ export default class ChallengeIssueService {
       return {
         data: null,
         status: Status.Success,
-        message: ChallengeIssueMessage.PickUpSuccess
+        message: ChallengeIssueMessage.PickUpSuccess,
+        warning,
+        tip
       }
     }
 
@@ -182,22 +196,26 @@ export default class ChallengeIssueService {
       return {
         data: null,
         status: Status.Success,
-        message: ChallengeIssueMessage.PickUpSuccess
+        message: ChallengeIssueMessage.PickUpSuccess,
+        warning,
+        tip
       }
     }
   }
 
-  public async giveUp (giveUpQuery: GiveUpQuery):Promise<Reply<null>> {
+  /**
+   * Give up challenge.
+   * @param giveUpQuery
+   */
+  public async giveUp (giveUpQuery: GiveUpQuery):Promise<Reply<null>| undefined> {
     const baseFailedMessage = {
       data: null,
       status: Status.Failed
     }
 
+    // If not a challenge issue.
     if (!isChallengeIssue(giveUpQuery.labels)) {
-      return {
-        ...baseFailedMessage,
-        message: GiveUpMessage.NotChallengeProgramIssue
-      }
+      return
     }
 
     const issue = await this.issueRepository.findOne({
@@ -206,15 +224,13 @@ export default class ChallengeIssueService {
         issueNumber: giveUpQuery.issueId
       }
     })
-
+    // Also not a challenge issue.
     if (issue === undefined || issue.challengeIssue === undefined || issue.challengeIssue === null) {
-      return {
-        ...baseFailedMessage,
-        message: GiveUpMessage.NotChallengeProgramIssue
-      }
+      return
     }
 
     const { challengeIssue } = issue
+    // Not challenger or the issue not picked.
     if (!challengeIssue.hasPicked || challengeIssue.currentChallengerGitHubId !== giveUpQuery.challenger) {
       return {
         ...baseFailedMessage,
