@@ -70,6 +70,7 @@ const pickUp = async (context: Context, challengeIssueService: ChallengeIssueSer
       break
     }
     case Status.Problematic: {
+      context.log.warn(`Pick up ${pickUpQuery} has some problems.`)
       await context.github.issues.createComment(context.issue({ body: combineReplay(reply) }))
       break
     }
