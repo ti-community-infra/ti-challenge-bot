@@ -14,7 +14,12 @@ import { ProjectSig } from '../../db/entities/ProjectSig'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../../commands/queries/LabelQuery'
 import { ChallengeProgram } from '../../db/entities/ChallengeProgram'
-import { alreadyPickedMessage, PickUpMessage } from '../messages/PickUpMessage'
+import {
+  alreadyPickedMessage,
+  ChallengeIssueMessage,
+  ChallengeIssueTip,
+  ChallengeIssueWarning
+} from '../messages/ChallengeIssueMessage'
 import { findMentorAndScore, findSigLabel, isChallengeIssue, isClosed } from '../utils/IssueUtil'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 // eslint-disable-next-line no-unused-vars
@@ -112,7 +117,7 @@ export default class ChallengeIssueService {
     if (isClosed(issueQuery)) {
       return {
         ...baseFailedMessage,
-        message: PickUpMessage.IssueAlreadyClosed
+        message: ChallengeIssueMessage.IssueAlreadyClosed
       }
     }
 
@@ -120,7 +125,7 @@ export default class ChallengeIssueService {
     if (!isChallengeIssue(issueQuery.labels)) {
       return {
         ...baseFailedMessage,
-        message: PickUpMessage.NotChallengeProgramIssue
+        message: ChallengeIssueMessage.NotChallengeProgramIssue
       }
     }
 
@@ -129,7 +134,7 @@ export default class ChallengeIssueService {
     if (sigId === undefined) {
       return {
         ...baseFailedMessage,
-        message: PickUpMessage.NoSigInfo
+        message: ChallengeIssueMessage.NoSigInfo
       }
     }
 
@@ -159,7 +164,7 @@ export default class ChallengeIssueService {
       return {
         data: null,
         status: Status.Success,
-        message: PickUpMessage.PickUpSuccess
+        message: ChallengeIssueMessage.PickUpSuccess
       }
     }
 
@@ -177,7 +182,7 @@ export default class ChallengeIssueService {
       return {
         data: null,
         status: Status.Success,
-        message: PickUpMessage.PickUpSuccess
+        message: ChallengeIssueMessage.PickUpSuccess
       }
     }
   }
@@ -229,6 +234,11 @@ export default class ChallengeIssueService {
     }
   }
 
+  /**
+   * Create challenge issue when the issue opened.
+   * @param issueId the issue database id.
+   * @param challengeIssueQuery challenge issue query.
+   */
   public async createWhenIssueOpened (issueId: number, challengeIssueQuery: ChallengeIssueQuery):Promise<Reply<ChallengeIssue|undefined>> {
     const { issue: issueQuery } = challengeIssueQuery
     const baseFailedMessage = {
@@ -241,15 +251,16 @@ export default class ChallengeIssueService {
     if (sigId === undefined) {
       return {
         ...baseFailedMessage,
-        message: PickUpMessage.NoSigInfo
+        message: ChallengeIssueMessage.NoSigInfo
       }
     }
 
-    let warning
+    // Try to find mentor and score.
+    let warning, tip
     const mentorAndScore = findMentorAndScore(issueQuery.body)
     if (mentorAndScore === undefined) {
-      // FIXME: need define a waring for it.
-      warning = PickUpMessage.IllegalIssueFormat
+      warning = ChallengeIssueWarning.IllegalIssueFormat
+      tip = ChallengeIssueTip.RefineIssueFormat
     }
 
     const program = await this.findChallengeProgram(issueQuery.labels)
@@ -266,15 +277,16 @@ export default class ChallengeIssueService {
       return {
         data,
         status: Status.Problematic,
-        message: PickUpMessage.AddedButMissInfo,
-        warning
+        message: ChallengeIssueMessage.AddedButMissInfo,
+        warning,
+        tip
       }
     }
 
     return {
       data,
       status: Status.Success,
-      message: PickUpMessage.Created
+      message: ChallengeIssueMessage.Created
     }
   }
 
@@ -290,32 +302,35 @@ export default class ChallengeIssueService {
     if (sigId === undefined) {
       return {
         ...baseFailedMessage,
-        message: PickUpMessage.NoSigInfo
+        message: ChallengeIssueMessage.NoSigInfo
       }
     }
 
+    // Try to find challenge issue.
     const challengeIssue = await this.challengeIssueRepository.findOne({
       where: {
         issueId
       }
     })
+    if (challengeIssue === undefined) {
+      return
+    }
 
-    let warning
+    // Try to find the mentor and score.
+    let warning, tip
     const mentorAndScore = findMentorAndScore(issueQuery.body)
     if (mentorAndScore === undefined) {
-      // FIXME: need define a warning for it.
-      warning = PickUpMessage.IllegalIssueFormat
+      tip = ChallengeIssueTip.RefineIssueFormat
+      warning = ChallengeIssueWarning.IllegalIssueFormat
     }
 
     const program = await this.findChallengeProgram(issueQuery.labels)
 
-    if (challengeIssue === undefined) {
-      return
-    }
     challengeIssue.sigId = sigId
     // FIXME: if the issue remove the mentor and score, we should update it.
     challengeIssue.score = mentorAndScore?.score
     challengeIssue.mentor = mentorAndScore?.mentor
+    // Notice: here will challenge program id.
     challengeIssue.challengeProgramId = program?.id
     await this.challengeIssueRepository.save(challengeIssue)
 
@@ -323,15 +338,16 @@ export default class ChallengeIssueService {
       return {
         data: challengeIssue,
         status: Status.Problematic,
-        message: PickUpMessage.UpdatedButStillMissInfo,
-        warning
+        message: ChallengeIssueMessage.UpdatedButStillMissInfo,
+        warning,
+        tip
       }
     }
 
     return {
       data: challengeIssue,
       status: Status.Success,
-      message: PickUpMessage.Updated
+      message: ChallengeIssueMessage.Updated
     }
   }
 
@@ -350,7 +366,7 @@ export default class ChallengeIssueService {
       return {
         data: null,
         status: Status.Failed,
-        message: PickUpMessage.CannotRemoveBecausePicked
+        message: ChallengeIssueMessage.CannotRemoveBecausePicked
       }
     }
     const { challengePulls } = challengeIssue
@@ -359,7 +375,7 @@ export default class ChallengeIssueService {
       return {
         data: null,
         status: Status.Failed,
-        message: PickUpMessage.CannotRemoveBecauseHasPulls
+        message: ChallengeIssueMessage.CannotRemoveBecauseHasPulls
       }
     }
 
@@ -367,7 +383,7 @@ export default class ChallengeIssueService {
     return {
       data: null,
       status: Status.Success,
-      message: PickUpMessage.Removed
+      message: ChallengeIssueMessage.Removed
     }
   }
 }

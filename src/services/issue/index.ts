@@ -21,8 +21,13 @@ export default class IssueService {
     return await this.issueRepository.findOne(options)
   }
 
+  /**
+   * Add issue.
+   * @param issuePayload the issue payload come from github.
+   */
   public async add (issuePayload: IssuePayload): Promise<Issue> {
     const { issue: issueQuery } = issuePayload
+
     const newIssue = new Issue()
     newIssue.owner = issuePayload.owner
     newIssue.repo = issuePayload.repo
@@ -38,9 +43,14 @@ export default class IssueService {
     newIssue.status = issueQuery.state
     newIssue.updatedAt = issueQuery.updatedAt
     newIssue.closedAt = issueQuery.closedAt
+
     return await this.issueRepository.save(newIssue)
   }
 
+  /**
+   * Update issue info.
+   * @param issuePayload
+   */
   public async update (issuePayload: IssuePayload):Promise<Issue|undefined> {
     const issue = await this.findOne({
       where: {
@@ -65,6 +75,7 @@ export default class IssueService {
     issue.updatedAt = issueQuery.updatedAt
     issue.closedAt = issueQuery.closedAt
     await this.issueRepository.save(issue)
+
     return issue
   }
 
