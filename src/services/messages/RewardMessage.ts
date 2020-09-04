@@ -8,9 +8,22 @@ export enum RewardMessage{
     NotPicked = 'This PR\'s linked issue is not picked.',
     NotMentor = 'You are not the mentor for the linked issue.',
     NotValidReward = 'Not a valid reward.',
-    RewardSuccess = 'Reward success.'
+    RewardSuccess = 'Reward success.',
+    Rewarded = 'Reward.'
+}
+
+export enum RewardTips{
+    RewardCommandRefs = 'About reward you can refs to [reward-command](https://tidb-community-bots.github.io/challenge-bot/commands.html).'
 }
 
 export function rewardFailedNotEnoughLeftScoreMessage (leftScore: number) {
   return `The linked issue's balance is not enough, current balance is ${leftScore}.`
+}
+
+export function lgtmNotReward (mentor?: string): string {
+  const prefix = 'This challenge issue do not have reward, '
+  if (mentor !== undefined && mentor !== null) {
+    return prefix + `so ${mentor} could you please reward it.`
+  }
+  return prefix + 'so could you please request reward from mentor.'
 }

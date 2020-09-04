@@ -6,7 +6,7 @@ import { Container } from 'typedi'
 import pickUp from './commands/pick-up'
 import giveUp from './commands/give-up'
 import reward from './commands/reward'
-import { handlePullClosed } from './events/pull-close'
+import { handlePullClosed } from './events/pull'
 import help from './commands/help'
 
 import 'reflect-metadata'
@@ -16,6 +16,7 @@ import IssueService from './services/issue'
 import ChallengeIssueService from './services/challenge-issue'
 import handleIssueEvents from './events/issues'
 import ChallengePullService from './services/challenge-pull'
+import { handleLgtm } from './events/custom'
 
 const commands = require('probot-commands-pro')
 const createScheduler = require('probot-scheduler')
@@ -60,6 +61,13 @@ export = (app: Application) => {
       }
 
       await reward(context, rewardValue, Container.get(ChallengePullService))
+    })
+
+    app.on('issue_comment.created', async (context) => {
+      const { comment } = context.payload
+      if (comment.body.toLowerCase().includes('lgtm')) {
+        await handleLgtm(context, Container.get(ChallengePullService))
+      }
     })
 
     app.on('issues', async (context:Context) => {

@@ -13,11 +13,18 @@ import { RewardQuery } from '../../commands/queries/RewardQuery'
 import { LabelQuery } from '../../commands/queries/LabelQuery'
 // eslint-disable-next-line no-unused-vars
 import { Reply, Status } from '../reply'
-import { rewardFailedNotEnoughLeftScoreMessage, RewardMessage } from '../messages/RewardMessage'
+import {
+  lgtmNotReward,
+  rewardFailedNotEnoughLeftScoreMessage,
+  RewardMessage,
+  RewardTips
+} from '../messages/RewardMessage'
 import { findLinkedIssueNumber } from '../utils/PullUtil'
 // eslint-disable-next-line no-unused-vars
 import { PullPayload } from '../../events/payloads/PullPayload'
 import { CountMessage, countSuccessMessage } from '../messages/CountMessage'
+// eslint-disable-next-line no-unused-vars
+import { ChallengePullQuery } from '../../commands/queries/ChallengePullQuery'
 
 @Service()
 export default class ChallengePullService {
@@ -34,8 +41,8 @@ export default class ChallengePullService {
   ) {
   }
 
-  private async findOrCreatePull (rewardQuery: RewardQuery): Promise<Pull> {
-    const { pull: pullQuery } = rewardQuery
+  private async findOrCreatePull (query: RewardQuery | ChallengePullQuery): Promise<Pull> {
+    const { pull: pullQuery } = query
 
     let pull = await this.pullRepository.findOne({
       relations: ['challengePull'],
@@ -46,8 +53,8 @@ export default class ChallengePullService {
 
     if (pull === undefined) {
       const newPull = new Pull()
-      newPull.owner = rewardQuery.owner
-      newPull.repo = rewardQuery.repo
+      newPull.owner = query.owner
+      newPull.repo = query.repo
       newPull.pullNumber = pullQuery.number
       newPull.title = pullQuery.title
       newPull.body = pullQuery.body
@@ -248,6 +255,52 @@ export default class ChallengePullService {
         status: Status.Success,
         message: countSuccessMessage(username, pull.challengePull.reward, score)
       }
+    }
+  }
+
+  // FIXME: we should add a pull service.
+  public async checkReward (challengePullQuery: ChallengePullQuery): Promise<Reply<null> | undefined> {
+    const { pull: pullQuery } = challengePullQuery
+    let pull = await this.pullRepository.findOne({
+      relations: ['challengePull'],
+      where: {
+        pullNumber: pullQuery.number
+      }
+    })
+
+    if (pull === undefined) {
+      pull = await this.findOrCreatePull(challengePullQuery)
+    }
+
+    const issueNumber = findLinkedIssueNumber(pullQuery.body)
+    if (issueNumber === undefined) {
+      return
+    }
+
+    const issue = await this.issueRepository.findOne({
+      relations: ['challengeIssue'],
+      where: {
+        issueNumber
+      }
+    })
+
+    if (issue === undefined || issue.challengeIssue === undefined || issue.challengeIssue === null) {
+      return
+    }
+
+    if (pull.challengePull === undefined || pull.challengePull === null) {
+      return {
+        data: null,
+        status: Status.Problematic,
+        message: issue.challengeIssue.mentor ? lgtmNotReward(issue.challengeIssue.mentor) : lgtmNotReward(),
+        tip: RewardTips.RewardCommandRefs
+      }
+    }
+
+    return {
+      data: null,
+      status: Status.Success,
+      message: RewardMessage.Rewarded
     }
   }
 }
