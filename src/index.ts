@@ -18,6 +18,7 @@ import handleIssuesOpened from './events/issues-opened'
 import IssueService from './services/issue'
 import ChallengeIssueService from './services/challenge-issue'
 import handleIssuesEdited from './events/issues-edited'
+import handleIssuesLabeled from './events/issue-labeled'
 
 const commands = require('probot-commands-pro')
 const createScheduler = require('probot-scheduler')
@@ -70,6 +71,10 @@ export = (app: Application) => {
 
     app.on('issues.edited', async (context:Context) => {
       await handleIssuesEdited(context, Container.get(IssueService), Container.get(ChallengeIssueService))
+    })
+
+    app.on('issues.labeled', async (context:Context) => {
+      await handleIssuesLabeled(context, Container.get(IssueService), Container.get(ChallengeIssueService))
     })
 
     app.on('pull_request.closed', async (context:Context) => {

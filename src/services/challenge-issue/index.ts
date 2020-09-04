@@ -303,7 +303,7 @@ export default class ChallengeIssueService {
     let warning
     const mentorAndScore = findMentorAndScore(issueQuery.body)
     if (mentorAndScore === undefined) {
-      // FIXME: need define a waring for it.
+      // FIXME: need define a warning for it.
       warning = PickUpMessage.IllegalIssueFormat
     }
 

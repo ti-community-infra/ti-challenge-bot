@@ -42,10 +42,8 @@ const handleIssuesEdited = async (context: Context, issueService: IssueService, 
     }
   }
 
-  const issue = await issueService.update(payload)
-  if (issue === undefined) {
-    return
-  }
+  const issue = await issueService.update(payload) ||
+      await issueService.add(payload)
 
   if (isChallengeIssue(labels)) {
     const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH)
@@ -56,10 +54,8 @@ const handleIssuesEdited = async (context: Context, issueService: IssueService, 
       defaultSigLabel: config?.defaultSigLabel
     }
 
-    const reply = await challengeIssueService.updateWhenIssueEdited(issue.id, challengeIssueQuery)
-    if (reply === undefined) {
-      return
-    }
+    const reply = await challengeIssueService.updateWhenIssueEdited(issue.id, challengeIssueQuery) ||
+        await challengeIssueService.createWhenIssueOpened(issue.id, challengeIssueQuery)
 
     if (reply.status === Status.Failed) {
       await context.github.issues.createComment(context.issue({ body: reply.message }))
