@@ -3,8 +3,8 @@ import { LabelQuery } from '../../commands/queries/LabelQuery'
 // eslint-disable-next-line no-unused-vars
 import { IssueQuery } from '../../commands/queries/IssueQuery'
 import { IssueOrPullStatus } from '../../repositoies/score'
+import { CHALLENGE_PROGRAM_LABEL } from '../../commands/labels'
 
-const challengeProgramLabel = 'challenge-program'
 const MENTOR_REGEX = /(Mentor).*[\r\n]*[-|* ]*(.*)/
 const SCORE_REGEX = /(Score).*[\r\n]+[-|* ]*([0-9]*)/
 
@@ -39,7 +39,7 @@ export function findSigLabel (labels: LabelQuery[]): LabelQuery | undefined {
 
 export function isChallengeIssue (labels: LabelQuery[]): boolean {
   const challengeLabel = labels.filter((l: LabelQuery) => {
-    return l.name === challengeProgramLabel
+    return l.name === CHALLENGE_PROGRAM_LABEL
   })
   return challengeLabel.length > 0
 }

@@ -334,4 +334,40 @@ export default class ChallengeIssueService {
       message: PickUpMessage.Updated
     }
   }
+
+  public async removeWhenIssueUnlabeled (issueId: number): Promise<Reply<null>|undefined> {
+    const challengeIssue = await this.challengeIssueRepository.findOne({
+      relations: ['challengePulls'],
+      where: {
+        issueId
+      }
+    })
+    if (challengeIssue === undefined) {
+      return
+    }
+
+    if (challengeIssue.hasPicked) {
+      return {
+        data: null,
+        status: Status.Failed,
+        message: PickUpMessage.CannotRemoveBecausePicked
+      }
+    }
+    const { challengePulls } = challengeIssue
+
+    if (challengePulls !== undefined && challengePulls !== null && challengePulls.length > 0) {
+      return {
+        data: null,
+        status: Status.Failed,
+        message: PickUpMessage.CannotRemoveBecauseHasPulls
+      }
+    }
+
+    await this.challengeIssueRepository.remove(challengeIssue)
+    return {
+      data: null,
+      status: Status.Success,
+      message: PickUpMessage.Removed
+    }
+  }
 }
