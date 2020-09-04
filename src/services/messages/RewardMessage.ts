@@ -21,9 +21,9 @@ export function rewardFailedNotEnoughLeftScoreMessage (leftScore: number) {
 }
 
 export function lgtmNotReward (mentor?: string): string {
-  const prefix = 'This challenge issue do not have reward, '
+  const prefix = 'There is no reward for this challenge pull request, so you can request a reward from '
   if (mentor !== undefined && mentor !== null) {
-    return prefix + `so ${mentor} could you please reward it.`
+    return prefix + `@${mentor}.`
   }
-  return prefix + 'so could you please request reward from mentor.'
+  return prefix + 'the mentor.'
 }
