@@ -10,6 +10,11 @@ import { LabelQuery } from '../queries/LabelQuery'
 import { Status } from '../../services/reply'
 import { PICKED_LABEL } from '../labels'
 
+/**
+ * Give up challenge issue.
+ * @param context
+ * @param challengeIssueService
+ */
 const giveUp = async (context: Context, challengeIssueService: ChallengeIssueService) => {
   const issueResponse = await context.github.issues.get(context.issue())
   const { data } = issueResponse
@@ -25,11 +30,14 @@ const giveUp = async (context: Context, challengeIssueService: ChallengeIssueSer
     labels
   }
 
-  const result = await challengeIssueService.giveUp(giveUpQuery)
+  const reply = await challengeIssueService.giveUp(giveUpQuery)
+  if (reply === undefined) {
+    return
+  }
 
-  switch (result.status) {
+  switch (reply.status) {
     case Status.Failed: {
-      context.log.error(`Give up ${giveUpQuery} failed because ${result.message}.`)
+      context.log.error(`Give up ${giveUpQuery} failed because ${reply.message}.`)
       break
     }
     case Status.Success: {
@@ -41,7 +49,7 @@ const giveUp = async (context: Context, challengeIssueService: ChallengeIssueSer
     }
   }
 
-  await context.github.issues.createComment(context.issue({ body: result.message }))
+  await context.github.issues.createComment(context.issue({ body: reply.message }))
 }
 
 export default giveUp

@@ -203,17 +203,19 @@ export default class ChallengeIssueService {
     }
   }
 
-  public async giveUp (giveUpQuery: GiveUpQuery):Promise<Reply<null>> {
+  /**
+   * Give up challenge.
+   * @param giveUpQuery
+   */
+  public async giveUp (giveUpQuery: GiveUpQuery):Promise<Reply<null>| undefined> {
     const baseFailedMessage = {
       data: null,
       status: Status.Failed
     }
 
+    // If not a challenge issue.
     if (!isChallengeIssue(giveUpQuery.labels)) {
-      return {
-        ...baseFailedMessage,
-        message: GiveUpMessage.NotChallengeProgramIssue
-      }
+      return
     }
 
     const issue = await this.issueRepository.findOne({
@@ -222,15 +224,13 @@ export default class ChallengeIssueService {
         issueNumber: giveUpQuery.issueId
       }
     })
-
+    // Also not a challenge issue.
     if (issue === undefined || issue.challengeIssue === undefined || issue.challengeIssue === null) {
-      return {
-        ...baseFailedMessage,
-        message: GiveUpMessage.NotChallengeProgramIssue
-      }
+      return
     }
 
     const { challengeIssue } = issue
+    // Not challenger or the issue not picked.
     if (!challengeIssue.hasPicked || challengeIssue.currentChallengerGitHubId !== giveUpQuery.challenger) {
       return {
         ...baseFailedMessage,
