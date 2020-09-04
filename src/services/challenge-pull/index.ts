@@ -293,8 +293,12 @@ export default class ChallengePullService {
     }
   }
 
-  // FIXME: we should add a pull service.
-  public async checkReward (challengePullQuery: ChallengePullQuery): Promise<Reply<null> | undefined> {
+  /**
+   * Check if reward to challenge pull.
+   * TODO: we should add a pull service.
+   * @param challengePullQuery
+   */
+  public async checkHasRewardToChallengePull (challengePullQuery: ChallengePullQuery): Promise<Reply<null> | undefined> {
     const { pull: pullQuery } = challengePullQuery
     let pull = await this.pullRepository.findOne({
       relations: ['challengePull'],
@@ -303,26 +307,31 @@ export default class ChallengePullService {
       }
     })
 
+    // FIXME: should we add it?
     if (pull === undefined) {
       pull = await this.findOrCreatePull(challengePullQuery)
     }
 
+    // Try to find linked issue number.
     const issueNumber = findLinkedIssueNumber(pullQuery.body)
     if (issueNumber === undefined) {
       return
     }
 
+    // Try to find linked issue.
     const issue = await this.issueRepository.findOne({
       relations: ['challengeIssue'],
       where: {
         issueNumber
       }
     })
-
+    // Not a challenge issue.
     if (issue === undefined || issue.challengeIssue === undefined || issue.challengeIssue === null) {
       return
     }
 
+    // Cannot find challenge pull means not reward.
+    // Because if rewarded, it will create challenge pull.
     if (pull.challengePull === undefined || pull.challengePull === null) {
       return {
         data: null,
