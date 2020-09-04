@@ -351,7 +351,13 @@ export default class ChallengeIssueService {
     }
   }
 
+  /**
+   * Remove challenge issue when issue unlabeled.
+   * @param issueId
+   */
   public async removeWhenIssueUnlabeled (issueId: number): Promise<Reply<null>|undefined> {
+    // Try to find challenge issue.
+    // If we cannot find it, then we do not need remove it.
     const challengeIssue = await this.challengeIssueRepository.findOne({
       relations: ['challengePulls'],
       where: {
@@ -362,6 +368,7 @@ export default class ChallengeIssueService {
       return
     }
 
+    // If the challenge issue already picked by some one, we can not remove it.
     if (challengeIssue.hasPicked) {
       return {
         data: null,
@@ -371,6 +378,7 @@ export default class ChallengeIssueService {
     }
     const { challengePulls } = challengeIssue
 
+    // If the challenge issue already have some pulls, we can not remove it.
     if (challengePulls !== undefined && challengePulls !== null && challengePulls.length > 0) {
       return {
         data: null,
@@ -379,6 +387,7 @@ export default class ChallengeIssueService {
       }
     }
 
+    // Remove it.
     await this.challengeIssueRepository.remove(challengeIssue)
     return {
       data: null,
