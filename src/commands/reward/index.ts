@@ -48,24 +48,24 @@ const reward = async (context: Context, score: number, challengePullService: Cha
     reward: score
   }
 
-  const result = await challengePullService.reward(rewardQuery)
+  const reply = await challengePullService.reward(rewardQuery)
 
-  switch (result.status) {
+  switch (reply.status) {
     case Status.Failed: {
-      context.log.error(`Reward ${rewardQuery} failed because ${result.message}.`)
-      await context.github.issues.createComment(context.issue({ body: result.message }))
+      context.log.error(`Reward ${rewardQuery} failed because ${reply.message}.`)
+      await context.github.issues.createComment(context.issue({ body: reply.message }))
       break
     }
     case Status.Success: {
       // Add rewarded label.
       context.log.info(`Reward ${rewardQuery} success.`)
       await context.github.issues.addLabels(context.issue({ labels: [REWARDED_LABEL] }))
-      await context.github.issues.createComment(context.issue({ body: result.message }))
+      await context.github.issues.createComment(context.issue({ body: reply.message }))
       break
     }
     case Status.Problematic: {
       context.log.info(`Reward ${rewardQuery} has some problems.`)
-      await context.github.issues.createComment(context.issue({ body: combineReplay(result) }))
+      await context.github.issues.createComment(context.issue({ body: combineReplay(reply) }))
       break
     }
   }
