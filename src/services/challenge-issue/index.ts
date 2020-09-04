@@ -350,7 +350,7 @@ export default class ChallengeIssueService {
       return {
         data: null,
         status: Status.Failed,
-        message: 'The issue already picked by some one, so you can not remove the challenge program label.'
+        message: PickUpMessage.CannotRemoveBecausePicked
       }
     }
     const { challengePulls } = challengeIssue
@@ -359,7 +359,7 @@ export default class ChallengeIssueService {
       return {
         data: null,
         status: Status.Failed,
-        message: 'The issue already picked have some challenge pulls, so you can not remove the challenge program label.'
+        message: PickUpMessage.CannotRemoveBecauseHasPulls
       }
     }
 
@@ -367,7 +367,7 @@ export default class ChallengeIssueService {
     return {
       data: null,
       status: Status.Success,
-      message: 'The issue already remove from challenge program.'
+      message: PickUpMessage.Removed
     }
   }
 }
