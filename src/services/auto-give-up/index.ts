@@ -6,7 +6,7 @@ import { InjectRepository } from 'typeorm-typedi-extensions'
 import { Repository } from 'typeorm/repository/Repository'
 import { ChallengeIssue } from '../../db/entities/ChallengeIssue'
 import { DEFAULT_TIMEOUT } from '../../config/Config'
-import { autoGiveUpdMessage } from '../messages/AutoGiveUpMessage'
+import { autoGiveUpdMessage } from '../messages/ChallengeIssueMessage'
 
 interface AutoGiveUpResult {
     owner: string;
