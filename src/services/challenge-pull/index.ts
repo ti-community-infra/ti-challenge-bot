@@ -15,15 +15,14 @@ import { LabelQuery } from '../../commands/queries/LabelQuery'
 import { Reply, Status } from '../reply'
 import {
   ChallengePullMessage,
-  ChallengePullTips,
-  lgtmNotReward,
+  ChallengePullTips, countScoreMessage,
+  lgtmNotReward, pullMergedButNotPickedWarning,
   rewardNotEnoughLeftScoreMessage,
-  rewardScoreInvalidWaring
+  rewardScoreInvalidWarning
 } from '../messages/ChallengePullMessage'
 import { findLinkedIssueNumber } from '../utils/PullUtil'
 // eslint-disable-next-line no-unused-vars
 import { PullPayload } from '../../events/payloads/PullPayload'
-import { CountMessage, countSuccessMessage } from '../messages/CountMessage'
 // eslint-disable-next-line no-unused-vars
 import { ChallengePullQuery } from '../../commands/queries/ChallengePullQuery'
 import { ChallengeIssueTip } from '../messages/ChallengeIssueMessage'
@@ -161,7 +160,7 @@ export default class ChallengePullService {
         data: null,
         status: Status.Problematic,
         message: ChallengePullMessage.NotValidReward,
-        warning: rewardScoreInvalidWaring(rewardQuery.reward, challengeIssue.score)
+        warning: rewardScoreInvalidWarning(rewardQuery.reward, challengeIssue.score)
       }
     }
 
@@ -201,7 +200,11 @@ export default class ChallengePullService {
     }
   }
 
-  public async count (pullPayload: PullPayload): Promise<Reply<number|null> | undefined> {
+  /**
+   * Count the challenger score when the PR closed
+   * @param pullPayload
+   */
+  public async countScoreWhenPullClosed (pullPayload: PullPayload): Promise<Reply<number|null> | undefined> {
     const { pull: pullQuery } = pullPayload
 
     const pull = await this.pullRepository.findOne({
@@ -212,7 +215,6 @@ export default class ChallengePullService {
     })
 
     // Can not find the pull it means this pull request not reward, so we do not need to count this.
-    // FIXME: maybe we should add this pull.
     if (pull === undefined || pull.challengePull === undefined || pull.challengePull === null) {
       return
     }
@@ -238,12 +240,9 @@ export default class ChallengePullService {
     // Not picked.
     const { login: username } = pullQuery.user
     const { challengeIssue } = issue
+    let warning
     if (!challengeIssue.hasPicked) {
-      return {
-        data: null,
-        status: Status.Failed,
-        message: CountMessage.LinkedIssueNotPicked
-      }
+      warning = pullMergedButNotPickedWarning(username, challengeIssue.mentor, challengeIssue.currentChallengerGitHubId)
     }
 
     // Update pull info.
@@ -263,17 +262,33 @@ export default class ChallengePullService {
 
     if (challengeProgram !== undefined && challengeProgram !== null) {
       const score = await this.scoreRepository.getCurrentScoreInProgram(challengeProgram.programTheme, username)
+      if (warning !== undefined) {
+        return {
+          data: score,
+          status: Status.Problematic,
+          message: countScoreMessage(username, pull.challengePull.reward, score, challengeProgram.programTheme),
+          warning
+        }
+      }
       return {
         data: score,
         status: Status.Success,
-        message: countSuccessMessage(username, pull.challengePull.reward, score, challengeProgram.programTheme)
+        message: countScoreMessage(username, pull.challengePull.reward, score, challengeProgram.programTheme)
       }
     } else {
       const score = await this.scoreRepository.getCurrentScoreInLongTermProgram(username)
+      if (warning !== undefined) {
+        return {
+          data: score,
+          status: Status.Problematic,
+          message: countScoreMessage(username, pull.challengePull.reward, score),
+          warning
+        }
+      }
       return {
         data: score,
         status: Status.Success,
-        message: countSuccessMessage(username, pull.challengePull.reward, score)
+        message: countScoreMessage(username, pull.challengePull.reward, score)
       }
     }
   }
