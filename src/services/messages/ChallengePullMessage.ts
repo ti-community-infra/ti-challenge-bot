@@ -35,7 +35,7 @@ export function rewardScoreInvalidWarning (rewardScore:number, issueScore: numbe
 
 export function pullMergedButNotPickedWarning (username: string, mentor?:string|null, currentChallenger?: string|null) {
   return `
-The pull request merged, ${username} get the score. But it seems linked issue not picked.
+The pull request merged, ${username} got the score. But it seems linked issue not picked.
 
 ${mentor ? 'cc: Mentor @' + mentor : ''}
 ${currentChallenger ? 'cc: Current Challenger @' + currentChallenger : ''}
