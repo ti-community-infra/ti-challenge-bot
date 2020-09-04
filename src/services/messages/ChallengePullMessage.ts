@@ -25,10 +25,12 @@ About issue link, there is a known [issue](https://github.com/tidb-community-bot
 }
 
 export function rewardScoreInvalidWaring (rewardScore:number, issueScore: number) : string {
+  const prefix = `Your reward score is ${rewardScore}, `
+
   if (rewardScore <= 0) {
-    return `Your reward score ${rewardScore} less than or equals 0.`
+    return prefix + 'which is less than or equal to 0.'
   }
-  return `Your reward score ${rewardScore} more than the linked challenge issue's score: ${issueScore}.`
+  return prefix + `which more than the linked challenge issue's score: ${issueScore}.`
 }
 
 export function rewardNotEnoughLeftScoreMessage (leftScore: number) {
