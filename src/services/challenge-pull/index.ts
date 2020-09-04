@@ -14,17 +14,19 @@ import { LabelQuery } from '../../commands/queries/LabelQuery'
 // eslint-disable-next-line no-unused-vars
 import { Reply, Status } from '../reply'
 import {
+  ChallengePullMessage,
+  ChallengePullTips,
   lgtmNotReward,
-  rewardFailedNotEnoughLeftScoreMessage,
-  RewardMessage,
-  RewardTips
-} from '../messages/RewardMessage'
+  rewardNotEnoughLeftScoreMessage,
+  rewardScoreInvalidWaring
+} from '../messages/ChallengePullMessage'
 import { findLinkedIssueNumber } from '../utils/PullUtil'
 // eslint-disable-next-line no-unused-vars
 import { PullPayload } from '../../events/payloads/PullPayload'
 import { CountMessage, countSuccessMessage } from '../messages/CountMessage'
 // eslint-disable-next-line no-unused-vars
 import { ChallengePullQuery } from '../../commands/queries/ChallengePullQuery'
+import { ChallengeIssueTip } from '../messages/ChallengeIssueMessage'
 
 @Service()
 export default class ChallengePullService {
@@ -73,28 +75,37 @@ export default class ChallengePullService {
     return pull
   }
 
-  public async reward (rewardQuery: RewardQuery): Promise<Reply<number|null>> {
+  /**
+   * Reward score to the PR.
+   * @param rewardQuery
+   */
+  public async reward (rewardQuery: RewardQuery): Promise<Reply<null>> {
     const { pull: pullQuery } = rewardQuery
     const baseFailedMessage = {
       data: null,
       status: Status.Failed
     }
 
+    // Check if pull closed.
     if (pullQuery.state === IssueOrPullStatus.Closed) {
       return {
         ...baseFailedMessage,
-        message: RewardMessage.PullRequestAlreadyClosed
+        message: ChallengePullMessage.PullRequestAlreadyClosed
       }
     }
 
+    // Find linked issue.
     const issueNumber = findLinkedIssueNumber(pullQuery.body)
     if (issueNumber === undefined) {
       return {
-        ...baseFailedMessage,
-        message: RewardMessage.CanNotFindLinkedIssue
+        data: null,
+        status: Status.Problematic,
+        message: ChallengePullMessage.CanNotFindLinkedIssue,
+        tip: ChallengePullTips.CanNotFindLinkedIssue
       }
     }
 
+    // Try to find linked issue.
     const issue = await this.issueRepository.findOne({
       relations: ['challengeIssue'],
       where: {
@@ -105,60 +116,69 @@ export default class ChallengePullService {
     if (issue === undefined || issue.challengeIssue === undefined || issue.challengeIssue === null) {
       return {
         ...baseFailedMessage,
-        message: RewardMessage.LinkedNotChallengeIssue
+        message: ChallengePullMessage.LinkedNotChallengeIssue
       }
     }
 
+    // Check if the issue has picked.
     const { challengeIssue } = issue
     if (!challengeIssue.hasPicked) {
       return {
         ...baseFailedMessage,
-        message: RewardMessage.NotPicked
+        message: ChallengePullMessage.NotPicked
       }
     }
 
+    // Check the challenge issue's mentor.
     if (challengeIssue.mentor === undefined || challengeIssue.mentor === null) {
       return {
-        ...baseFailedMessage,
-        message: RewardMessage.LinkedIssueMissMentorInfo
+        data: null,
+        status: Status.Problematic,
+        message: ChallengePullMessage.LinkedIssueMissMentorInfo,
+        tip: ChallengeIssueTip.RefineIssueFormat
       }
     }
 
+    // Check if the mentor match.
     if (rewardQuery.mentor !== challengeIssue.mentor) {
       return {
         ...baseFailedMessage,
-        message: RewardMessage.NotMentor
+        message: ChallengePullMessage.NotMentor
       }
     }
 
+    // Check the challenge issue's score.
     if (challengeIssue.score === null || challengeIssue.score === undefined) {
       return {
         ...baseFailedMessage,
-        message: RewardMessage.LinkedIssueMissScoreInfo
+        message: ChallengePullMessage.LinkedIssueMissScoreInfo
       }
     }
 
-    if (rewardQuery.reward < 0 || rewardQuery.reward > challengeIssue.score) {
+    // Check if the reward score valid.
+    if (rewardQuery.reward <= 0 || rewardQuery.reward > challengeIssue.score) {
       return {
-        ...baseFailedMessage,
-        message: RewardMessage.NotValidReward
+        data: null,
+        status: Status.Problematic,
+        message: ChallengePullMessage.NotValidReward,
+        warning: rewardScoreInvalidWaring(rewardQuery.reward, challengeIssue.score)
       }
     }
 
+    // Check the left score.
     const pull = await this.findOrCreatePull(rewardQuery)
-
-    const currentLeftScore = await this.scoreRepository.getCurrentLeftScore(challengeIssue, pull.id)
-    if (currentLeftScore === null) {
+    const currentLeftScore = await this.scoreRepository.getCurrentLeftScore(challengeIssue.issueId, pull.id)
+    if (currentLeftScore === undefined) {
       return {
         ...baseFailedMessage,
-        message: RewardMessage.LinkedIssueMissScoreInfo
+        message: ChallengePullMessage.LinkedIssueMissScoreInfo
       }
     }
 
     if (rewardQuery.reward > currentLeftScore) {
       return {
         ...baseFailedMessage,
-        message: rewardFailedNotEnoughLeftScoreMessage(currentLeftScore)
+        message: rewardNotEnoughLeftScoreMessage(currentLeftScore)
       }
     }
 
@@ -175,9 +195,9 @@ export default class ChallengePullService {
     }
 
     return {
-      data: rewardQuery.reward,
+      data: null,
       status: Status.Success,
-      message: RewardMessage.RewardSuccess
+      message: ChallengePullMessage.RewardSuccess
     }
   }
 
@@ -293,14 +313,14 @@ export default class ChallengePullService {
         data: null,
         status: Status.Problematic,
         message: issue.challengeIssue.mentor ? lgtmNotReward(issue.challengeIssue.mentor) : lgtmNotReward(),
-        tip: RewardTips.RewardCommandRefs
+        tip: ChallengePullTips.RewardCommandRefs
       }
     }
 
     return {
       data: null,
       status: Status.Success,
-      message: RewardMessage.Rewarded
+      message: ChallengePullMessage.Rewarded
     }
   }
 }

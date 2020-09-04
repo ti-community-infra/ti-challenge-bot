@@ -43,9 +43,15 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
     return score
   }
 
-  public async getCurrentLeftScore (challengeIssue: ChallengeIssue, pullId: number) : Promise<number|null> {
-    if (challengeIssue.score === null || challengeIssue.score === undefined) {
-      return null
+  public async getCurrentLeftScore (issueId: number, pullId: number) : Promise<number|undefined> {
+    const challengeIssue = await this.findOne({
+      relations: ['challengePulls'],
+      where: {
+        issueId
+      }
+    })
+    if (challengeIssue === undefined || challengeIssue.score === undefined || challengeIssue.score === null) {
+      return
     }
 
     const { challengePulls } = challengeIssue

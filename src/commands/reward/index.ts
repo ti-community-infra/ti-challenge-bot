@@ -9,8 +9,16 @@ import { Status } from '../../services/reply'
 import { REWARDED_LABEL } from '../labels'
 // eslint-disable-next-line no-unused-vars
 import ChallengePullService from '../../services/challenge-pull'
+import { combineReplay } from '../../services/utils/ReplyUtil'
 
-const reward = async (context: Context, rewardData: number, challengePullService: ChallengePullService) => {
+/**
+ * Reward score to the PR.
+ * @param context
+ * @param score
+ * @param challengePullService
+ */
+const reward = async (context: Context, score: number, challengePullService: ChallengePullService) => {
+  // Notice: because the context come form issue_comment.created, so we need to get the pull.
   const pullResponse = await context.github.pulls.get(context.issue())
   const { data } = pullResponse
   const { sender } = context.payload
@@ -37,7 +45,7 @@ const reward = async (context: Context, rewardData: number, challengePullService
       mergedAt: data.merged_at,
       authorAssociation: data.author_association
     },
-    reward: rewardData
+    reward: score
   }
 
   const result = await challengePullService.reward(rewardQuery)
@@ -45,17 +53,22 @@ const reward = async (context: Context, rewardData: number, challengePullService
   switch (result.status) {
     case Status.Failed: {
       context.log.error(`Reward ${rewardQuery} failed because ${result.message}.`)
+      await context.github.issues.createComment(context.issue({ body: result.message }))
       break
     }
     case Status.Success: {
       // Add rewarded label.
-      await context.github.issues.addLabels(context.issue({ labels: [REWARDED_LABEL] }))
       context.log.info(`Reward ${rewardQuery} success.`)
+      await context.github.issues.addLabels(context.issue({ labels: [REWARDED_LABEL] }))
+      await context.github.issues.createComment(context.issue({ body: result.message }))
+      break
+    }
+    case Status.Problematic: {
+      context.log.info(`Reward ${rewardQuery} has some problems.`)
+      await context.github.issues.createComment(context.issue({ body: combineReplay(result) }))
       break
     }
   }
-
-  await context.github.issues.createComment(context.issue({ body: result.message }))
 }
 
 export default reward
