@@ -14,12 +14,9 @@ import help from './commands/help'
 import 'reflect-metadata'
 import autoGiveUp from './tasks/auto-give-up'
 import AutoGiveUpService from './services/auto-give-up'
-import handleIssuesOpened from './events/issues-opened'
 import IssueService from './services/issue'
 import ChallengeIssueService from './services/challenge-issue'
-import handleIssuesEdited from './events/issues-edited'
-import handleIssuesLabeled from './events/issues-labeled'
-import handleIssuesUnlabeled from './events/issues-unlabeled'
+import handleIssueEvents from './events/issues'
 
 const commands = require('probot-commands-pro')
 const createScheduler = require('probot-scheduler')
@@ -66,20 +63,8 @@ export = (app: Application) => {
       await reward(context, rewardValue, Container.get(RewardService))
     })
 
-    app.on('issues.opened', async (context:Context) => {
-      await handleIssuesOpened(context, Container.get(IssueService), Container.get(ChallengeIssueService))
-    })
-
-    app.on('issues.edited', async (context:Context) => {
-      await handleIssuesEdited(context, Container.get(IssueService), Container.get(ChallengeIssueService))
-    })
-
-    app.on('issues.labeled', async (context:Context) => {
-      await handleIssuesLabeled(context, Container.get(IssueService), Container.get(ChallengeIssueService))
-    })
-
-    app.on('issues.unlabeled', async (context:Context) => {
-      await handleIssuesUnlabeled(context, Container.get(IssueService), Container.get(ChallengeIssueService))
+    app.on('issues', async (context:Context) => {
+      await handleIssueEvents(context, Container.get(IssueService), Container.get(ChallengeIssueService))
     })
 
     app.on('pull_request.closed', async (context:Context) => {
