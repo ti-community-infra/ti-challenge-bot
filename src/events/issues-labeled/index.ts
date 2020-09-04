@@ -45,7 +45,7 @@ const handleIssuesLabeled = async (context: Context, issueService: IssueService,
     }
   }
 
-  let issue = await issueService.findOne({
+  const oldIssue = await issueService.findOne({
     where: {
       issueNumber: issuePayload.number
     }
@@ -60,21 +60,23 @@ const handleIssuesLabeled = async (context: Context, issueService: IssueService,
     defaultSigLabel: config?.defaultSigLabel
   }
 
-  if (issue === undefined) {
-    issue = await issueService.add(payload)
+  if (oldIssue === undefined) {
+    const issue = await issueService.add(payload)
 
     if (isChallengeIssue(labels)) {
       reply = await challengeIssueService.createWhenIssueOpened(issue.id, challengeIssueQuery)
     }
   } else {
-    const oldLabels = issue.label.split(',')
+    await issueService.update(payload)
+
+    const oldLabels = oldIssue.label.split(',')
     const addedLabels = labels.filter(l => {
       return !oldLabels.includes(l.name)
     })
 
     if (isChallengeIssue(addedLabels)) {
-      reply = await challengeIssueService.updateWhenIssueEdited(issue.id, challengeIssueQuery) ||
-          await challengeIssueService.createWhenIssueOpened(issue.id, challengeIssueQuery)
+      reply = await challengeIssueService.updateWhenIssueEdited(oldIssue.id, challengeIssueQuery) ||
+          await challengeIssueService.createWhenIssueOpened(oldIssue.id, challengeIssueQuery)
     }
   }
 

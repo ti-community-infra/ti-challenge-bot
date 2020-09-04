@@ -334,4 +334,40 @@ export default class ChallengeIssueService {
       message: PickUpMessage.Updated
     }
   }
+
+  public async removeWhenIssueUnlabeled (issueId: number): Promise<Reply<null>|undefined> {
+    const challengeIssue = await this.challengeIssueRepository.findOne({
+      relations: ['challengePulls'],
+      where: {
+        issueId
+      }
+    })
+    if (challengeIssue === undefined) {
+      return
+    }
+
+    if (challengeIssue.hasPicked) {
+      return {
+        data: null,
+        status: Status.Failed,
+        message: 'The issue already picked by some one, so you can not remove the challenge program label.'
+      }
+    }
+    const { challengePulls } = challengeIssue
+
+    if (challengePulls !== undefined && challengePulls !== null && challengePulls.length > 0) {
+      return {
+        data: null,
+        status: Status.Failed,
+        message: 'The issue already picked have some challenge pulls, so you can not remove the challenge program label.'
+      }
+    }
+
+    await this.challengeIssueRepository.remove(challengeIssue)
+    return {
+      data: null,
+      status: Status.Success,
+      message: 'The issue already remove from challenge program.'
+    }
+  }
 }
