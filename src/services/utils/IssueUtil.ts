@@ -5,8 +5,8 @@ import { IssueQuery } from '../../commands/queries/IssueQuery'
 import { IssueOrPullStatus } from '../../repositoies/score'
 import { CHALLENGE_PROGRAM_LABEL } from '../../commands/labels'
 
-const MENTOR_REGEX = /(Mentor).*[\r\n]*[-|* ]*[@]*([a-z0-9](?:-?[a-z0-9]){0,38})/i
-const SCORE_REGEX = /(Score).*[\r\n]+[-|* ]*([0-9]*)/
+const MENTOR_REGEX = /(Mentor).*[\r\n]+[-|* ]*[@]*([a-z0-9](?:-?[a-z0-9]){0,38})/i
+const SCORE_REGEX = /(Score).*[\r\n]+[-|* ]*([1-9]+[0-9]*)/
 
 export interface MentorAndScore{
     mentor: string,
@@ -26,7 +26,7 @@ export function findMentorAndScore (issueBody: string):MentorAndScore | undefine
 
   return {
     mentor: mentorData[2].replace('@', '').trim(),
-    score: Number(scoreData[2].trim())
+    score: Number(scoreData[2])
   }
 }
 

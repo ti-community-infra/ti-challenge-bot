@@ -35,7 +35,11 @@ enum IssueActions{
     Reopened = 'reopened'
 }
 
-const constructIssuePayload = (context: Context): {payload:IssuePayload, labels: LabelQuery[]} => {
+/**
+ * Construct issue payload and labels.
+ * @param context
+ */
+const constructIssuePayloadAndLabels = (context: Context): {payload:IssuePayload, labels: LabelQuery[]} => {
   const { issue: issuePayload } = context.payload
   const labels: LabelQuery[] = issuePayload.labels.map((label: LabelQuery) => {
     return {
@@ -65,14 +69,21 @@ const constructIssuePayload = (context: Context): {payload:IssuePayload, labels:
   }
 }
 
+/**
+ * Handle the issue opened event.
+ * @param context
+ * @param issueService
+ * @param challengeIssueService
+ */
 const handleIssuesOpened = async (context: Context, issueService: IssueService, challengeIssueService: ChallengeIssueService) => {
-  const { payload, labels } = constructIssuePayload(context)
+  const { payload, labels } = constructIssuePayloadAndLabels(context)
 
   const issue = await issueService.add(payload)
 
+  // Check if it is a challenge issue.
   if (isChallengeIssue(labels)) {
+    // Get config form repo.
     const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH)
-
     const challengeIssueQuery: ChallengeIssueQuery = {
       ...context.issue(),
       issue: payload.issue,
@@ -82,45 +93,55 @@ const handleIssuesOpened = async (context: Context, issueService: IssueService, 
     const reply = await challengeIssueService.createWhenIssueOpened(issue.id, challengeIssueQuery)
 
     if (reply.status === Status.Failed) {
+      context.log.error(`Create challenge issue failed ${challengeIssueQuery}.`)
       await context.github.issues.createComment(context.issue({ body: reply.message }))
     }
 
     if (reply.status === Status.Problematic) {
+      context.log.warn(`Create challenge have some problems ${challengeIssueQuery}.`)
       await context.github.issues.createComment(context.issue({ body: combineReplay(reply) }))
     }
   }
 }
 
+/**
+ * Handle the issue edited event.
+ * @param context
+ * @param issueService
+ * @param challengeIssueService
+ */
 const handleIssuesEdited = async (context: Context, issueService: IssueService, challengeIssueService: ChallengeIssueService) => {
-  const { payload, labels } = constructIssuePayload(context)
+  const { payload, labels } = constructIssuePayloadAndLabels(context)
 
+  // Notice: if the issue not exist we need to add it.
   const issue = await issueService.update(payload) ||
         await issueService.add(payload)
 
   if (isChallengeIssue(labels)) {
     const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH)
-
     const challengeIssueQuery: ChallengeIssueQuery = {
       ...context.issue(),
       issue: payload.issue,
       defaultSigLabel: config?.defaultSigLabel
     }
 
+    // Notice: if the challenge issue not exist we need to add it.
     const reply = await challengeIssueService.updateWhenIssueEdited(issue.id, challengeIssueQuery) ||
             await challengeIssueService.createWhenIssueOpened(issue.id, challengeIssueQuery)
-
     if (reply.status === Status.Failed) {
+      context.log.error(`Update challenge issue failed ${challengeIssueQuery}.`)
       await context.github.issues.createComment(context.issue({ body: reply.message }))
     }
 
     if (reply.status === Status.Problematic) {
+      context.log.warn(`Update challenge have some problems ${challengeIssueQuery}.`)
       await context.github.issues.createComment(context.issue({ body: combineReplay(reply) }))
     }
   }
 }
 
 const handleIssuesLabeled = async (context: Context, issueService: IssueService, challengeIssueService: ChallengeIssueService) => {
-  const { payload, labels } = constructIssuePayload(context)
+  const { payload, labels } = constructIssuePayloadAndLabels(context)
 
   const oldIssue = await issueService.findOne({
     where: {
@@ -171,7 +192,7 @@ const handleIssuesLabeled = async (context: Context, issueService: IssueService,
 }
 
 const handleIssuesUnlabeled = async (context: Context, issueService: IssueService, challengeIssueService: ChallengeIssueService) => {
-  const { payload, labels } = constructIssuePayload(context)
+  const { payload, labels } = constructIssuePayloadAndLabels(context)
 
   const oldIssue = await issueService.findOne({
     where: {
@@ -214,7 +235,7 @@ const handleIssuesUnlabeled = async (context: Context, issueService: IssueServic
 }
 
 const handleIssuesClosedOrReopened = async (context: Context, issueService: IssueService) => {
-  const { payload } = constructIssuePayload(context)
+  const { payload } = constructIssuePayloadAndLabels(context)
 
   const issue = await issueService.update(payload)
   if (issue === undefined) {
