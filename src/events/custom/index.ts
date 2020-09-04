@@ -11,6 +11,12 @@ import { combineReplay } from '../../services/utils/ReplyUtil'
 // eslint-disable-next-line no-unused-vars
 import { ChallengePullQuery } from '../../commands/queries/ChallengePullQuery'
 
+/**
+ * Handle LGTM custom event.
+ * When we got a lgtm, we need check if challenge pull rewarded.
+ * @param context
+ * @param challengePullService
+ */
 const handleLgtm = async (context: Context, challengePullService: ChallengePullService) => {
   const pullResponse = await context.github.pulls.get(context.issue())
   const { data } = pullResponse
@@ -37,19 +43,18 @@ const handleLgtm = async (context: Context, challengePullService: ChallengePullS
       authorAssociation: data.author_association
     }
   }
-  const reply = await challengePullService.checkReward(challengePullQuery)
 
+  const reply = await challengePullService.checkHasRewardToChallengePull(challengePullQuery)
+
+  // It means not a challenge pull.
   if (reply === undefined) {
     return
   }
 
   switch (reply.status) {
     case Status.Success: {
+      // Do nothing, if already rewarded.
       return
-    }
-    case Status.Failed: {
-      await context.github.issues.createComment(context.issue({ body: reply.message }))
-      break
     }
     case Status.Problematic: {
       await context.github.issues.createComment(context.issue({ body: combineReplay(reply) }))

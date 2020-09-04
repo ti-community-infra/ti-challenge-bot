@@ -9,7 +9,7 @@ export enum ChallengePullMessage{
     NotMentor = 'You are not the mentor for the linked issue.',
     NotValidReward = 'Not a valid reward.',
     RewardSuccess = 'Reward success.',
-    Rewarded = 'Reward.'
+    Rewarded = 'Reward.',
 }
 
 export enum ChallengePullTips{
@@ -24,7 +24,7 @@ About issue link, there is a known [issue](https://github.com/tidb-community-bot
     RewardCommandRefs = 'About reward you can refs to [reward-command](https://tidb-community-bots.github.io/challenge-bot/commands.html).'
 }
 
-export function rewardScoreInvalidWaring (rewardScore:number, issueScore: number) : string {
+export function rewardScoreInvalidWarning (rewardScore:number, issueScore: number) : string {
   const prefix = `Your reward score is ${rewardScore}, `
 
   if (rewardScore <= 0) {
@@ -33,8 +33,21 @@ export function rewardScoreInvalidWaring (rewardScore:number, issueScore: number
   return prefix + `which more than the linked challenge issue's score: ${issueScore}.`
 }
 
+export function pullMergedButNotPickedWarning (username: string, mentor?:string|null, currentChallenger?: string|null) {
+  return `
+The pull request merged, ${username} got the score. But it seems linked issue not picked.
+
+${mentor ? 'cc: Mentor @' + mentor : ''}
+${currentChallenger ? 'cc: Current Challenger @' + currentChallenger : ''}
+         `
+}
+
 export function rewardNotEnoughLeftScoreMessage (leftScore: number) {
   return `The linked issue's balance is not enough, current balance is ${leftScore}.`
+}
+
+export function countScoreMessage (username: string, prScore: number, score: number, theme?: string): string {
+  return `@${username}, Congratulations, you get ${prScore} in this PR, and your total score is ${score} ` + (theme ? `in ${theme} challenge program.` : 'in challenge program.')
 }
 
 export function lgtmNotReward (mentor?: string): string {

@@ -15,15 +15,14 @@ import { LabelQuery } from '../../commands/queries/LabelQuery'
 import { Reply, Status } from '../reply'
 import {
   ChallengePullMessage,
-  ChallengePullTips,
-  lgtmNotReward,
+  ChallengePullTips, countScoreMessage,
+  lgtmNotReward, pullMergedButNotPickedWarning,
   rewardNotEnoughLeftScoreMessage,
-  rewardScoreInvalidWaring
+  rewardScoreInvalidWarning
 } from '../messages/ChallengePullMessage'
 import { findLinkedIssueNumber } from '../utils/PullUtil'
 // eslint-disable-next-line no-unused-vars
 import { PullPayload } from '../../events/payloads/PullPayload'
-import { CountMessage, countSuccessMessage } from '../messages/CountMessage'
 // eslint-disable-next-line no-unused-vars
 import { ChallengePullQuery } from '../../commands/queries/ChallengePullQuery'
 import { ChallengeIssueTip } from '../messages/ChallengeIssueMessage'
@@ -161,7 +160,7 @@ export default class ChallengePullService {
         data: null,
         status: Status.Problematic,
         message: ChallengePullMessage.NotValidReward,
-        warning: rewardScoreInvalidWaring(rewardQuery.reward, challengeIssue.score)
+        warning: rewardScoreInvalidWarning(rewardQuery.reward, challengeIssue.score)
       }
     }
 
@@ -201,7 +200,11 @@ export default class ChallengePullService {
     }
   }
 
-  public async count (pullPayload: PullPayload): Promise<Reply<number|null> | undefined> {
+  /**
+   * Count the challenger score when the PR closed
+   * @param pullPayload
+   */
+  public async countScoreWhenPullClosed (pullPayload: PullPayload): Promise<Reply<number|null> | undefined> {
     const { pull: pullQuery } = pullPayload
 
     const pull = await this.pullRepository.findOne({
@@ -212,7 +215,6 @@ export default class ChallengePullService {
     })
 
     // Can not find the pull it means this pull request not reward, so we do not need to count this.
-    // FIXME: maybe we should add this pull.
     if (pull === undefined || pull.challengePull === undefined || pull.challengePull === null) {
       return
     }
@@ -238,12 +240,9 @@ export default class ChallengePullService {
     // Not picked.
     const { login: username } = pullQuery.user
     const { challengeIssue } = issue
+    let warning
     if (!challengeIssue.hasPicked) {
-      return {
-        data: null,
-        status: Status.Failed,
-        message: CountMessage.LinkedIssueNotPicked
-      }
+      warning = pullMergedButNotPickedWarning(username, challengeIssue.mentor, challengeIssue.currentChallengerGitHubId)
     }
 
     // Update pull info.
@@ -263,23 +262,43 @@ export default class ChallengePullService {
 
     if (challengeProgram !== undefined && challengeProgram !== null) {
       const score = await this.scoreRepository.getCurrentScoreInProgram(challengeProgram.programTheme, username)
+      if (warning !== undefined) {
+        return {
+          data: score,
+          status: Status.Problematic,
+          message: countScoreMessage(username, pull.challengePull.reward, score, challengeProgram.programTheme),
+          warning
+        }
+      }
       return {
         data: score,
         status: Status.Success,
-        message: countSuccessMessage(username, pull.challengePull.reward, score, challengeProgram.programTheme)
+        message: countScoreMessage(username, pull.challengePull.reward, score, challengeProgram.programTheme)
       }
     } else {
       const score = await this.scoreRepository.getCurrentScoreInLongTermProgram(username)
+      if (warning !== undefined) {
+        return {
+          data: score,
+          status: Status.Problematic,
+          message: countScoreMessage(username, pull.challengePull.reward, score),
+          warning
+        }
+      }
       return {
         data: score,
         status: Status.Success,
-        message: countSuccessMessage(username, pull.challengePull.reward, score)
+        message: countScoreMessage(username, pull.challengePull.reward, score)
       }
     }
   }
 
-  // FIXME: we should add a pull service.
-  public async checkReward (challengePullQuery: ChallengePullQuery): Promise<Reply<null> | undefined> {
+  /**
+   * Check if reward to challenge pull.
+   * TODO: we should add a pull service.
+   * @param challengePullQuery
+   */
+  public async checkHasRewardToChallengePull (challengePullQuery: ChallengePullQuery): Promise<Reply<null> | undefined> {
     const { pull: pullQuery } = challengePullQuery
     let pull = await this.pullRepository.findOne({
       relations: ['challengePull'],
@@ -288,26 +307,31 @@ export default class ChallengePullService {
       }
     })
 
+    // FIXME: should we add it?
     if (pull === undefined) {
       pull = await this.findOrCreatePull(challengePullQuery)
     }
 
+    // Try to find linked issue number.
     const issueNumber = findLinkedIssueNumber(pullQuery.body)
     if (issueNumber === undefined) {
       return
     }
 
+    // Try to find linked issue.
     const issue = await this.issueRepository.findOne({
       relations: ['challengeIssue'],
       where: {
         issueNumber
       }
     })
-
+    // Not a challenge issue.
     if (issue === undefined || issue.challengeIssue === undefined || issue.challengeIssue === null) {
       return
     }
 
+    // Cannot find challenge pull means not reward.
+    // Because if rewarded, it will create challenge pull.
     if (pull.challengePull === undefined || pull.challengePull === null) {
       return {
         data: null,

@@ -25,7 +25,7 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
       .leftJoinAndSelect(ChallengeProgram, 'cpg', 'ci.challenge_program_id = cpg.id')
       .leftJoinAndSelect(ChallengePull, 'cp', ' ci.issue_id = cp.challenge_issue_id')
       .leftJoinAndSelect(Pull, 'p', 'cp.pull_id = p.id')
-      .where(`cpg.program_theme = '${theme}' and ci.current_challenger_github_id = '${username}' and p.status = '${IssueOrPullStatus.Merged}'`)
+      .where(`cpg.program_theme = '${theme}' and p.user = '${username}' and p.status = '${IssueOrPullStatus.Merged}'`)
       .select('sum(cp.reward)', 'score')
       .getRawOne()
 
@@ -36,7 +36,7 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
     const { score } = await this.createQueryBuilder('ci')
       .leftJoinAndSelect(ChallengePull, 'cp', ' ci.issue_id = cp.challenge_issue_id')
       .leftJoinAndSelect(Pull, 'p', 'cp.pull_id = p.id')
-      .where(`ci.challenge_program_id is null and ci.current_challenger_github_id = '${username}' and p.status = '${IssueOrPullStatus.Merged}'`)
+      .where(`ci.challenge_program_id is null and p.user = '${username}' and p.status = '${IssueOrPullStatus.Merged}'`)
       .select('sum(cp.reward)', 'score')
       .getRawOne()
 
