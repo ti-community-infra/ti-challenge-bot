@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-export enum RewardMessage{
+export enum ChallengePullMessage{
     PullRequestAlreadyClosed = 'This PR already closed!',
     CanNotFindLinkedIssue = 'This PR do not have any linked issue.',
     LinkedNotChallengeIssue = 'This PR haven\'t linked to any scoreable issue.',
@@ -12,11 +12,28 @@ export enum RewardMessage{
     Rewarded = 'Reward.'
 }
 
-export enum RewardTips{
+export enum ChallengePullTips{
+    CanNotFindLinkedIssue= `
+    You need to ensure that the link description follows the following template:
+    
+    Issue Number: #xxx
+      
+    
+About issue link, there is a known [issue](https://github.com/tidb-community-bots/challenge-bot/issues/22).
+    `,
     RewardCommandRefs = 'About reward you can refs to [reward-command](https://tidb-community-bots.github.io/challenge-bot/commands.html).'
 }
 
-export function rewardFailedNotEnoughLeftScoreMessage (leftScore: number) {
+export function rewardScoreInvalidWaring (rewardScore:number, issueScore: number) : string {
+  const prefix = `Your reward score is ${rewardScore}, `
+
+  if (rewardScore <= 0) {
+    return prefix + 'which is less than or equal to 0.'
+  }
+  return prefix + `which more than the linked challenge issue's score: ${issueScore}.`
+}
+
+export function rewardNotEnoughLeftScoreMessage (leftScore: number) {
   return `The linked issue's balance is not enough, current balance is ${leftScore}.`
 }
 
