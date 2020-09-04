@@ -17,6 +17,8 @@ export enum ChallengePullTips{
     You need to ensure that the link description follows the following template:
     
     Issue Number: #xxx
+    
+    Issue Number: close #xxx
       
     
 About issue link, there is a known [issue](https://github.com/tidb-community-bots/challenge-bot/issues/22).

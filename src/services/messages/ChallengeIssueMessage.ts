@@ -11,7 +11,9 @@ export enum ChallengeIssueMessage{
     Updated = 'The challenge issue updated.',
     Removed = 'The issue has been removed from the challenge program.',
     CannotRemoveBecausePicked = 'This issue has been picked by someone, so you cannot remove the challenge-program label.',
-    CannotRemoveBecauseHasPulls = 'There are already some challenge pull requests for this issue, so you cannot remove the challenge-program label.'
+    CannotRemoveBecauseHasPulls = 'There are already some challenge pull requests for this issue, so you cannot remove the challenge-program label.',
+    GiveUpSuccess = 'Give up success.',
+    NotChallenger = 'Give up restricted to the one who already picked the issue.',
 }
 
 export enum ChallengeIssueWarning{
@@ -44,4 +46,8 @@ cc: @${author}
 
 export function alreadyPickedMessage (currentChallenger: string) {
   return `This issue already picked by ${currentChallenger}.`
+}
+
+export function autoGiveUpdMessage (challenger: string, timeout: number) {
+  return `@${challenger} You did not submit PR within ${timeout} days, so give up automatically.`
 }

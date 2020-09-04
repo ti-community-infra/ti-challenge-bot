@@ -24,7 +24,6 @@ import { findMentorAndScore, findSigLabel, isChallengeIssue, isClosed } from '..
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 // eslint-disable-next-line no-unused-vars
 import { GiveUpQuery } from '../../commands/queries/GiveUpQuery'
-import { GiveUpMessage } from '../messages/GiveUpMessage'
 
 @Service()
 export default class ChallengeIssueService {
@@ -234,7 +233,7 @@ export default class ChallengeIssueService {
     if (!challengeIssue.hasPicked || challengeIssue.currentChallengerGitHubId !== giveUpQuery.challenger) {
       return {
         ...baseFailedMessage,
-        message: GiveUpMessage.NotChallenger
+        message: ChallengeIssueMessage.NotChallenger
       }
     }
 
@@ -246,7 +245,7 @@ export default class ChallengeIssueService {
     return {
       data: null,
       status: Status.Success,
-      message: GiveUpMessage.GiveUpSuccess
+      message: ChallengeIssueMessage.GiveUpSuccess
     }
   }
 
