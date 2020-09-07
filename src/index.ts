@@ -8,7 +8,6 @@ import giveUp from './commands/give-up'
 import reward from './commands/reward'
 import { handlePullClosed } from './events/pull'
 import help from './commands/help'
-
 import 'reflect-metadata'
 import autoGiveUp from './tasks/auto-give-up'
 import AutoGiveUpService from './services/auto-give-up'
