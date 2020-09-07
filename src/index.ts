@@ -19,7 +19,10 @@ import ChallengePullService from './services/challenge-pull'
 import { handleLgtm } from './events/custom'
 
 const commands = require('probot-commands-pro')
-const createScheduler = require('probot-scheduler')
+const createScheduler = require('probot-scheduler-pro')
+const allowedAccounts = (process.env.ALLOWED_ACCOUNTS || '')
+  .toLowerCase()
+  .split(',')
 
 export = (app: Application) => {
   useContainer(Container)
@@ -81,6 +84,17 @@ export = (app: Application) => {
     app.on('schedule.repository', async (context: Context) => {
       app.log.info('Scheduling coming...')
       await autoGiveUp(context, Container.get(AutoGiveUpService))
+    })
+
+    app.on('installation.created', async (context:Context) => {
+      const { installation } = context.payload
+      // Notice: if not allowed account we need to uninstall itself.
+      if (!allowedAccounts.includes(installation.account.login)) {
+        app.log.warn(`Uninstall app from ${installation.account.login}.`)
+        // FIXME: https://github.com/probot/probot/issues/1003.
+        const github = await app.auth()
+        await github.apps.deleteInstallation({ installation_id: installation.id })
+      }
     })
   }).catch(err => {
     app.log.fatal('Connect to db failed', err)
