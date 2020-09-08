@@ -11,12 +11,15 @@ jobs:
         working-directory: ./docs
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10.21.0
+      - name: Build
+        run: |
+          npm install
+          npx gitbook-cli@2.3.2 build . ./public
       - uses: afc163/surge-preview@v1
         with:
           surge_token: ${{ secrets.SURGE_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          build: |
-            node -v
-            npx gitbook-cli install
-            npx gitbook-cli build . ./public
-          dist: docs/public
+          dist: ./public
