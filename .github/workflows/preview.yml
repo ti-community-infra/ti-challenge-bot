@@ -16,6 +16,7 @@ jobs:
           surge_token: ${{ secrets.SURGE_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build: |
+            node -v
             npx gitbook-cli install
             npx gitbook-cli build . ./public
           dist: docs/public
