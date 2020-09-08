@@ -1,4 +1,4 @@
-name: 🔂 Surge PR Preview
+name: Surge PR Preview
 
 on: [push, pull_request]
 
