@@ -16,7 +16,7 @@ jobs:
           node-version: 10.21.0
       - name: Build
         run: |
-          npm install
+          npx gitbook-cli@2.3.2 install
           npx gitbook-cli@2.3.2 build . ./public
       - uses: afc163/surge-preview@v1
         with:

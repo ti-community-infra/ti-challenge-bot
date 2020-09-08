@@ -19,7 +19,7 @@ jobs:
           node-version: 10.21.0
       - name: Build
         run: |
-          npm install
+          npx gitbook-cli@2.3.2 install
           npx gitbook-cli@2.3.2 build . ./public
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
