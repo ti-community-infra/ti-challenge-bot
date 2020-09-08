@@ -1,0 +1,442 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>database design · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-mermaid-v8/mermaid/mermaid.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    
+    <link rel="prev" href="labels.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="design.html">
+            
+                <a href="design.html">
+            
+                    
+                    design
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="issue-template.html">
+            
+                <a href="issue-template.html">
+            
+                    
+                    issue template
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="PR-template.html">
+            
+                <a href="PR-template.html">
+            
+                    
+                    PR template
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="commands.html">
+            
+                <a href="commands.html">
+            
+                    
+                    commands
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="labels.html">
+            
+                <a href="labels.html">
+            
+                    
+                    labels
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.7" data-path="database.html">
+            
+                <a href="database.html">
+            
+                    
+                    database design
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="." >database design</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="&#x6570;&#x636E;&#x5E93;&#x8BBE;&#x8BA1;out-of-date">&#x6570;&#x636E;&#x5E93;&#x8BBE;&#x8BA1;(out of date)</h1>
+<h2 id="&#x6570;&#x636E;&#x5E93;&#x5EFA;&#x6A21;">&#x6570;&#x636E;&#x5E93;&#x5EFA;&#x6A21;</h2>
+<p>&#x5982;&#x4E0B;&#x56FE;&#x6240;&#x793A;&#xFF1A;</p>
+<p><img src="assets/images/challenge_program.png" alt="challenge_program"></p>
+<h2 id="&#x6570;&#x636E;&#x5E93;-sql">&#x6570;&#x636E;&#x5E93; SQL</h2>
+<pre><code class="lang-sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-keyword">IF</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">EXISTS</span> <span class="hljs-string">`challenge_issues`</span>
+(
+    <span class="hljs-string">`issue_id`</span>                     <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>)      <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;issue id&apos;</span>,
+    <span class="hljs-string">`sig_id`</span>                       <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>)      <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;issue sig id&apos;</span>,
+    <span class="hljs-string">`score`</span>                        <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>)      <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;issue score&apos;</span>,
+    <span class="hljs-string">`mentor`</span>                       <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;issue mentor&apos;</span>,
+    <span class="hljs-string">`has_picked`</span>                   tinyint(<span class="hljs-number">1</span>)   <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-number">0</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;has picked&apos;</span>,
+    <span class="hljs-string">`current_challenger_github_id`</span> <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;current challenger github id&apos;</span>,
+    <span class="hljs-string">`picked_time`</span>                  <span class="hljs-keyword">timestamp</span>    <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;picked time&apos;</span>,
+    <span class="hljs-string">`program_id`</span>                   <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>)      <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;porgram id&apos;</span>,
+    PRIMARY <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`issue_id`</span>),
+    <span class="hljs-keyword">INDEX</span> <span class="hljs-string">`index_program_id`</span> (<span class="hljs-string">`program_id`</span> <span class="hljs-keyword">ASC</span>),
+    <span class="hljs-keyword">INDEX</span> <span class="hljs-string">`index_issue_id`</span> (<span class="hljs-string">`sig_id`</span> <span class="hljs-keyword">ASC</span>)
+);
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-string">`challenge_pulls`</span>
+(
+    <span class="hljs-string">`pulls_id`</span> <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+    <span class="hljs-string">`reward`</span>   <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-number">0</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;challenge pull request reward&apos;</span>,
+    <span class="hljs-string">`issue_id`</span> <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;challenge issue&apos;</span>,
+    PRIMARY <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`pulls_id`</span>),
+    <span class="hljs-keyword">INDEX</span> <span class="hljs-string">`index_issue_id`</span> (<span class="hljs-string">`issue_id`</span> <span class="hljs-keyword">ASC</span>)
+);
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-keyword">IF</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">EXISTS</span> <span class="hljs-string">`programs`</span>
+(
+    <span class="hljs-string">`id`</span>            <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>)      <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> AUTO_INCREMENT,
+    <span class="hljs-string">`program_theme`</span> <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;challenge program theme&apos;</span>,
+    <span class="hljs-string">`program_name`</span>  <span class="hljs-built_in">text</span>         <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;challenge program name&apos;</span>,
+    <span class="hljs-string">`progtam_desc`</span>  <span class="hljs-built_in">text</span>         <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;challenge program description&apos;</span>,
+    <span class="hljs-string">`begin_at`</span>      <span class="hljs-keyword">timestamp</span>    <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;challenge program begin time&apos;</span>,
+    <span class="hljs-string">`end_at`</span>        <span class="hljs-keyword">timestamp</span>    <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;challenge program end time&apos;</span>,
+    <span class="hljs-string">`created_at`</span>    <span class="hljs-keyword">timestamp</span>    <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">CURRENT_TIMESTAMP</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;challenge program created time&apos;</span>,
+    <span class="hljs-string">`updated_at`</span>    <span class="hljs-keyword">timestamp</span>    <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;challenge program last update time&apos;</span>,
+    PRIMARY <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`id`</span>)
+);
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-keyword">IF</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">EXISTS</span> <span class="hljs-string">`pulls`</span>
+(
+    <span class="hljs-string">`id`</span>          <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>)      <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> AUTO_INCREMENT,
+    <span class="hljs-string">`owner`</span>       <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github repo owner&apos;</span>,
+    <span class="hljs-string">`repo`</span>        <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github repo&apos;</span>,
+    <span class="hljs-string">`pull_number`</span> <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>)      <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github pull request number&apos;</span>,
+    <span class="hljs-string">`title`</span>       <span class="hljs-built_in">text</span>         <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github pull request title&apos;</span>,
+    <span class="hljs-string">`body`</span>        <span class="hljs-built_in">text</span>         <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github pull request body&apos;</span>,
+    <span class="hljs-string">`user`</span>        <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github pull request author&apos;</span>,
+    <span class="hljs-string">`association`</span> <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github role in this repo&apos;</span>,
+    <span class="hljs-string">`relation`</span>    <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;is org member&apos;</span>,
+    <span class="hljs-string">`label`</span>       <span class="hljs-built_in">text</span>         <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github pull request labels&apos;</span>,
+    <span class="hljs-string">`status`</span>      <span class="hljs-built_in">varchar</span>(<span class="hljs-number">128</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github pull request status&apos;</span>,
+    <span class="hljs-string">`created_at`</span>  <span class="hljs-keyword">timestamp</span>    <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">CURRENT_TIMESTAMP</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;create time&apos;</span>,
+    <span class="hljs-string">`updated_at`</span>  <span class="hljs-keyword">timestamp</span>    <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;update time&apos;</span>,
+    <span class="hljs-string">`closed_at`</span>   <span class="hljs-keyword">timestamp</span>    <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;close time&apos;</span>,
+    <span class="hljs-string">`merged_at`</span>   <span class="hljs-keyword">timestamp</span>    <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;merge time&apos;</span>,
+    PRIMARY <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`id`</span>),
+    <span class="hljs-keyword">INDEX</span> <span class="hljs-string">`index_pull_number`</span> (<span class="hljs-string">`pull_number`</span> <span class="hljs-keyword">ASC</span>)
+);
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-keyword">IF</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">EXISTS</span> <span class="hljs-string">`issues`</span>
+(
+    <span class="hljs-string">`id`</span>           <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>)      <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> AUTO_INCREMENT,
+    <span class="hljs-string">`owner`</span>        <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github repo owner&apos;</span>,
+    <span class="hljs-string">`repo`</span>         <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github repo&apos;</span>,
+    <span class="hljs-string">`issue_number`</span> <span class="hljs-built_in">int</span>          <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github issue number&apos;</span>,
+    <span class="hljs-string">`title`</span>        <span class="hljs-built_in">text</span>         <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github issue title&apos;</span>,
+    <span class="hljs-string">`body`</span>         <span class="hljs-built_in">text</span>         <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github issue body&apos;</span>,
+    <span class="hljs-string">`user`</span>         <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;giithub issue author&apos;</span>,
+    <span class="hljs-string">`association`</span>  <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github role in this repo&apos;</span>,
+    <span class="hljs-string">`relation`</span>     <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;is org member&apos;</span>,
+    <span class="hljs-string">`label`</span>        <span class="hljs-built_in">text</span>         <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github issue labels&apos;</span>,
+    <span class="hljs-string">`status`</span>       <span class="hljs-built_in">varchar</span>(<span class="hljs-number">128</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github issue state&apos;</span>,
+    <span class="hljs-string">`created_at`</span>   <span class="hljs-keyword">timestamp</span>    <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">CURRENT_TIMESTAMP</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;create time&apos;</span>,
+    <span class="hljs-string">`updated_at`</span>   <span class="hljs-keyword">timestamp</span>    <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;update time&apos;</span>,
+    <span class="hljs-string">`closed_at`</span>    <span class="hljs-keyword">timestamp</span>    <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;close time&apos;</span>,
+    PRIMARY <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`id`</span>),
+    <span class="hljs-keyword">INDEX</span> <span class="hljs-string">`index_issue_number`</span> (<span class="hljs-string">`issue_number`</span> <span class="hljs-keyword">ASC</span>)
+);
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-keyword">IF</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">EXISTS</span> <span class="hljs-string">`sig`</span>
+(
+    <span class="hljs-string">`id`</span>          <span class="hljs-built_in">int</span>          <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> AUTO_INCREMENT,
+    <span class="hljs-string">`name`</span>        <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;sig name&apos;</span>,
+    <span class="hljs-string">`info`</span>        <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;sig info&apos;</span>,
+    <span class="hljs-string">`sig_url`</span>     <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;sig url in the community repo&apos;</span>,
+    <span class="hljs-string">`create_time`</span> datetime     <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">CURRENT_TIMESTAMP</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;sig create time&apos;</span>,
+    <span class="hljs-string">`channel`</span>     <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span>,
+    <span class="hljs-string">`update_time`</span> datetime     <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">CURRENT_TIMESTAMP</span> <span class="hljs-keyword">ON</span> <span class="hljs-keyword">UPDATE</span> <span class="hljs-keyword">CURRENT_TIMESTAMP</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;sig update time&apos;</span>,
+    <span class="hljs-string">`status`</span>      <span class="hljs-built_in">int</span>          <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-number">0</span>,
+    <span class="hljs-string">`lgtm`</span>        <span class="hljs-built_in">int</span>          <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-number">2</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;require lgtm number&apos;</span>,
+    PRIMARY <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`id`</span>),
+    <span class="hljs-keyword">UNIQUE</span> <span class="hljs-keyword">KEY</span> <span class="hljs-string">`name`</span> (<span class="hljs-string">`name`</span>)
+);
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-keyword">IF</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">EXISTS</span> <span class="hljs-string">`github_label_sig`</span>
+(
+    <span class="hljs-string">`id`</span>             <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>)      <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> AUTO_INCREMENT,
+    <span class="hljs-string">`repo`</span>           <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github repo&apos;</span>,
+    <span class="hljs-string">`label`</span>          <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;sig label&apos;</span>,
+    <span class="hljs-string">`info`</span>           <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;label info&apos;</span>,
+    <span class="hljs-string">`project_sig_id`</span> <span class="hljs-built_in">int</span>          <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;project sig id&apos;</span>,
+    PRIMARY <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`id`</span>),
+    <span class="hljs-keyword">UNIQUE</span> <span class="hljs-keyword">KEY</span> <span class="hljs-string">`repo`</span> (<span class="hljs-string">`repo`</span>, <span class="hljs-string">`label`</span>)
+);
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-keyword">IF</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">EXISTS</span> <span class="hljs-string">`project_sig`</span>
+(
+    <span class="hljs-string">`sig_id`</span>         <span class="hljs-built_in">int</span>(<span class="hljs-number">11</span>)      <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;sig id &apos;</span>,
+    <span class="hljs-string">`repo`</span>           <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-literal">NULL</span>     <span class="hljs-keyword">DEFAULT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github repo name&apos;</span>,
+    <span class="hljs-string">`project_url`</span>    <span class="hljs-built_in">varchar</span>(<span class="hljs-number">255</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;github project url&apos;</span>,
+    <span class="hljs-string">`create_time`</span>    datetime     <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">CURRENT_TIMESTAMP</span> <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;project create time&apos;</span>,
+    <span class="hljs-string">`project_sig_id`</span> <span class="hljs-built_in">int</span>          <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span> AUTO_INCREMENT <span class="hljs-keyword">COMMENT</span> <span class="hljs-string">&apos;project sig id&apos;</span>,
+    PRIMARY <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`project_sig_id`</span>),
+    <span class="hljs-keyword">UNIQUE</span> <span class="hljs-keyword">KEY</span> <span class="hljs-string">`project_url`</span> (<span class="hljs-string">`project_url`</span>),
+    <span class="hljs-keyword">UNIQUE</span> <span class="hljs-keyword">KEY</span> <span class="hljs-string">`sig_id`</span> (<span class="hljs-string">`sig_id`</span>, <span class="hljs-string">`repo`</span>)
+);
+
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-string">`sig`</span>
+    <span class="hljs-keyword">ADD</span> <span class="hljs-keyword">CONSTRAINT</span> <span class="hljs-string">`fk_sig_projects`</span> FOREIGN <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`id`</span>) <span class="hljs-keyword">REFERENCES</span> <span class="hljs-string">`project_sig`</span> (<span class="hljs-string">`sig_id`</span>);
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-string">`pulls`</span>
+    <span class="hljs-keyword">ADD</span> <span class="hljs-keyword">CONSTRAINT</span> <span class="hljs-string">`fk_pull_challenge_pulls`</span> FOREIGN <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`id`</span>) <span class="hljs-keyword">REFERENCES</span> <span class="hljs-string">`challenge_pulls`</span> (<span class="hljs-string">`pulls_id`</span>);
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-string">`issues`</span>
+    <span class="hljs-keyword">ADD</span> <span class="hljs-keyword">CONSTRAINT</span> <span class="hljs-string">`fk_issue_challenge_issues`</span> FOREIGN <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`id`</span>) <span class="hljs-keyword">REFERENCES</span> <span class="hljs-string">`challenge_issues`</span> (<span class="hljs-string">`issue_id`</span>);
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-string">`programs`</span>
+    <span class="hljs-keyword">ADD</span> <span class="hljs-keyword">CONSTRAINT</span> <span class="hljs-string">`fk_program_issues`</span> FOREIGN <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`id`</span>) <span class="hljs-keyword">REFERENCES</span> <span class="hljs-string">`challenge_issues`</span> (<span class="hljs-string">`program_id`</span>);
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-string">`challenge_issues`</span>
+    <span class="hljs-keyword">ADD</span> <span class="hljs-keyword">CONSTRAINT</span> <span class="hljs-string">`fk_challenge_issue_challenge_pulls`</span> FOREIGN <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`issue_id`</span>) <span class="hljs-keyword">REFERENCES</span> <span class="hljs-string">`challenge_pulls`</span> (<span class="hljs-string">`issue_id`</span>);
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">TABLE</span> <span class="hljs-string">`sig`</span>
+    <span class="hljs-keyword">ADD</span> <span class="hljs-keyword">CONSTRAINT</span> <span class="hljs-string">`fk_sig_challenge_issues`</span> FOREIGN <span class="hljs-keyword">KEY</span> (<span class="hljs-string">`id`</span>) <span class="hljs-keyword">REFERENCES</span> <span class="hljs-string">`challenge_issues`</span> (<span class="hljs-string">`sig_id`</span>);
+</code></pre>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="labels.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page: labels">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"database design","level":"1.7","depth":1,"previous":{"title":"labels","level":"1.6","depth":1,"path":"labels.md","ref":"labels.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["mermaid-v8"],"pluginsConfig":{"mermaid-v8":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"database.md","mtime":"2020-09-08T09:47:25.748Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-09-08T09:48:26.406Z"},"basePath":".","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+
+    <script src="gitbook/gitbook.js"></script>
+    <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-mermaid-v8/book/plugin.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+<script src="gitbook/gitbook-plugin-mermaid-v8/mermaid/mermaid.min.js"></script>
+
+    </body>
+</html>
+
