@@ -4,7 +4,6 @@ export enum ChallengeIssueMessage{
     NotChallengeProgramIssue = 'It is not a pickable issue!',
     PickUpSuccess = 'Pick up success.',
     NoSigInfo = 'This issue does not belong to any SIG.',
-    IllegalSigInfo = 'The SIG information for this issue is wrong.',
     AddedButMissInfo = 'It has been added to the challenge program, but your issue description has some problems.',
     UpdatedButStillMissInfo = 'The description of issue updated, but still has some problems.',
     Created = 'The challenge issue created.',
@@ -34,7 +33,8 @@ export enum ChallengeIssueTip{
     - \${mentor}
     \`\`\`
     `,
-    AddChallengeProgramLabel = 'If you want this issue to be picked, you need to add a `challenge-program` label to it.'
+    AddChallengeProgramLabel = 'If you want this issue to be picked, you need to add a `challenge-program` label to it.',
+    RefineSigFormat = 'Currently, we only support sig labels starting with `sig/`, maybe you should add this type of label.'
 }
 
 export function pickUpSuccessMissInfoWarning (author: string) : string {

@@ -18,7 +18,8 @@ import {
   alreadyPickedMessage,
   ChallengeIssueMessage,
   ChallengeIssueTip,
-  ChallengeIssueWarning, pickUpSuccessMissInfoWarning
+  ChallengeIssueWarning,
+  pickUpSuccessMissInfoWarning
 } from '../messages/ChallengeIssueMessage'
 import { findMentorAndScore, findSigLabel, isChallengeIssue, isClosed } from '../utils/IssueUtil'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
@@ -140,7 +141,8 @@ export default class ChallengeIssueService {
       return {
         data: null,
         status: Status.Problematic,
-        message: ChallengeIssueMessage.NoSigInfo
+        message: ChallengeIssueMessage.NoSigInfo,
+        tip: ChallengeIssueTip.RefineSigFormat
       }
     }
 
@@ -256,17 +258,15 @@ export default class ChallengeIssueService {
    */
   public async createWhenIssueOpened (issueId: number, challengeIssueQuery: ChallengeIssueQuery):Promise<Reply<ChallengeIssue|undefined>> {
     const { issue: issueQuery } = challengeIssueQuery
-    const baseFailedMessage = {
-      data: undefined,
-      status: Status.Failed
-    }
 
     // Check the sig info.
     const sigId = await this.findSigId(issueQuery.labels, challengeIssueQuery.defaultSigLabel)
     if (sigId === undefined) {
       return {
-        ...baseFailedMessage,
-        message: ChallengeIssueMessage.NoSigInfo
+        data: undefined,
+        status: Status.Problematic,
+        message: ChallengeIssueMessage.NoSigInfo,
+        tip: ChallengeIssueTip.RefineSigFormat
       }
     }
 
@@ -307,17 +307,15 @@ export default class ChallengeIssueService {
 
   public async updateWhenIssueEdited (issueId:number, challengeIssueQuery: ChallengeIssueQuery): Promise<Reply<ChallengeIssue|undefined>|undefined> {
     const { issue: issueQuery } = challengeIssueQuery
-    const baseFailedMessage = {
-      data: undefined,
-      status: Status.Failed
-    }
 
     // Check the sig info.
     const sigId = await this.findSigId(issueQuery.labels, challengeIssueQuery.defaultSigLabel)
     if (sigId === undefined) {
       return {
-        ...baseFailedMessage,
-        message: ChallengeIssueMessage.NoSigInfo
+        data: undefined,
+        status: Status.Problematic,
+        message: ChallengeIssueMessage.NoSigInfo,
+        tip: ChallengeIssueTip.RefineSigFormat
       }
     }
 
