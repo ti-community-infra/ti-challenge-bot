@@ -17,8 +17,6 @@ The commands are:
 <details>
 <summary>More Details</summary>
 
-🤖️ Current Version: ![](https://img.shields.io/github/release/tidb-community-bots/challenge-bot/all.svg)
-
 >You can find more details on [challenge-bot-docs](https://tidb-community-bots.github.io/challenge-bot/).
 >
 >If you think there is a problem, you can report bug on [report-a-bug](https://github.com/tidb-community-bots/challenge-bot/issues/new/choose).
