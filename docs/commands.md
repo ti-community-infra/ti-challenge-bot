@@ -49,7 +49,7 @@
     - 给当前 PR 指定分数。
 - 操作要求:
     - 当前 PR 关联了 challenge 相关的 issue。
-    - 当前 PR 作者与 issue 的 challenger 一致。
+    - 关联 issue 已经被 pick-up。
 - 操作效果:
     - 记录 reward 分数给 PR。
     - 打上 `rewarded` 标签。
