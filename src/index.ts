@@ -8,7 +8,6 @@ import giveUp from './commands/give-up'
 import reward from './commands/reward'
 import { handlePullClosed } from './events/pull'
 import help from './commands/help'
-import 'reflect-metadata'
 import autoGiveUp from './tasks/auto-give-up'
 import AutoGiveUpService from './services/auto-give-up'
 import IssueService from './services/issue'
@@ -16,6 +15,8 @@ import ChallengeIssueService from './services/challenge-issue'
 import handleIssueEvents from './events/issues'
 import ChallengePullService from './services/challenge-pull'
 import { handleLgtm } from './events/custom'
+
+import 'reflect-metadata'
 
 const commands = require('probot-commands-pro')
 const createScheduler = require('probot-scheduler-pro')
@@ -85,6 +86,7 @@ export = (app: Application) => {
       await autoGiveUp(context, Container.get(AutoGiveUpService))
     })
 
+    // TODO: move this into events.
     app.on('installation.created', async (context:Context) => {
       const { installation } = context.payload
       // Notice: if not allowed account we need to uninstall itself.
