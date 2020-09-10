@@ -31,6 +31,12 @@ export class ChallengeTeam1599718819367 implements MigrationInterface {
           default: null
         },
         {
+          name: 'leader_github_id',
+          type: 'varchar(255)',
+          isNullable: true,
+          default: null
+        },
+        {
           name: 'created_at',
           type: 'timestamp',
           isNullable: false,

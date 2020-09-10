@@ -11,11 +11,14 @@ export class ChallengeTeam {
     @Column({ name: 'team_name', nullable: false })
     teamName: string;
 
-    @Column({ name: 'team_desc', nullable: true, default: null })
-    teamDesc: string;
+    @Column({ name: 'team_desc', type: 'text', nullable: true, default: null })
+    teamDesc?: string | null;
 
     @Column({ name: 'challenge_program_id', nullable: false })
     challengeProgramId: number;
+
+    @Column({ name: 'leader_github_id', type: 'varchar', nullable: true, default: null })
+    leaderGithubId?: string | null;
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
