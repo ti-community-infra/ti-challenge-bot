@@ -42,7 +42,7 @@
     "@types/jest": "^25.1.0",
     "@types/nock": "^11.1.0",
     "@types/node": "^8.0.29",
-    "@typescript-eslint/parser": "^2.4.0",
+    "@typescript-eslint/parser": "^4.1.0",
     "eslint-plugin-typescript": "^0.14.0",
     "husky": "^4.3.0",
     "jest": "^25.1.0",
