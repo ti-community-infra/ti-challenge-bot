@@ -14,11 +14,11 @@ import IssueService from './services/issue'
 import ChallengeIssueService from './services/challenge-issue'
 import handleIssueEvents from './events/issues'
 import ChallengePullService from './services/challenge-pull'
+import ChallengeTeamService from './services/challenge-team'
 import { handleLgtm } from './events/custom'
 
 import 'reflect-metadata'
 import createTeam from './api/challenge-team'
-import ChallengeTeamService from './services/challenge-team'
 
 const commands = require('probot-commands-pro')
 const createScheduler = require('probot-scheduler-pro')
