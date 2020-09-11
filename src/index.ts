@@ -14,12 +14,15 @@ import IssueService from './services/issue'
 import ChallengeIssueService from './services/challenge-issue'
 import handleIssueEvents from './events/issues'
 import ChallengePullService from './services/challenge-pull'
+import ChallengeTeamService from './services/challenge-team'
 import { handleLgtm } from './events/custom'
 
 import 'reflect-metadata'
+import createTeam from './api/challenge-team'
 
 const commands = require('probot-commands-pro')
 const createScheduler = require('probot-scheduler-pro')
+const bodyParser = require('body-parser')
 const allowedAccounts = (process.env.ALLOWED_ACCOUNTS || '')
   .toLowerCase()
   .split(',')
@@ -35,6 +38,10 @@ export = (app: Application) => {
     period: '1d', // daily rotation
     count: 10 // keep 10 back copies
   })
+
+  // Get an express router to expose new HTTP endpoints.
+  const router = app.route('/ti-challenge-bot')
+  router.use(bodyParser.json())
 
   createConnection().then(() => {
     app.log.info('App starting...')
@@ -96,6 +103,10 @@ export = (app: Application) => {
         const github = await app.auth()
         await github.apps.deleteInstallation({ installation_id: installation.id })
       }
+    })
+
+    router.post('/teams', async (req, res) => {
+      await createTeam(req, res, Container.get(ChallengeTeamService))
     })
   }).catch(err => {
     app.log.fatal('Connect to db failed', err)
