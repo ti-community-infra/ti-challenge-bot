@@ -1,6 +1,7 @@
 // @ts-ignore
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 import { ChallengeIssue } from './ChallengeIssue'
+import { ChallengeTeam } from './ChallengeTeam'
 
 @Entity({ name: 'challenge_programs' })
 export class ChallengeProgram {
@@ -31,4 +32,8 @@ export class ChallengeProgram {
     // @ts-ignore
     @OneToMany(type => ChallengeIssue, challengeIssue => challengeIssue.challengeProgram)
     challengeIssues: ChallengeIssue[]
+
+    // @ts-ignore
+    @OneToMany(type => ChallengeTeam, challengeTeam => challengeTeam.challengeProgram)
+    challengeTeams: ChallengeTeam[]
 }

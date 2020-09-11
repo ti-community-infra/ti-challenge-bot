@@ -1,7 +1,8 @@
 import {
   Column, CreateDateColumn,
-  Entity, PrimaryGeneratedColumn, UpdateDateColumn
+  Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn
 } from 'typeorm'
+import { ChallengeProgram } from './ChallengeProgram'
 
 @Entity({ name: 'challenge_teams' })
 export class ChallengeTeam {
@@ -25,4 +26,9 @@ export class ChallengeTeam {
 
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
+
+    // @ts-ignore
+    @ManyToOne(type => ChallengeProgram, program => program.challengeTeams)
+    @JoinColumn({ name: 'challenge_program_id', referencedColumnName: 'id' })
+    challengeProgram: ChallengeProgram;
 }

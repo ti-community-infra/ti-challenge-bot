@@ -20,7 +20,7 @@ import { handleLgtm } from './events/custom'
 import 'reflect-metadata'
 import createTeam from './api/challenge-team'
 import ChallengeProgramService from './services/challenge-program'
-import findAllChallengePrograms from './api/challenge-program'
+import { findAllChallengePrograms, ranking } from './api/challenge-program'
 
 const commands = require('probot-commands-pro')
 const createScheduler = require('probot-scheduler-pro')
@@ -113,6 +113,10 @@ export = (app: Application) => {
 
     router.get('/programs', async (req, res) => {
       await findAllChallengePrograms(req, res, Container.get(ChallengeProgramService))
+    })
+
+    router.get('/program/:id/ranks', async (req, res) => {
+      await ranking(req, res, Container.get(ChallengeProgramService))
     })
   }).catch(err => {
     app.log.fatal('Connect to db failed', err)
