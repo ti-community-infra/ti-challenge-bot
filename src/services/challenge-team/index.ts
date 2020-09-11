@@ -11,6 +11,7 @@ import { Response } from '../response'
 import { StatusCodes } from 'http-status-codes'
 import { ChallengeProgram } from '../../db/entities/ChallengeProgram'
 import { ChallengersChallengeTeams } from '../../db/entities/ChallengersChallengeTeams'
+import { challengersAlreadyHasTeam, ChallengeTeamMessage } from '../messages/ChallengeTeamMessage'
 
 @Service()
 export default class ChallengeTeamService {
@@ -25,19 +26,32 @@ export default class ChallengeTeamService {
   ) {
   }
 
+  /**
+   * Get challengers who have joined another team.
+   * @param challengers
+   * @param challengeProgramId
+   * @private
+   */
   private async getChallengersInAnotherTeam (challengers:string[], challengeProgramId: number): Promise<string[]> {
-    const currentChallengers = await this.challengeProgramRepository.createQueryBuilder('cpg')
+    const currentChallengers = (await this.challengeProgramRepository.createQueryBuilder('cpg')
       .where(`cpg.id = ${challengeProgramId}`)
       .leftJoinAndSelect(ChallengeTeam, 'ct', 'cpg.id = ct.challenge_program_id')
       .leftJoinAndSelect(ChallengersChallengeTeams, 'cct', 'ct.id = cct.challenge_team_id')
-      .select('cct.challenger_github_id')
-      .getRawMany<string>()
+      .select('cct.challenger_github_id', 'challengerGithubId')
+      .getRawMany()).map(c => {
+      return c.challengerGithubId
+    })
 
     return challengers.filter(c => {
       return currentChallengers.includes(c)
     })
   }
 
+  /**
+   * Create a team.
+   * TODO: we should clarify when to use undefined or null.
+   * @param challengeTeamQuery
+   */
   public async create (challengeTeamQuery: ChallengeTeamQuery): Promise<Response<ChallengeTeam|null>> {
     const program = await this.challengeProgramRepository.findOne({
       where: {
@@ -48,7 +62,7 @@ export default class ChallengeTeamService {
       return {
         data: null,
         status: StatusCodes.BAD_REQUEST,
-        message: 'The program not exist.'
+        message: ChallengeTeamMessage.ProgramNotExist
       }
     }
 
@@ -63,7 +77,7 @@ export default class ChallengeTeamService {
       return {
         data: null,
         status: StatusCodes.BAD_REQUEST,
-        message: 'The team name already taken.'
+        message: ChallengeTeamMessage.TeamNameAlreadyTaken
       }
     }
 
@@ -73,7 +87,7 @@ export default class ChallengeTeamService {
       return {
         data: null,
         status: StatusCodes.BAD_REQUEST,
-        message: `${alreadyTeamedChallengers.join(',')} already have team.`
+        message: challengersAlreadyHasTeam(alreadyTeamedChallengers)
       }
     }
 
@@ -97,7 +111,7 @@ export default class ChallengeTeamService {
     return {
       data: newTeam,
       status: StatusCodes.CREATED,
-      message: 'Created success.'
+      message: ChallengeTeamMessage.Created
     }
   }
 }
