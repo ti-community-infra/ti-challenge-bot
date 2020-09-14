@@ -17,19 +17,48 @@ export enum IssueOrPullStatus {
     Merged = 'merged'
 }
 
+export interface ScoreWithGithub{
+  githubId: string;
+  score: number
+}
+
 @Service()
 @EntityRepository(ChallengeIssue)
 export default class ScoreRepository extends Repository<ChallengeIssue> {
-  public async getCurrentScoreInProgram (theme: string, username: string) : Promise<number> {
-    const { score } = await this.createQueryBuilder('ci')
+  public async getCurrentScoreInProgram (theme: string) : Promise<ScoreWithGithub[]>;
+  // eslint-disable-next-line no-dupe-class-members
+  public async getCurrentScoreInProgram (theme: string, username: string) : Promise<number>;
+  // eslint-disable-next-line no-dupe-class-members
+  public async getCurrentScoreInProgram (theme: string, username?: string) {
+    if (username !== undefined) {
+      const { score } = await this.createQueryBuilder('ci')
+        .leftJoinAndSelect(ChallengeProgram, 'cpg', 'ci.challenge_program_id = cpg.id')
+        .leftJoinAndSelect(ChallengePull, 'cp', ' ci.issue_id = cp.challenge_issue_id')
+        .leftJoinAndSelect(Pull, 'p', 'cp.pull_id = p.id')
+        .where(`cpg.program_theme = '${theme}' and p.user = '${username}' and p.status = '${IssueOrPullStatus.Merged}'`)
+        .select('sum(cp.reward)', 'score')
+        .getRawOne()
+
+      return score
+    }
+
+    const result = (await this.createQueryBuilder('ci')
       .leftJoinAndSelect(ChallengeProgram, 'cpg', 'ci.challenge_program_id = cpg.id')
+      .where(`cpg.program_theme = '${theme}'`)
       .leftJoinAndSelect(ChallengePull, 'cp', ' ci.issue_id = cp.challenge_issue_id')
       .leftJoinAndSelect(Pull, 'p', 'cp.pull_id = p.id')
-      .where(`cpg.program_theme = '${theme}' and p.user = '${username}' and p.status = '${IssueOrPullStatus.Merged}'`)
-      .select('sum(cp.reward)', 'score')
-      .getRawOne()
+      .where(`p.status = '${IssueOrPullStatus.Merged}'`)
+      .groupBy('p.user')
+      .select('p.user as githubId, sum(cp.reward) as score')
+      .getRawMany()).map(r => {
+      return {
+        ...r
+      }
+    })
 
-    return score
+    console.log(result)
+
+    return result
   }
 
   public async getCurrentScoreInLongTermProgram (username: string) : Promise<number> {

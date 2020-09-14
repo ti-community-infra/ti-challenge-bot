@@ -89,29 +89,13 @@ export default class ChallengeProgramService {
       return
     }
 
-    const teams = await this.challengeTeamRepository.find({
-      where: {
-        challengeProgramId: program.id
+    const scoreWithGithubIds = await this.scoreRepository.getCurrentScoreInProgram(program.programTheme)
+
+    return scoreWithGithubIds.map(s => {
+      return {
+        ...s
       }
     })
-    const result:ChallengeProgramRankDTO[] = []
-
-    for (let i = 0; i < teams.length; i++) {
-      const teamMembers = await this.challengersChallengeTeamsRepository.find({
-        where: {
-          challengeTeamId: teams[i].id
-        }
-      })
-      for (let j = 0; j < teamMembers.length; j++) {
-        const score = await this.scoreRepository.getCurrentScoreInProgram(program.programTheme, teamMembers[j].challengerGithubId)
-        result.push({
-          githubId: teamMembers[j].challengerGithubId,
-          score
-        })
-      }
-    }
-
-    return result
   }
 
   public async ranking (rankQuery: RankQuery):Promise<Response<ChallengeProgramRankDTO[]|null>> {
