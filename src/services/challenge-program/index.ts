@@ -14,6 +14,7 @@ import { ChallengeTeam } from '../../db/entities/ChallengeTeam'
 // eslint-disable-next-line no-unused-vars
 import ScoreRepository from '../../repositoies/score'
 import { ChallengersChallengeTeams } from '../../db/entities/ChallengersChallengeTeams'
+import { ChallengeProgramMessage } from '../messages/ChallengeProgramMessage'
 
 @Service()
 export default class ChallengeProgramService {
@@ -36,7 +37,7 @@ export default class ChallengeProgramService {
     return {
       data: programs,
       status: StatusCodes.OK,
-      message: 'Get all programs success.'
+      message: ChallengeProgramMessage.AllPrograms
     }
   }
 
@@ -98,8 +99,13 @@ export default class ChallengeProgramService {
     })
   }
 
+  /**
+   * Get program ranks.
+   * @param rankQuery
+   */
   public async ranking (rankQuery: RankQuery):Promise<Response<ChallengeProgramRankDTO[]|null>> {
     let ranks
+
     if (rankQuery.byTeam) {
       ranks = await this.rankingByTeam(rankQuery.challengeProgramId)
     } else {
@@ -109,14 +115,14 @@ export default class ChallengeProgramService {
     if (ranks === undefined) {
       return {
         data: null,
-        status: StatusCodes.BAD_REQUEST,
-        message: 'Can not find challenge program.'
+        status: StatusCodes.NOT_FOUND,
+        message: ChallengeProgramMessage.ProgramNotExist
       }
     }
     return {
       data: ranks,
       status: StatusCodes.OK,
-      message: 'Get all ranks success.'
+      message: ChallengeProgramMessage.AllRanks
     }
   }
 }
