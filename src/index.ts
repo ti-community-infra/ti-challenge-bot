@@ -25,6 +25,7 @@ import { findAllChallengePrograms, ranking } from './api/challenge-program'
 const commands = require('probot-commands-pro')
 const createScheduler = require('probot-scheduler-pro')
 const bodyParser = require('body-parser')
+const cors = require('cors')
 const allowedAccounts = (process.env.ALLOWED_ACCOUNTS || '')
   .toLowerCase()
   .split(',')
@@ -44,6 +45,7 @@ export = (app: Application) => {
   // Get an express router to expose new HTTP endpoints.
   const router = app.route('/ti-challenge-bot')
   router.use(bodyParser.json())
+  router.use(cors())
 
   createConnection().then(() => {
     app.log.info('App starting...')
