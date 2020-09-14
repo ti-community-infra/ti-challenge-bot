@@ -65,14 +65,14 @@ export default class ChallengeProgramService {
           challengeTeamId: teams[i].id
         }
       })
-      let score = 0
+      let totalScore = 0
       for (let j = 0; j < teamMembers.length; j++) {
-        score += await this.scoreRepository.getCurrentScoreInProgram(program.programTheme, teamMembers[j].challengerGithubId)
+        totalScore += await this.scoreRepository.getCurrentScoreInProgram(program.programTheme, teamMembers[j].challengerGithubId)
       }
 
       result.push({
         team: teams[i],
-        score
+        score: totalScore
       })
     }
 
