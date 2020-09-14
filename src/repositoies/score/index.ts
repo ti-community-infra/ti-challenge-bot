@@ -31,6 +31,7 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
   // eslint-disable-next-line no-dupe-class-members
   public async getCurrentScoreInProgram (theme: string, username?: string) {
     if (username !== undefined) {
+      // TODO: we should try to optimize all sql in the entire project.
       const { score } = await this.createQueryBuilder('ci')
         .leftJoinAndSelect(ChallengeProgram, 'cpg', 'ci.challenge_program_id = cpg.id')
         .leftJoinAndSelect(ChallengePull, 'cp', ' ci.issue_id = cp.challenge_issue_id')
@@ -42,7 +43,7 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
       return score
     }
 
-    const result = (await this.createQueryBuilder('ci')
+    return (await this.createQueryBuilder('ci')
       .leftJoinAndSelect(ChallengeProgram, 'cpg', 'ci.challenge_program_id = cpg.id')
       .where(`cpg.program_theme = '${theme}'`)
       .leftJoinAndSelect(ChallengePull, 'cp', ' ci.issue_id = cp.challenge_issue_id')
@@ -55,10 +56,6 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
         ...r
       }
     })
-
-    console.log(result)
-
-    return result
   }
 
   public async getCurrentScoreInLongTermProgram (username: string) : Promise<number> {
