@@ -5,7 +5,7 @@ services:
     build: ./
     image: ti-challenge-bot:latest
     ports:
-      - 3001:3001
+      - 3000:3000
     volumes:
       - ./bot-logs:/usr/src/app/bot-logs/
     restart: always
