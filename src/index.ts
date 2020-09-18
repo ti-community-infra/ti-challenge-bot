@@ -121,6 +121,7 @@ export = (app: Application) => {
       await ranking(req, res, Container.get(ChallengeProgramService))
     })
   }).catch(err => {
+    // TODO: this log format is wrong.
     app.log.fatal('Connect to db failed', err)
   })
 }
