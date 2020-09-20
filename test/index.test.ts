@@ -42,7 +42,7 @@ describe('My Probot app', () => {
 
     // Test that a comment is posted
     nock('https://api.github.com')
-      .post('/repos/Rustin-Liu/challenge-bot/issues/1/comments', (body: any) => {
+      .post('/repos/Rustin-Liu/ti-challenge-bot/issues/1/comments', (body: any) => {
         done(expect(body).toMatchObject(pongBody))
         return true
       })

@@ -1,13 +1,13 @@
 {
-  "name": "challenge-bot",
+  "name": "ti-challenge-bot",
   "version": "v1.0.0",
   "private": true,
   "description": "A challenge bot for challenge program.",
   "author": "Rustin-Liu <rustin.liu@gmail.com>",
   "license": "ISC",
-  "repository": "https://github.com/tidb-community-bots/challenge-bot",
-  "homepage": "https://github.com/tidb-community-bots/challenge-bot",
-  "bugs": "https://github.com/tidb-community-bots/challenge-bot/issues",
+  "repository": "https://github.com/tidb-community-bots/ti-challenge-bot",
+  "homepage": "https://github.com/tidb-community-bots/ti-challenge-bot",
+  "bugs": "https://github.com/tidb-community-bots/ti-challenge-bot/issues",
   "keywords": [
     "probot",
     "github",
