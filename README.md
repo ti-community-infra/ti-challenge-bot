@@ -1,8 +1,8 @@
-# challenge-bot
+# ti-challenge-bot
 
 
-[![GitHub Actions](https://github.com/tidb-community-bots/challenge-bot/workflows/Test/badge.svg?branch=master)](https://github.com/features/actions)
-[![Codecov](https://badgen.net/codecov/c/github/tidb-community-bots/challenge-bot?icon=codecov)](https://codecov.io/gh/tidb-community-bots/challenge-bot)
+[![GitHub Actions](https://github.com/tidb-community-bots/ti-challenge-bot/workflows/Test/badge.svg?branch=master)](https://github.com/features/actions)
+[![Codecov](https://badgen.net/codecov/c/github/tidb-community-bots/ti-challenge-bot?icon=codecov)](https://codecov.io/gh/tidb-community-bots/ti-challenge-bot)
 [![Probot](https://badgen.net/badge/built%20with/probot/orange?icon=dependabot&cache=86400)](https://probot.github.io/)
 [![JavaScript Style Guide](https://badgen.net/badge/code%20style/standard/f2a?cache=86400)](https://standardjs.com)
 [![jest](https://facebook.github.io/jest/img/jest-badge.svg)](https://github.com/facebook/jest)
