@@ -3,6 +3,15 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, Up
 import { ChallengeIssue } from './ChallengeIssue'
 import { ChallengeTeam } from './ChallengeTeam'
 
+export enum ChallengeProgramType {
+    // eslint-disable-next-line no-unused-vars
+    ONLY_TEAM = 'ONLY_TEAM',
+    // eslint-disable-next-line no-unused-vars
+    ONLY_INDIVIDUAL = 'ONLY_INDIVIDUAL',
+    // eslint-disable-next-line no-unused-vars
+    ALL = 'ALL'
+}
+
 @Entity({ name: 'challenge_programs' })
 export class ChallengeProgram {
     @PrimaryGeneratedColumn()
@@ -25,6 +34,9 @@ export class ChallengeProgram {
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
+
+    @Column({ name: 'type', nullable: false, default: ChallengeProgramType.ALL })
+    type: string;
 
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;

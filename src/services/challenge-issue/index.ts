@@ -13,7 +13,7 @@ import { PickUpQuery } from '../../commands/queries/PickUpQuery'
 import { ProjectSig } from '../../db/entities/ProjectSig'
 // eslint-disable-next-line no-unused-vars
 import { LabelQuery } from '../../commands/queries/LabelQuery'
-import { ChallengeProgram } from '../../db/entities/ChallengeProgram'
+import { ChallengeProgram, ChallengeProgramType } from '../../db/entities/ChallengeProgram'
 import {
   alreadyPickedMessage,
   ChallengeIssueMessage,
@@ -25,6 +25,8 @@ import { findMentorAndScore, findSigLabel, isChallengeIssue, isClosed } from '..
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 // eslint-disable-next-line no-unused-vars
 import { GiveUpQuery } from '../../commands/queries/GiveUpQuery'
+import { ChallengeTeam } from '../../db/entities/ChallengeTeam'
+import { ChallengersChallengeTeams } from '../../db/entities/ChallengersChallengeTeams'
 
 @Service()
 export default class ChallengeIssueService {
@@ -106,6 +108,15 @@ export default class ChallengeIssueService {
     return sigId
   }
 
+  private async findTeam (githubId: string, challengeProgramTheme: string): Promise<ChallengeTeam|undefined> {
+    return await this.challengeProgramRepository.createQueryBuilder('cpg')
+      .where(`cpg.program_theme = '${challengeProgramTheme}'`)
+      .leftJoinAndSelect(ChallengeTeam, 'ct', 'cpg.id = ct.challenge_program_id')
+      .leftJoinAndSelect(ChallengersChallengeTeams, 'cct', 'ct.id = cct.challenge_team_id')
+      .where(`cct.challenger_github_id = '${githubId}'`)
+      .getRawOne<ChallengeTeam>()
+  }
+
   /**
    * Pick up challenge issue.
    * @param pickUpQuery
@@ -155,6 +166,18 @@ export default class ChallengeIssueService {
     }
 
     const program = await this.findChallengeProgram(issueQuery.labels)
+
+    // TODO: maybe we should check the ONLY_INDIVIDUAL case.
+    if (program?.type === ChallengeProgramType.ONLY_TEAM) {
+      const team = await this.findTeam(pickUpQuery.challenger, program.programTheme)
+      // TODO: we need add more info about join a team.
+      if (team === undefined) {
+        return {
+          ...baseFailedMessage,
+          message: ChallengeIssueMessage.NoTeam
+        }
+      }
+    }
 
     // Check the issue if exist in database.
     const issue = await this.findOrAddIssue(pickUpQuery)
