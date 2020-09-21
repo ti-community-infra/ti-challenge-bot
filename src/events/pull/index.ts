@@ -103,7 +103,7 @@ const handleChallengePull = async (context: Context, challengePullService: Chall
   const status = {
     sha: pullRequest.head.sha,
     state: reply.status === Status.Success ? 'success' : 'failure',
-    target_url: 'https://github.com/tidb-community-bots/ti-community-bot',
+    target_url: 'https://tidb-community-bots.github.io/ti-challenge-bot/commands.html',
     description: reply.message,
     context: 'Challenge Pull Request Reward'
   }
