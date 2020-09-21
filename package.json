@@ -1,6 +1,6 @@
 {
   "name": "ti-challenge-bot",
-  "version": "v1.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "A challenge bot for challenge program.",
   "author": "Rustin-Liu <rustin.liu@gmail.com>",
