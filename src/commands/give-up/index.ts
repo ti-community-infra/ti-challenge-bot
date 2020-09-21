@@ -2,11 +2,11 @@
 import { Context } from 'probot'
 
 // eslint-disable-next-line no-unused-vars
-import { GiveUpQuery } from '../queries/GiveUpQuery'
+import { GiveUpQuery } from '../../queries/GiveUpQuery'
 // eslint-disable-next-line no-unused-vars
 import ChallengeIssueService from '../../services/challenge-issue'
 // eslint-disable-next-line no-unused-vars
-import { LabelQuery } from '../queries/LabelQuery'
+import { LabelQuery } from '../../queries/LabelQuery'
 import { Status } from '../../services/reply'
 import { PICKED_LABEL } from '../labels'
 

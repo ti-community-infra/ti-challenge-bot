@@ -2,9 +2,9 @@
 import { Context } from 'probot'
 
 // eslint-disable-next-line no-unused-vars
-import { PickUpQuery } from '../queries/PickUpQuery'
+import { PickUpQuery } from '../../queries/PickUpQuery'
 // eslint-disable-next-line no-unused-vars
-import { LabelQuery } from '../queries/LabelQuery'
+import { LabelQuery } from '../../queries/LabelQuery'
 import { Status } from '../../services/reply'
 // eslint-disable-next-line no-unused-vars
 import { Config, DEFAULT_CONFIG_FILE_PATH } from '../../config/Config'

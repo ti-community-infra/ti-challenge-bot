@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import { PullQuery } from '../../commands/queries/PullQuery'
+import { PullQuery } from '../../queries/PullQuery'
 
 export interface PullPayload{
     action: string;

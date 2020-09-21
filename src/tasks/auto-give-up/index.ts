@@ -3,7 +3,7 @@ import { Context } from 'probot'
 // eslint-disable-next-line no-unused-vars
 import AutoGiveUpService from '../../services/auto-give-up'
 // eslint-disable-next-line no-unused-vars
-import { AutoGiveUpQuery } from '../../commands/queries/AutoGiveUpQuery'
+import { AutoGiveUpQuery } from '../../queries/AutoGiveUpQuery'
 import { PICKED_LABEL } from '../../commands/labels'
 // eslint-disable-next-line no-unused-vars
 import { Config, DEFAULT_CONFIG_FILE_PATH } from '../../config/Config'

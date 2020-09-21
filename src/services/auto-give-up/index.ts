@@ -1,6 +1,6 @@
 import { Service } from 'typedi'
 // eslint-disable-next-line no-unused-vars
-import { AutoGiveUpQuery } from '../../commands/queries/AutoGiveUpQuery'
+import { AutoGiveUpQuery } from '../../queries/AutoGiveUpQuery'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 // eslint-disable-next-line no-unused-vars
 import { Repository } from 'typeorm/repository/Repository'

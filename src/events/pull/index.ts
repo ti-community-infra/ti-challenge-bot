@@ -4,7 +4,7 @@ import { Context } from 'probot'
 // eslint-disable-next-line no-unused-vars
 import { PullPayload } from '../payloads/PullPayload'
 // eslint-disable-next-line no-unused-vars
-import { LabelQuery } from '../../commands/queries/LabelQuery'
+import { LabelQuery } from '../../queries/LabelQuery'
 // eslint-disable-next-line no-unused-vars
 import { Status } from '../../services/reply'
 // eslint-disable-next-line no-unused-vars

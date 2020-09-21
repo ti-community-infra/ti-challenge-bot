@@ -8,9 +8,9 @@ import { Pull } from '../../db/entities/Pull'
 // eslint-disable-next-line no-unused-vars
 import ScoreRepository, { IssueOrPullStatus } from '../../repositoies/score'
 // eslint-disable-next-line no-unused-vars
-import { RewardQuery } from '../../commands/queries/RewardQuery'
+import { RewardQuery } from '../../queries/RewardQuery'
 // eslint-disable-next-line no-unused-vars
-import { LabelQuery } from '../../commands/queries/LabelQuery'
+import { LabelQuery } from '../../queries/LabelQuery'
 // eslint-disable-next-line no-unused-vars
 import { Reply, Status } from '../reply'
 import {
@@ -24,7 +24,7 @@ import { findLinkedIssueNumber } from '../utils/PullUtil'
 // eslint-disable-next-line no-unused-vars
 import { PullPayload } from '../../events/payloads/PullPayload'
 // eslint-disable-next-line no-unused-vars
-import { ChallengePullQuery } from '../../commands/queries/ChallengePullQuery'
+import { ChallengePullQuery } from '../../queries/ChallengePullQuery'
 import { ChallengeIssueTip } from '../messages/ChallengeIssueMessage'
 
 @Service()

@@ -3,7 +3,7 @@ import { Request, Response } from 'express'
 // eslint-disable-next-line no-unused-vars
 import ChallengeProgramService from '../../services/challenge-program'
 // eslint-disable-next-line no-unused-vars
-import { RankQuery } from '../../commands/queries/RankQuery'
+import { RankQuery } from '../../queries/RankQuery'
 
 const findAllChallengePrograms = async (_req: Request, res: Response, challengeProgramService: ChallengeProgramService) => {
   const response = await challengeProgramService.findAll()
