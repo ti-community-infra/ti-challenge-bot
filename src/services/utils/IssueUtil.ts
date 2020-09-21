@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
-import { LabelQuery } from '../../commands/queries/LabelQuery'
+import { LabelQuery } from '../../queries/LabelQuery'
 // eslint-disable-next-line no-unused-vars
-import { IssueQuery } from '../../commands/queries/IssueQuery'
+import { IssueQuery } from '../../queries/IssueQuery'
 import { IssueOrPullStatus } from '../../repositoies/score'
 import { CHALLENGE_PROGRAM_LABEL } from '../../commands/labels'
 

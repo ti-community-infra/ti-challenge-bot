@@ -5,14 +5,14 @@ import IssueService from '../../services/issue'
 // eslint-disable-next-line no-unused-vars
 import ChallengeIssueService from '../../services/challenge-issue'
 // eslint-disable-next-line no-unused-vars
-import { LabelQuery } from '../../commands/queries/LabelQuery'
+import { LabelQuery } from '../../queries/LabelQuery'
 // eslint-disable-next-line no-unused-vars
 import { IssuePayload } from '../payloads/IssuePayload'
 import { isChallengeIssue } from '../../services/utils/IssueUtil'
 // eslint-disable-next-line no-unused-vars
 import { Config, DEFAULT_CONFIG_FILE_PATH } from '../../config/Config'
 // eslint-disable-next-line no-unused-vars
-import { ChallengeIssueQuery } from '../../commands/queries/ChallengeIssueQuery'
+import { ChallengeIssueQuery } from '../../queries/ChallengeIssueQuery'
 // eslint-disable-next-line no-unused-vars
 import { Reply, Status } from '../../services/reply'
 import { combineReplay } from '../../services/utils/ReplyUtil'

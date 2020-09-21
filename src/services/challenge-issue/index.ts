@@ -5,14 +5,14 @@ import { ChallengeIssue } from '../../db/entities/ChallengeIssue'
 import { Repository } from 'typeorm/repository/Repository'
 import { Issue } from '../../db/entities/Issue'
 // eslint-disable-next-line no-unused-vars
-import { ChallengeIssueQuery } from '../../commands/queries/ChallengeIssueQuery'
+import { ChallengeIssueQuery } from '../../queries/ChallengeIssueQuery'
 // eslint-disable-next-line no-unused-vars
 import { Reply, Status } from '../reply'
 // eslint-disable-next-line no-unused-vars
-import { PickUpQuery } from '../../commands/queries/PickUpQuery'
+import { PickUpQuery } from '../../queries/PickUpQuery'
 import { ProjectSig } from '../../db/entities/ProjectSig'
 // eslint-disable-next-line no-unused-vars
-import { LabelQuery } from '../../commands/queries/LabelQuery'
+import { LabelQuery } from '../../queries/LabelQuery'
 import { ChallengeProgram, ChallengeProgramType } from '../../db/entities/ChallengeProgram'
 import {
   alreadyPickedMessage,
@@ -24,7 +24,7 @@ import {
 import { findMentorAndScore, findSigLabel, isChallengeIssue, isClosed } from '../utils/IssueUtil'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 // eslint-disable-next-line no-unused-vars
-import { GiveUpQuery } from '../../commands/queries/GiveUpQuery'
+import { GiveUpQuery } from '../../queries/GiveUpQuery'
 import { ChallengeTeam } from '../../db/entities/ChallengeTeam'
 import { ChallengersChallengeTeams } from '../../db/entities/ChallengersChallengeTeams'
 

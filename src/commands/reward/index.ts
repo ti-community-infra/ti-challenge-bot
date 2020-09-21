@@ -2,9 +2,9 @@
 import { Context } from 'probot'
 
 // eslint-disable-next-line no-unused-vars
-import { RewardQuery } from '../queries/RewardQuery'
+import { RewardQuery } from '../../queries/RewardQuery'
 // eslint-disable-next-line no-unused-vars
-import { LabelQuery } from '../queries/LabelQuery'
+import { LabelQuery } from '../../queries/LabelQuery'
 import { Status } from '../../services/reply'
 import { REWARDED_LABEL } from '../labels'
 // eslint-disable-next-line no-unused-vars

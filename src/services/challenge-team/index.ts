@@ -1,6 +1,6 @@
 import { Service } from 'typedi'
 // eslint-disable-next-line no-unused-vars
-import { ChallengeTeamQuery } from '../../commands/queries/ChallengeTeamQuery'
+import { ChallengeTeamQuery } from '../../queries/ChallengeTeamQuery'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 // eslint-disable-next-line no-unused-vars
 import { ChallengeTeam } from '../../db/entities/ChallengeTeam'

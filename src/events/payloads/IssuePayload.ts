@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import { IssueQuery } from '../../commands/queries/IssueQuery'
+import { IssueQuery } from '../../queries/IssueQuery'
 
 export interface IssuePayload{
     action: string;

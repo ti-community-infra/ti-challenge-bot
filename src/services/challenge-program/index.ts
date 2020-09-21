@@ -9,7 +9,7 @@ import { StatusCodes } from 'http-status-codes'
 // eslint-disable-next-line no-unused-vars
 import { ChallengeProgramRankDTO } from '../dtos/ChallengeProgramRankDTO'
 // eslint-disable-next-line no-unused-vars
-import { RankQuery } from '../../commands/queries/RankQuery'
+import { RankQuery } from '../../queries/RankQuery'
 import { ChallengeTeam } from '../../db/entities/ChallengeTeam'
 // eslint-disable-next-line no-unused-vars
 import ScoreRepository from '../../repositoies/score'
