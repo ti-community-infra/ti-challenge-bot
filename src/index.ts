@@ -6,7 +6,7 @@ import { Container } from 'typedi'
 import pickUp from './commands/pick-up'
 import giveUp from './commands/give-up'
 import reward from './commands/reward'
-import { handlePullClosed } from './events/pull'
+import { handlePullEvents } from './events/pull'
 import help from './commands/help'
 import autoGiveUp from './tasks/auto-give-up'
 import AutoGiveUpService from './services/auto-give-up'
@@ -88,8 +88,8 @@ export = (app: Application) => {
       await handleIssueEvents(context, Container.get(IssueService), Container.get(ChallengeIssueService))
     })
 
-    app.on('pull_request.closed', async (context:Context) => {
-      await handlePullClosed(context, Container.get(ChallengePullService))
+    app.on('pull_request', async (context:Context) => {
+      await handlePullEvents(context, Container.get(ChallengePullService))
     })
 
     app.on('schedule.repository', async (context: Context) => {
