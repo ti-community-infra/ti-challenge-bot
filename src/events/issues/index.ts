@@ -20,7 +20,7 @@ import { combineReplay } from '../../services/utils/ReplyUtil'
 import { ChallengeIssue } from '../../db/entities/ChallengeIssue'
 import { CHALLENGE_PROGRAM_LABEL } from '../../commands/labels'
 
-enum IssueActions{
+export enum IssueOrPullActions{
     // eslint-disable-next-line no-unused-vars
     Opened = 'opened',
     // eslint-disable-next-line no-unused-vars
@@ -276,29 +276,29 @@ const handleIssuesClosedOrReopened = async (context: Context, issueService: Issu
 
 const handleIssueEvents = async (context: Context, issueService: IssueService, challengeIssueService: ChallengeIssueService) => {
   switch (context.payload.action) {
-    case IssueActions.Opened: {
+    case IssueOrPullActions.Opened: {
       await handleIssuesOpened(context, issueService, challengeIssueService)
       break
     }
-    case IssueActions.Edited: {
+    case IssueOrPullActions.Edited: {
       await handleIssuesEdited(context, issueService, challengeIssueService)
       break
     }
-    case IssueActions.Labeled: {
+    case IssueOrPullActions.Labeled: {
       await handleIssuesLabeled(context, issueService, challengeIssueService)
       break
     }
-    case IssueActions.Unlabeled: {
+    case IssueOrPullActions.Unlabeled: {
       await handleIssuesUnlabeled(context, issueService, challengeIssueService)
       break
     }
 
-    case IssueActions.Closed: {
+    case IssueOrPullActions.Closed: {
       await handleIssuesClosedOrReopened(context, issueService)
       break
     }
 
-    case IssueActions.Reopened: {
+    case IssueOrPullActions.Reopened: {
       await handleIssuesClosedOrReopened(context, issueService)
       break
     }
