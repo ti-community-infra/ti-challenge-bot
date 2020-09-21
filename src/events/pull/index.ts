@@ -66,6 +66,7 @@ const handlePullClosed = async (context: Context, challengePullService: Challeng
 }
 
 const handleChallengePull = async (context: Context, challengePullService: ChallengePullService) => {
+  // FIXME: this code is very similar to `handlePullClosed`.
   const { pull_request: pullRequest } = context.payload
   const labels: LabelQuery[] = pullRequest.labels.map((label: LabelQuery) => {
     return {
