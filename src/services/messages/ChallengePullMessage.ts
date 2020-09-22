@@ -21,9 +21,9 @@ export enum ChallengePullTips{
     Issue Number: close #xxx
       
     
-About issue link, there is a known [issue](https://github.com/tidb-community-bots/challenge-bot/issues/22).
+About issue link, there is a known [issue](https://github.com/tidb-community-bots/ti-challenge-bot/issues/22).
     `,
-    RewardCommandRefs = 'About reward you can refs to [reward-command](https://tidb-community-bots.github.io/challenge-bot/commands.html).'
+    RewardCommandRefs = 'About reward you can refs to [reward-command](https://tidb-community-bots.github.io/ti-challenge-bot/commands.html).'
 }
 
 export function rewardScoreInvalidWarning (rewardScore:number, issueScore: number) : string {
