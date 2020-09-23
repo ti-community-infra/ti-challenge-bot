@@ -19,6 +19,7 @@ import { combineReplay } from '../../services/utils/ReplyUtil'
 // eslint-disable-next-line no-unused-vars
 import { ChallengeIssue } from '../../db/entities/ChallengeIssue'
 import { CHALLENGE_PROGRAM_LABEL } from '../../commands/labels'
+import { UserQuery } from '../../queries/UserQuery'
 
 export enum IssueOrPullActions{
     // eslint-disable-next-line no-unused-vars
@@ -32,7 +33,9 @@ export enum IssueOrPullActions{
     // eslint-disable-next-line no-unused-vars
     Closed = 'closed',
     // eslint-disable-next-line no-unused-vars
-    Reopened = 'reopened'
+    Reopened = 'reopened',
+    // eslint-disable-next-line no-unused-vars
+    Assigned = 'assigned'
 }
 
 /**
@@ -48,6 +51,9 @@ const constructIssuePayloadAndLabels = (context: Context): {payload:IssuePayload
   })
 
   const { user } = issuePayload
+  const assignees:UserQuery[] = issuePayload.assignees.map((a: UserQuery) => {
+    return { ...a }
+  })
 
   return {
     payload: {
@@ -62,7 +68,8 @@ const constructIssuePayloadAndLabels = (context: Context): {payload:IssuePayload
         updatedAt: issuePayload.updated_at,
         closedAt: issuePayload.closed_at,
         mergedAt: issuePayload.merged_at,
-        authorAssociation: issuePayload.author_association
+        authorAssociation: issuePayload.author_association,
+        assignees
       }
     },
     labels
@@ -253,7 +260,7 @@ const handleIssuesUnlabeled = async (context: Context, issueService: IssueServic
   }
 
   if (reply.status === Status.Success) {
-    context.log.warn(`Unlabeled challenge program and try to remove challenge issue have some problems ${oldIssue}.`)
+    context.log.info(`Unlabeled challenge program and try to remove challenge issue have some problems ${oldIssue}.`)
     await context.github.issues.createComment(context.issue({ body: reply.message }))
   }
 }

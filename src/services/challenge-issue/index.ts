@@ -15,13 +15,20 @@ import { ProjectSig } from '../../db/entities/ProjectSig'
 import { LabelQuery } from '../../queries/LabelQuery'
 import { ChallengeProgram, ChallengeProgramType } from '../../db/entities/ChallengeProgram'
 import {
-  alreadyPickedMessage,
+  alreadyPickedMessage, assignFlowNeedHelpMessage,
   ChallengeIssueMessage,
   ChallengeIssueTip,
   ChallengeIssueWarning,
   pickUpSuccessMissInfoWarning
 } from '../messages/ChallengeIssueMessage'
-import { findMentorAndScore, findSigLabel, isChallengeIssue, isClosed } from '../utils/IssueUtil'
+import {
+  checkIsInAssignFlow,
+  findMentorAndScore,
+  findSigLabel,
+  isChallengeIssue,
+  isClosed,
+  needHelp
+} from '../utils/IssueUtil'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 // eslint-disable-next-line no-unused-vars
 import { GiveUpQuery } from '../../queries/GiveUpQuery'
@@ -157,12 +164,16 @@ export default class ChallengeIssueService {
       }
     }
 
-    // Check the mentor and score info.
+    // NOTICE: check the mentor and score info and assign flow.
     const mentorAndScore = findMentorAndScore(issueQuery.body)
+
+    let inAssignFlow = false
     let warning, tip
     if (mentorAndScore === undefined) {
       warning = pickUpSuccessMissInfoWarning(issueQuery.user.login)
       tip = ChallengeIssueTip.RefineIssueFormat
+    } else {
+      inAssignFlow = checkIsInAssignFlow(issueQuery.assignees, mentorAndScore.mentor)
     }
 
     const program = await this.findChallengeProgram(issueQuery.labels)
@@ -183,46 +194,53 @@ export default class ChallengeIssueService {
     const issue = await this.findOrAddIssue(pickUpQuery)
 
     // Pick up.
-    const { challengeIssue } = issue
+    let { challengeIssue } = issue
 
-    if (challengeIssue === undefined || challengeIssue === null) {
-      const newChallengeIssue = new ChallengeIssue()
-      newChallengeIssue.issueId = issue.id
-      newChallengeIssue.sigId = sigId
-      newChallengeIssue.score = mentorAndScore?.score || null
-      newChallengeIssue.mentor = mentorAndScore?.mentor || null
-      newChallengeIssue.hasPicked = true
-      newChallengeIssue.currentChallengerGitHubId = pickUpQuery.challenger
-      newChallengeIssue.pickedAt = new Date().toLocaleString()
-      newChallengeIssue.issue = issue
-      newChallengeIssue.challengeProgramId = program?.id
-      await this.challengeIssueRepository.save(newChallengeIssue)
-      return {
-        data: null,
-        status: Status.Success,
-        message: ChallengeIssueMessage.PickUpSuccess,
-        warning,
-        tip
-      }
-    }
-
-    if (challengeIssue.hasPicked && challengeIssue.currentChallengerGitHubId) {
-      return {
-        ...baseFailedMessage,
-        message: alreadyPickedMessage(challengeIssue.currentChallengerGitHubId)
-      }
-    } else {
-      challengeIssue.hasPicked = true
-      challengeIssue.currentChallengerGitHubId = pickUpQuery.challenger
-      challengeIssue.pickedAt = new Date().toLocaleString()
+    // NOTICE: if this challenge not exist we need to add it.
+    if ((challengeIssue === undefined || challengeIssue === null)) {
+      challengeIssue = new ChallengeIssue()
+      challengeIssue.issueId = issue.id
+      challengeIssue.sigId = sigId
+      challengeIssue.score = mentorAndScore?.score || null
+      challengeIssue.mentor = mentorAndScore?.mentor || null
+      challengeIssue.issue = issue
       challengeIssue.challengeProgramId = program?.id
       await this.challengeIssueRepository.save(challengeIssue)
-      return {
-        data: null,
-        status: Status.Success,
-        message: ChallengeIssueMessage.PickUpSuccess,
-        warning,
-        tip
+    }
+
+    // NOTICE: check in assign flow.
+    if (!inAssignFlow) {
+      if (challengeIssue.hasPicked && challengeIssue.currentChallengerGitHubId) {
+        return {
+          ...baseFailedMessage,
+          message: alreadyPickedMessage(challengeIssue.currentChallengerGitHubId)
+        }
+      } else {
+        challengeIssue.hasPicked = true
+        challengeIssue.currentChallengerGitHubId = pickUpQuery.challenger
+        challengeIssue.pickedAt = new Date().toLocaleString()
+        await this.challengeIssueRepository.save(challengeIssue)
+        return {
+          data: null,
+          status: Status.Success,
+          message: ChallengeIssueMessage.PickUpSuccess,
+          warning,
+          tip
+        }
+      }
+    } else {
+      if (needHelp(issueQuery.labels)) {
+        return {
+          data: null,
+          status: Status.Failed,
+          message: assignFlowNeedHelpMessage(mentorAndScore!.mentor)
+        }
+      } else {
+        return {
+          data: null,
+          status: Status.Failed,
+          message: ChallengeIssueMessage.AssignFlowInProcess
+        }
       }
     }
   }
