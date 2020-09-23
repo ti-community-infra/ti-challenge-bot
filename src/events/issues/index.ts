@@ -281,41 +281,6 @@ const handleIssuesClosedOrReopened = async (context: Context, issueService: Issu
   }
 }
 
-const handleIssuesAssigned = async (context: Context, challengeIssueService: ChallengeIssueService) => {
-  const { payload, labels } = constructIssuePayloadAndLabels(context)
-
-  if (!isChallengeIssue(labels)) {
-    return
-  }
-
-  const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH)
-  const challengeIssueQuery: ChallengeIssueQuery = {
-    ...context.issue(),
-    issue: payload.issue,
-    defaultSigLabel: config?.defaultSigLabel
-  }
-
-  const reply = challengeIssueService.checkAssigneesHaveMentor(challengeIssueQuery)
-
-  switch (reply.status) {
-    case Status.Failed : {
-      context.log.error('Check issue assignees have mentor failed.', challengeIssueQuery)
-      await context.github.issues.createComment(context.issue({ body: reply.message }))
-      break
-    }
-    case Status.Success: {
-      context.log.info('Check issue assignees have mentor success.', challengeIssueQuery)
-      await context.github.issues.createComment(context.issue({ body: reply.message }))
-      break
-    }
-    case Status.Problematic: {
-      context.log.warn('Check issue assignees have mentor have some problems.', challengeIssueQuery)
-      await context.github.issues.createComment(context.issue({ body: combineReplay(reply) }))
-      break
-    }
-  }
-}
-
 const handleIssueEvents = async (context: Context, issueService: IssueService, challengeIssueService: ChallengeIssueService) => {
   switch (context.payload.action) {
     case IssueOrPullActions.Opened: {
@@ -342,11 +307,6 @@ const handleIssueEvents = async (context: Context, issueService: IssueService, c
 
     case IssueOrPullActions.Reopened: {
       await handleIssuesClosedOrReopened(context, issueService)
-      break
-    }
-
-    case IssueOrPullActions.Assigned: {
-      await handleIssuesAssigned(context, challengeIssueService)
       break
     }
   }

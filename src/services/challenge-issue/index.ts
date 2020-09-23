@@ -18,16 +18,22 @@ import {
   alreadyPickedMessage, assignFlowNeedHelpMessage,
   ChallengeIssueMessage,
   ChallengeIssueTip,
-  ChallengeIssueWarning, inAssignFlowMessage,
+  ChallengeIssueWarning,
   pickUpSuccessMissInfoWarning
 } from '../messages/ChallengeIssueMessage'
-import { findMentorAndScore, findSigLabel, isChallengeIssue, isClosed, needHelp } from '../utils/IssueUtil'
+import {
+  checkIsInAssignFlow,
+  findMentorAndScore,
+  findSigLabel,
+  isChallengeIssue,
+  isClosed,
+  needHelp
+} from '../utils/IssueUtil'
 import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 // eslint-disable-next-line no-unused-vars
 import { GiveUpQuery } from '../../queries/GiveUpQuery'
 import { ChallengeTeam } from '../../db/entities/ChallengeTeam'
 import { ChallengersChallengeTeams } from '../../db/entities/ChallengersChallengeTeams'
-import { IssueQuery } from '../../queries/IssueQuery'
 
 @Service()
 export default class ChallengeIssueService {
@@ -118,18 +124,6 @@ export default class ChallengeIssueService {
       .getRawOne<ChallengeTeam>()
   }
 
-  private checkIsInAssignFlow (issueQuery: IssueQuery, mentor: string): boolean {
-    let hasMentor = false
-
-    issueQuery.assignees.forEach(a => {
-      if (a.login === mentor) {
-        hasMentor = true
-      }
-    })
-
-    return hasMentor
-  }
-
   /**
    * Pick up challenge issue.
    * @param pickUpQuery
@@ -179,7 +173,7 @@ export default class ChallengeIssueService {
       warning = pickUpSuccessMissInfoWarning(issueQuery.user.login)
       tip = ChallengeIssueTip.RefineIssueFormat
     } else {
-      inAssignFlow = this.checkIsInAssignFlow(issueQuery, mentorAndScore.mentor)
+      inAssignFlow = checkIsInAssignFlow(issueQuery.assignees, mentorAndScore.mentor)
     }
 
     const program = await this.findChallengeProgram(issueQuery.labels)
@@ -453,45 +447,6 @@ export default class ChallengeIssueService {
       data: null,
       status: Status.Success,
       message: ChallengeIssueMessage.Removed
-    }
-  }
-
-  public checkAssigneesHaveMentor (challengeIssueQuery: ChallengeIssueQuery):Reply<null> {
-    const { issue: issueQuery } = challengeIssueQuery
-    // Check the mentor and score info.
-    const mentorAndScore = findMentorAndScore(issueQuery.body)
-
-    if (mentorAndScore === undefined) {
-      return {
-        data: null,
-        status: Status.Problematic,
-        message: ChallengeIssueMessage.AssignFlowNoMentor,
-        tip: ChallengeIssueTip.RefineIssueFormat
-      }
-    }
-
-    const { mentor } = mentorAndScore
-
-    let hasMentor = false
-
-    issueQuery.assignees.forEach(a => {
-      if (a.login === mentor) {
-        hasMentor = true
-      }
-    })
-
-    if (!hasMentor) {
-      return {
-        data: null,
-        status: Status.Failed,
-        message: ChallengeIssueMessage.AssignFlowNoMentor
-      }
-    }
-
-    return {
-      data: null,
-      status: Status.Success,
-      message: inAssignFlowMessage(mentor)
     }
   }
 }

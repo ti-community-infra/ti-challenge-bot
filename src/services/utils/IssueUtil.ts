@@ -4,6 +4,7 @@ import { LabelQuery } from '../../queries/LabelQuery'
 import { IssueQuery } from '../../queries/IssueQuery'
 import { IssueOrPullStatus } from '../../repositoies/score'
 import { CHALLENGE_PROGRAM_LABEL, HELP_WANTED_LABEL } from '../../commands/labels'
+import { UserQuery } from '../../queries/UserQuery'
 
 const MENTOR_REGEX = /(Mentor).*[\r\n]+[-|* ]*[@]*([a-z0-9](?:-?[a-z0-9]){0,38})/i
 const SCORE_REGEX = /(Score).*[\r\n]+[-|* ]*([1-9]+[0-9]*)/
@@ -51,4 +52,16 @@ export function needHelp (labels: LabelQuery[]): boolean {
 
 export function isClosed (issue: IssueQuery): boolean {
   return issue.state === IssueOrPullStatus.Closed
+}
+
+export function checkIsInAssignFlow (assignees: UserQuery[], mentor: string): boolean {
+  let hasMentor = false
+
+  assignees.forEach(a => {
+    if (a.login === mentor) {
+      hasMentor = true
+    }
+  })
+
+  return hasMentor
 }

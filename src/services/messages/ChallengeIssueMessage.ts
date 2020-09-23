@@ -14,7 +14,6 @@ export enum ChallengeIssueMessage{
     CannotRemoveBecauseHasPulls = 'There are already some challenge pull requests for this issue, so you cannot remove the challenge-program label.',
     GiveUpSuccess = 'Give up success.',
     NotChallenger = 'Give up restricted to the one who already picked the issue.',
-    AssignFlowNoMentor = 'This is a challenge program issue. You just did an assign operation. If you want to enter the assign flow, you need to assign the issue to the mentor.',
     AssignFlowInProcess = 'The challenge program issue is already in the assign flow and development has started. So you cannot pick up this issue. You can try other issues.'
 }
 
@@ -53,11 +52,6 @@ export function alreadyPickedMessage (currentChallenger: string) {
 
 export function autoGiveUpdMessage (challenger: string, timeout: number) {
   return `@${challenger} You did not submit PR within ${timeout} days, so give up automatically.`
-}
-
-export function inAssignFlowMessage (mentor: string) {
-  // TODO: add assign flow docs url.
-  return `This challenge program issue is already in the assign flow. cc: @${mentor}`
 }
 
 export function assignFlowNeedHelpMessage (mentor: string) {

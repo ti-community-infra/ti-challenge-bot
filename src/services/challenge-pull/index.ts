@@ -26,6 +26,7 @@ import { PullPayload } from '../../events/payloads/PullPayload'
 // eslint-disable-next-line no-unused-vars
 import { ChallengePullQuery } from '../../queries/ChallengePullQuery'
 import { ChallengeIssueTip } from '../messages/ChallengeIssueMessage'
+import { checkIsInAssignFlow } from '../utils/IssueUtil'
 
 @Service()
 export default class ChallengePullService {
@@ -93,22 +94,11 @@ export default class ChallengePullService {
       }
     }
 
-    // Find linked issue.
-    const issueNumber = findLinkedIssueNumber(pullQuery.body)
-    if (issueNumber === undefined) {
-      return {
-        data: null,
-        status: Status.Problematic,
-        message: ChallengePullMessage.CanNotFindLinkedIssue,
-        tip: ChallengePullTips.CanNotFindLinkedIssue
-      }
-    }
-
     // Try to find linked issue.
     const issue = await this.issueRepository.findOne({
       relations: ['challengeIssue'],
       where: {
-        issueNumber
+        issueNumber: rewardQuery.linkedIssueNumber
       }
     })
 
@@ -119,14 +109,7 @@ export default class ChallengePullService {
       }
     }
 
-    // Check if the issue has picked.
     const { challengeIssue } = issue
-    if (!challengeIssue.hasPicked) {
-      return {
-        ...baseFailedMessage,
-        message: ChallengePullMessage.NotPicked
-      }
-    }
 
     // Check the challenge issue's mentor.
     if (challengeIssue.mentor === undefined || challengeIssue.mentor === null) {
@@ -143,6 +126,21 @@ export default class ChallengePullService {
       return {
         ...baseFailedMessage,
         message: ChallengePullMessage.NotMentor
+      }
+    }
+
+    let needCheckHasPicked = false
+
+    const isInAssignFlow = checkIsInAssignFlow(rewardQuery.issueAssignees, challengeIssue.mentor)
+    if (!isInAssignFlow) {
+      // Check if the issue has picked.
+      needCheckHasPicked = true
+    }
+
+    if (needCheckHasPicked && !challengeIssue.hasPicked) {
+      return {
+        ...baseFailedMessage,
+        message: ChallengePullMessage.NotPicked
       }
     }
 
