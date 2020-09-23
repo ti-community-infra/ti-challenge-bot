@@ -16,5 +16,6 @@ export interface IssueQuery{
     createdAt: string;
     updatedAt: string;
     authorAssociation: string;
+    // TODO: check all places to add this value.
     assignees: UserQuery[]
 }
