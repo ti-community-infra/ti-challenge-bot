@@ -16,4 +16,5 @@ export interface IssueQuery{
     createdAt: string;
     updatedAt: string;
     authorAssociation: string;
+    assignees: UserQuery[]
 }

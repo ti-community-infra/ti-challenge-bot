@@ -18,7 +18,7 @@ import {
   alreadyPickedMessage,
   ChallengeIssueMessage,
   ChallengeIssueTip,
-  ChallengeIssueWarning,
+  ChallengeIssueWarning, inAssignFlowMessage,
   pickUpSuccessMissInfoWarning
 } from '../messages/ChallengeIssueMessage'
 import { findMentorAndScore, findSigLabel, isChallengeIssue, isClosed } from '../utils/IssueUtil'
@@ -429,6 +429,45 @@ export default class ChallengeIssueService {
       data: null,
       status: Status.Success,
       message: ChallengeIssueMessage.Removed
+    }
+  }
+
+  public checkAssigneesHaveMentor (challengeIssueQuery: ChallengeIssueQuery):Reply<null> {
+    const { issue: issueQuery } = challengeIssueQuery
+    // Check the mentor and score info.
+    const mentorAndScore = findMentorAndScore(issueQuery.body)
+
+    if (mentorAndScore === undefined) {
+      return {
+        data: null,
+        status: Status.Problematic,
+        message: ChallengeIssueMessage.AssignFlowNoMentor,
+        tip: ChallengeIssueTip.RefineIssueFormat
+      }
+    }
+
+    const { mentor } = mentorAndScore
+
+    let hasMentor = false
+
+    issueQuery.assignees.forEach(a => {
+      if (a.login === mentor) {
+        hasMentor = true
+      }
+    })
+
+    if (!hasMentor) {
+      return {
+        data: null,
+        status: Status.Failed,
+        message: ChallengeIssueMessage.AssignFlowNoMentor
+      }
+    }
+
+    return {
+      data: null,
+      status: Status.Success,
+      message: inAssignFlowMessage(mentor)
     }
   }
 }

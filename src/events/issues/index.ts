@@ -19,6 +19,7 @@ import { combineReplay } from '../../services/utils/ReplyUtil'
 // eslint-disable-next-line no-unused-vars
 import { ChallengeIssue } from '../../db/entities/ChallengeIssue'
 import { CHALLENGE_PROGRAM_LABEL } from '../../commands/labels'
+import { UserQuery } from '../../queries/UserQuery'
 
 export enum IssueOrPullActions{
     // eslint-disable-next-line no-unused-vars
@@ -32,7 +33,9 @@ export enum IssueOrPullActions{
     // eslint-disable-next-line no-unused-vars
     Closed = 'closed',
     // eslint-disable-next-line no-unused-vars
-    Reopened = 'reopened'
+    Reopened = 'reopened',
+    // eslint-disable-next-line no-unused-vars
+    Assigned = 'assigned'
 }
 
 /**
@@ -48,6 +51,9 @@ const constructIssuePayloadAndLabels = (context: Context): {payload:IssuePayload
   })
 
   const { user } = issuePayload
+  const assignees:UserQuery[] = issuePayload.assignees.map((a: UserQuery) => {
+    return { ...a }
+  })
 
   return {
     payload: {
@@ -62,7 +68,8 @@ const constructIssuePayloadAndLabels = (context: Context): {payload:IssuePayload
         updatedAt: issuePayload.updated_at,
         closedAt: issuePayload.closed_at,
         mergedAt: issuePayload.merged_at,
-        authorAssociation: issuePayload.author_association
+        authorAssociation: issuePayload.author_association,
+        assignees
       }
     },
     labels
@@ -253,7 +260,7 @@ const handleIssuesUnlabeled = async (context: Context, issueService: IssueServic
   }
 
   if (reply.status === Status.Success) {
-    context.log.warn(`Unlabeled challenge program and try to remove challenge issue have some problems ${oldIssue}.`)
+    context.log.info(`Unlabeled challenge program and try to remove challenge issue have some problems ${oldIssue}.`)
     await context.github.issues.createComment(context.issue({ body: reply.message }))
   }
 }
@@ -271,6 +278,41 @@ const handleIssuesClosedOrReopened = async (context: Context, issueService: Issu
   // Notice: if the issue not exist, we need to add it.
   if (issue === undefined) {
     await issueService.add(payload)
+  }
+}
+
+const handleIssuesAssigned = async (context: Context, challengeIssueService: ChallengeIssueService) => {
+  const { payload, labels } = constructIssuePayloadAndLabels(context)
+
+  if (!isChallengeIssue(labels)) {
+    return
+  }
+
+  const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH)
+  const challengeIssueQuery: ChallengeIssueQuery = {
+    ...context.issue(),
+    issue: payload.issue,
+    defaultSigLabel: config?.defaultSigLabel
+  }
+
+  const reply = challengeIssueService.checkAssigneesHaveMentor(challengeIssueQuery)
+
+  switch (reply.status) {
+    case Status.Failed : {
+      context.log.error('Check issue assignees have mentor failed.', challengeIssueQuery)
+      await context.github.issues.createComment(context.issue({ body: reply.message }))
+      break
+    }
+    case Status.Success: {
+      context.log.info('Check issue assignees have mentor success.', challengeIssueQuery)
+      await context.github.issues.createComment(context.issue({ body: reply.message }))
+      break
+    }
+    case Status.Problematic: {
+      context.log.warn('Check issue assignees have mentor have some problems.', challengeIssueQuery)
+      await context.github.issues.createComment(context.issue({ body: combineReplay(reply) }))
+      break
+    }
   }
 }
 
@@ -300,6 +342,11 @@ const handleIssueEvents = async (context: Context, issueService: IssueService, c
 
     case IssueOrPullActions.Reopened: {
       await handleIssuesClosedOrReopened(context, issueService)
+      break
+    }
+
+    case IssueOrPullActions.Assigned: {
+      await handleIssuesAssigned(context, challengeIssueService)
       break
     }
   }
