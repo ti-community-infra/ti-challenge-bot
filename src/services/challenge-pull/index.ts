@@ -258,36 +258,19 @@ export default class ChallengePullService {
     // Count the score.
     const { challengeProgram } = challengeIssue
 
-    if (challengeProgram !== undefined && challengeProgram !== null) {
-      const score = await this.scoreRepository.getCurrentScoreInProgram(challengeProgram.programTheme, username)
-      if (warning !== undefined) {
-        return {
-          data: score,
-          status: Status.Problematic,
-          message: countScoreMessage(username, pull.challengePull.reward, score, challengeProgram.programTheme),
-          warning
-        }
-      }
+    const score = await this.scoreRepository.getCurrentScoreInProgram(challengeProgram.programTheme, username)
+    if (warning !== undefined) {
       return {
         data: score,
-        status: Status.Success,
-        message: countScoreMessage(username, pull.challengePull.reward, score, challengeProgram.programTheme)
+        status: Status.Problematic,
+        message: countScoreMessage(username, pull.challengePull.reward, score, challengeProgram.programTheme),
+        warning
       }
-    } else {
-      const score = await this.scoreRepository.getCurrentScoreInLongTermProgram(username)
-      if (warning !== undefined) {
-        return {
-          data: score,
-          status: Status.Problematic,
-          message: countScoreMessage(username, pull.challengePull.reward, score),
-          warning
-        }
-      }
-      return {
-        data: score,
-        status: Status.Success,
-        message: countScoreMessage(username, pull.challengePull.reward, score)
-      }
+    }
+    return {
+      data: score,
+      status: Status.Success,
+      message: countScoreMessage(username, pull.challengePull.reward, score, challengeProgram.programTheme)
     }
   }
 

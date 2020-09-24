@@ -34,6 +34,7 @@ import { GithubLabelSig } from '../../db/entities/GithubLabelSig'
 import { GiveUpQuery } from '../../queries/GiveUpQuery'
 import { ChallengeTeam } from '../../db/entities/ChallengeTeam'
 import { ChallengersChallengeTeams } from '../../db/entities/ChallengersChallengeTeams'
+import { DEFAULT_CHALLENGE_PROGRAM_THEME } from '../../config/Config'
 
 @Service()
 export default class ChallengeIssueService {
@@ -82,18 +83,21 @@ export default class ChallengeIssueService {
     return issue
   }
 
-  private async findChallengeProgram (labels: LabelQuery[]): Promise<ChallengeProgram|undefined> {
+  private async findChallengeProgramOrDefaultProgram (labels: LabelQuery[]): Promise<ChallengeProgram|undefined> {
     const programs = await this.challengeProgramRepository.createQueryBuilder().getMany()
-    let program
+    let program, defaultProgram
     programs.forEach(p => {
       labels.forEach(l => {
         if (p.programTheme === l.name) {
           program = p
         }
+        if (p.programTheme === DEFAULT_CHALLENGE_PROGRAM_THEME) {
+          defaultProgram = p
+        }
       })
     })
 
-    return program
+    return program || defaultProgram
   }
 
   private async findSigId (labels: LabelQuery[], defaultSigLabel?: string): Promise<number|undefined > {
@@ -176,7 +180,7 @@ export default class ChallengeIssueService {
       inAssignFlow = checkIsInAssignFlow(issueQuery.assignees, mentorAndScore.mentor)
     }
 
-    const program = await this.findChallengeProgram(issueQuery.labels)
+    const program = await this.findChallengeProgramOrDefaultProgram(issueQuery.labels)
 
     // TODO: maybe we should check the ONLY_INDIVIDUAL case.
     if (program?.type === ChallengeProgramType.ONLY_TEAM) {
@@ -319,7 +323,7 @@ export default class ChallengeIssueService {
       tip = ChallengeIssueTip.RefineIssueFormat
     }
 
-    const program = await this.findChallengeProgram(issueQuery.labels)
+    const program = await this.findChallengeProgramOrDefaultProgram(issueQuery.labels)
 
     const newChallengeIssue = new ChallengeIssue()
     newChallengeIssue.issueId = issueId
@@ -378,7 +382,7 @@ export default class ChallengeIssueService {
       warning = ChallengeIssueWarning.IllegalIssueFormat
     }
 
-    const program = await this.findChallengeProgram(issueQuery.labels)
+    const program = await this.findChallengeProgramOrDefaultProgram(issueQuery.labels)
 
     challengeIssue.sigId = sigId
     // FIXME: if the issue remove the mentor and score, we should update it.

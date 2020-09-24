@@ -181,13 +181,7 @@ const handleIssuesLabeled = async (context: Context, issueService: IssueService,
     // Notice: if the old issue exist, we need to update it.
     await issueService.update(payload)
 
-    // Find added labels.
-    const oldLabels = oldIssue.label.split(',')
-    const addedLabels = labels.filter(l => {
-      return !oldLabels.includes(l.name)
-    })
-
-    if (isChallengeIssue(addedLabels)) {
+    if (isChallengeIssue(labels)) {
       reply = await challengeIssueService.updateWhenIssueEdited(oldIssue.id, challengeIssueQuery) ||
                 await challengeIssueService.createWhenIssueOpened(oldIssue.id, challengeIssueQuery)
     }
