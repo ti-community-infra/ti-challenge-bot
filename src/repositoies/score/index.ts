@@ -30,7 +30,6 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
   public async getCurrentScoreInProgram (theme: string, username: string) : Promise<number>;
   // eslint-disable-next-line no-dupe-class-members
   public async getCurrentScoreInProgram (theme: string, username?: string) {
-    console.log(theme)
     if (username !== undefined) {
       // TODO: we should try to optimize all sql in the entire project.
       const { score } = await this.createQueryBuilder('ci')
