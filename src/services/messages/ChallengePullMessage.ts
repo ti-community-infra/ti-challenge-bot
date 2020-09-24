@@ -1,4 +1,6 @@
 /* eslint-disable no-unused-vars */
+import { DEFAULT_CHALLENGE_PROGRAM_THEME } from '../../config/Config'
+
 export enum ChallengePullMessage{
     PullRequestAlreadyClosed = 'This PR already closed!',
     CanNotFindLinkedIssue = 'This PR do not have any linked issue.',
@@ -48,8 +50,8 @@ export function rewardNotEnoughLeftScoreMessage (leftScore: number) {
   return `The linked issue's balance is not enough, current balance is ${leftScore}.`
 }
 
-export function countScoreMessage (username: string, prScore: number, score: number, theme?: string): string {
-  return `@${username}, Congratulations, you get ${prScore} in this PR, and your total score is ${score} ` + (theme ? `in ${theme} challenge program.` : 'in challenge program.')
+export function countScoreMessage (username: string, prScore: number, score: number, theme: string): string {
+  return `@${username}, Congratulations, you get ${prScore} in this PR, and your total score is ${score} ` + (theme !== DEFAULT_CHALLENGE_PROGRAM_THEME ? `in ${theme} challenge program.` : 'in challenge program.')
 }
 
 export function lgtmNotReward (mentor?: string): string {

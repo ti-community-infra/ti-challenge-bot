@@ -45,10 +45,9 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
 
     return (await this.createQueryBuilder('ci')
       .leftJoinAndSelect(ChallengeProgram, 'cpg', 'ci.challenge_program_id = cpg.id')
-      .where(`cpg.program_theme = '${theme}'`)
       .leftJoinAndSelect(ChallengePull, 'cp', ' ci.issue_id = cp.challenge_issue_id')
       .leftJoinAndSelect(Pull, 'p', 'cp.pull_id = p.id')
-      .where(`p.status = '${IssueOrPullStatus.Merged}'`)
+      .where(`cpg.program_theme = '${theme}' and p.status = '${IssueOrPullStatus.Merged}'`)
       .groupBy('p.user')
       .select('p.user as githubId, sum(cp.reward) as score')
       .getRawMany()).map(r => {
@@ -56,17 +55,6 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
         ...r
       }
     })
-  }
-
-  public async getCurrentScoreInLongTermProgram (username: string) : Promise<number> {
-    const { score } = await this.createQueryBuilder('ci')
-      .leftJoinAndSelect(ChallengePull, 'cp', ' ci.issue_id = cp.challenge_issue_id')
-      .leftJoinAndSelect(Pull, 'p', 'cp.pull_id = p.id')
-      .where(`ci.challenge_program_id is null and p.user = '${username}' and p.status = '${IssueOrPullStatus.Merged}'`)
-      .select('sum(cp.reward)', 'score')
-      .getRawOne()
-
-    return score
   }
 
   public async getCurrentLeftScore (issueId: number, pullId: number) : Promise<number|undefined> {
