@@ -26,6 +26,7 @@ export class ChallengeIssue {
     @Column({ name: 'picked_at', type: 'timestamp', nullable: true, default: null })
     pickedAt?: string | null;
 
+    // FIXME: we need to make this column not null.
     @Column({ name: 'challenge_program_id', nullable: true, default: null })
     challengeProgramId?: number;
 
