@@ -111,9 +111,6 @@ const handleChallengePull = async (context: Context, challengePullService: Chall
   switch (reply.status) {
     case Status.Failed: {
       context.log.error(`${pullPayload} not reward ${reply.message}.`)
-      await context.github.issues.createComment(
-        context.issue({ body: reply.message })
-      )
       // @ts-ignore
       await context.github.repos.createStatus({
         ...context.repo(),
@@ -132,9 +129,6 @@ const handleChallengePull = async (context: Context, challengePullService: Chall
     }
     case Status.Problematic: {
       context.log.warn(`${pullPayload} check reward has some problems.`)
-      await context.github.issues.createComment(
-        context.issue({ body: combineReplay(reply) })
-      )
       // @ts-ignore
       await context.github.repos.createStatus({
         ...context.repo(),
