@@ -43,7 +43,7 @@ export = (app: Application) => {
   })
 
   // Get an express router to expose new HTTP endpoints.
-  const router = app.route()
+  const router = app.route('/ti-challenge-bot')
   router.use(bodyParser.json())
   router.use(cors())
 
