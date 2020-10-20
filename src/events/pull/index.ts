@@ -1,80 +1,94 @@
-// eslint-disable-next-line no-unused-vars
-import { Context } from 'probot'
+import { Context } from "probot";
 
-// eslint-disable-next-line no-unused-vars
-import { PullPayload } from '../payloads/PullPayload'
-// eslint-disable-next-line no-unused-vars
-import { LabelQuery } from '../../queries/LabelQuery'
-// eslint-disable-next-line no-unused-vars
-import { Status } from '../../services/reply'
-// eslint-disable-next-line no-unused-vars
-import ChallengePullService from '../../services/challenge-pull'
-import { combineReplay } from '../../services/utils/ReplyUtil'
-import { IssueOrPullActions } from '../issues'
-// eslint-disable-next-line no-unused-vars
-import { ChallengePullQuery } from '../../queries/ChallengePullQuery'
+import { PullPayload } from "../payloads/PullPayload";
 
-const handlePullClosed = async (context: Context, challengePullService: ChallengePullService) => {
-  const { pull_request: pullRequest } = context.payload
+import { LabelQuery } from "../../queries/LabelQuery";
+
+import { Status } from "../../services/reply";
+
+import ChallengePullService from "../../services/challenge-pull";
+import { combineReplay } from "../../services/utils/ReplyUtil";
+import { IssueOrPullActions } from "../issues";
+
+import { ChallengePullQuery } from "../../queries/ChallengePullQuery";
+
+const handlePullClosed = async (
+  context: Context,
+  challengePullService: ChallengePullService
+) => {
+  const { pull_request: pullRequest } = context.payload;
   const labels: LabelQuery[] = pullRequest.labels.map((label: LabelQuery) => {
     return {
-      ...label
-    }
-  })
-  const { payload } = context
-  const { user } = pullRequest
+      ...label,
+    };
+  });
+  const { payload } = context;
+  const { user } = pullRequest;
 
   const pullPayload: PullPayload = {
     ...payload,
     pull: {
       ...pullRequest,
       user: {
-        ...user
+        ...user,
       },
       labels: labels,
       createdAt: pullRequest.created_at,
       updatedAt: pullRequest.updated_at,
       closedAt: pullRequest.closed_at,
       mergedAt: pullRequest.merged_at,
-      authorAssociation: pullRequest.author_association
-    }
-  }
+      authorAssociation: pullRequest.author_association,
+    },
+  };
 
-  const reply = await challengePullService.countScoreWhenPullClosed(pullPayload)
+  const reply = await challengePullService.countScoreWhenPullClosed(
+    pullPayload
+  );
   if (reply === undefined) {
-    context.log.trace(`Do not need to count ${pullPayload}.`)
-    return
+    context.log.trace(`Do not need to count ${pullPayload}.`);
+    return;
   }
 
   switch (reply.status) {
     case Status.Failed: {
-      context.log.error(`Count ${pullPayload} failed because ${reply.message}.`)
-      await context.github.issues.createComment(context.issue({ body: reply.message }))
-      break
+      context.log.error(
+        `Count ${pullPayload} failed because ${reply.message}.`
+      );
+      await context.github.issues.createComment(
+        context.issue({ body: reply.message })
+      );
+      break;
     }
     case Status.Success: {
-      context.log.info(`Count ${pullPayload} success.`)
-      await context.github.issues.createComment(context.issue({ body: reply.message }))
-      break
+      context.log.info(`Count ${pullPayload} success.`);
+      await context.github.issues.createComment(
+        context.issue({ body: reply.message })
+      );
+      break;
     }
     case Status.Problematic: {
-      context.log.warn(`Count ${pullPayload} has some problems.`)
-      await context.github.issues.createComment(context.issue({ body: combineReplay(reply) }))
-      break
+      context.log.warn(`Count ${pullPayload} has some problems.`);
+      await context.github.issues.createComment(
+        context.issue({ body: combineReplay(reply) })
+      );
+      break;
     }
   }
-}
+};
 
-const handleChallengePull = async (context: Context, challengePullService: ChallengePullService) => {
+const handleChallengePull = async (
+  context: Context,
+  challengePullService: ChallengePullService
+) => {
   // FIXME: this code is very similar to `handlePullClosed`.
-  const { pull_request: pullRequest } = context.payload
+  const { pull_request: pullRequest } = context.payload;
   const labels: LabelQuery[] = pullRequest.labels.map((label: LabelQuery) => {
     return {
-      ...label
-    }
-  })
-  const { payload } = context
-  const { user } = pullRequest
+      ...label,
+    };
+  });
+  const { payload } = context;
+  const { user } = pullRequest;
 
   const pullPayload: ChallengePullQuery = {
     ...payload,
@@ -82,69 +96,75 @@ const handleChallengePull = async (context: Context, challengePullService: Chall
     pull: {
       ...pullRequest,
       user: {
-        ...user
+        ...user,
       },
       labels: labels,
       createdAt: pullRequest.created_at,
       updatedAt: pullRequest.updated_at,
       closedAt: pullRequest.closed_at,
       mergedAt: pullRequest.merged_at,
-      authorAssociation: pullRequest.author_association
-    }
-  }
+      authorAssociation: pullRequest.author_association,
+    },
+  };
 
-  const reply = await challengePullService.checkHasRewardToChallengePull(pullPayload)
+  const reply = await challengePullService.checkHasRewardToChallengePull(
+    pullPayload
+  );
 
   // It means not a challenge pull.
   if (reply === undefined) {
-    return
+    return;
   }
 
   const status = {
     sha: pullRequest.head.sha,
-    state: reply.status === Status.Success ? 'success' : 'pending',
-    target_url: 'https://tidb-community-bots.github.io/ti-challenge-bot/commands.html',
+    state: reply.status === Status.Success ? "success" : "pending",
+    target_url:
+      "https://tidb-community-bots.github.io/ti-challenge-bot/commands.html",
     description: reply.message,
-    context: 'Challenge Pull Request Reward'
-  }
+    context: "Challenge Pull Request Reward",
+  };
 
   switch (reply.status) {
     case Status.Failed: {
-      context.log.error(`${pullPayload} not reward ${reply.message}.`)
+      context.log.error(`${pullPayload} not reward ${reply.message}.`);
       // @ts-ignore
       await context.github.repos.createStatus({
         ...context.repo(),
-        ...status
-      })
-      break
+        ...status,
+      });
+      break;
     }
     case Status.Success: {
-      context.log.info(`${pullPayload} already rewarded.`)
+      context.log.info(`${pullPayload} already rewarded.`);
       // @ts-ignore
       await context.github.repos.createStatus({
         ...context.repo(),
-        ...status
-      })
-      break
+        ...status,
+      });
+      break;
     }
     case Status.Problematic: {
-      context.log.warn(`${pullPayload} check reward has some problems.`)
+      context.log.warn(`${pullPayload} check reward has some problems.`);
       // @ts-ignore
       await context.github.repos.createStatus({
         ...context.repo(),
-        ...status
-      })
-      break
+        ...status,
+      });
+      break;
     }
   }
-}
+};
 
-const handlePullEvents = async (context:Context, challengePullService: ChallengePullService) => {
+const handlePullEvents = async (
+  context: Context,
+  challengePullService: ChallengePullService
+) => {
   if (context.payload.action === IssueOrPullActions.Closed) {
-    await handlePullClosed(context, challengePullService)
+    await handlePullClosed(context, challengePullService);
   } else {
-    await handleChallengePull(context, challengePullService)
+    await handleChallengePull(context, challengePullService);
   }
-}
+};
 
-export { handlePullEvents }
+export { handlePullEvents };

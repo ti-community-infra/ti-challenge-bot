@@ -1,16 +1,15 @@
-// eslint-disable-next-line no-unused-vars
-import { Reply } from '../reply'
+import { Reply } from "../reply";
 
-export function combineReplay (replay: Reply<any>) {
+export function combineReplay(replay: Reply<any>) {
   return `
 ${replay.message}
 
 <details>
 <summary>More</summary>
 
-**Tip**    : ${replay.tip ? replay.tip : 'None'}
+**Tip**    : ${replay.tip ? replay.tip : "None"}
 
-**Warning**: ${replay.warning ? replay.warning : 'None'}
+**Warning**: ${replay.warning ? replay.warning : "None"}
 </details>
-    `
+    `;
 }

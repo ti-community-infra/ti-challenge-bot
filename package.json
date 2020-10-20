@@ -18,8 +18,9 @@
     "build:watch": "tsc && (tsc -w --preserveWatchOutput & nodemon)",
     "dev": "npm run build:watch",
     "start": "probot run ./lib/index.js",
-    "lint": "standard src/**/**/**/**/**/**/*.ts test/**/*.ts --fix",
-    "test": "jest --coverage && standard src/**/*.ts test/**/*.ts",
+    "lint": "prettier --check 'src/**/*.ts' 'test/**/*.ts' *.md package.json tsconfig.json",
+    "lint:fix": "prettier --write 'src/**/*.ts' 'test/**/*.ts' *.md package.json tsconfig.json",
+    "test": "jest --coverage",
     "test:watch": "jest --watch --notify --notifyMode=change --coverage",
     "typeorm": "ts-node ./node_modules/.bin/typeorm"
   },
@@ -52,7 +53,7 @@
     "nodemon": "^2.0.6",
     "semantic-release": "^17.2.1",
     "smee-client": "^1.1.0",
-    "standard": "^14.3.4",
+    "prettier": "2.1.2",
     "ts-jest": "^25.1.0",
     "ts-node": "^9.0.0",
     "typescript": "^3.6.4"
@@ -74,7 +75,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm test"
+      "pre-commit": "npm run lint && npm test"
     }
   },
   "jest": {
