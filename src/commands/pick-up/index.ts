@@ -1,37 +1,38 @@
-// eslint-disable-next-line no-unused-vars
-import { Context } from 'probot'
+import { Context } from "probot";
 
-// eslint-disable-next-line no-unused-vars
-import { PickUpQuery } from '../../queries/PickUpQuery'
-// eslint-disable-next-line no-unused-vars
-import { LabelQuery } from '../../queries/LabelQuery'
-import { Status } from '../../services/reply'
-// eslint-disable-next-line no-unused-vars
-import { Config, DEFAULT_CONFIG_FILE_PATH } from '../../config/Config'
-import { PICKED_LABEL } from '../labels'
-// eslint-disable-next-line no-unused-vars
-import ChallengeIssueService from '../../services/challenge-issue'
-import { combineReplay } from '../../services/utils/ReplyUtil'
+import { PickUpQuery } from "../../queries/PickUpQuery";
+
+import { LabelQuery } from "../../queries/LabelQuery";
+import { Status } from "../../services/reply";
+
+import { Config, DEFAULT_CONFIG_FILE_PATH } from "../../config/Config";
+import { PICKED_LABEL } from "../labels";
+
+import ChallengeIssueService from "../../services/challenge-issue";
+import { combineReplay } from "../../services/utils/ReplyUtil";
 
 /**
  * Pick up the issue.
  * @param context
  * @param challengeIssueService
  */
-const pickUp = async (context: Context, challengeIssueService: ChallengeIssueService) => {
+const pickUp = async (
+  context: Context,
+  challengeIssueService: ChallengeIssueService
+) => {
   // Notice: because the context come form issue_comment.created event,
   // so we need to get this issue.
-  const issueResponse = await context.github.issues.get(context.issue())
-  const issue = context.issue()
-  const { data } = issueResponse
-  const { sender } = context.payload
-  const labels: LabelQuery[] = data.labels.map(label => {
+  const issueResponse = await context.github.issues.get(context.issue());
+  const issue = context.issue();
+  const { data } = issueResponse;
+  const { sender } = context.payload;
+  const labels: LabelQuery[] = data.labels.map((label) => {
     return {
-      ...label
-    }
-  })
-  const { user } = data
-  const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH)
+      ...label,
+    };
+  });
+  const { user } = data;
+  const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
 
   const pickUpQuery: PickUpQuery = {
     challenger: sender.login,
@@ -39,42 +40,54 @@ const pickUp = async (context: Context, challengeIssueService: ChallengeIssueSer
     issue: {
       ...data,
       user: {
-        ...user
+        ...user,
       },
       labels: labels,
       // @ts-ignore
       closedAt: data.closed_at,
       createdAt: data.created_at,
-      updatedAt: data.updated_at
+      updatedAt: data.updated_at,
     },
-    defaultSigLabel: config?.defaultSigLabel
-  }
+    defaultSigLabel: config?.defaultSigLabel,
+  };
 
-  const reply = await challengeIssueService.pickUp(pickUpQuery)
+  const reply = await challengeIssueService.pickUp(pickUpQuery);
 
   switch (reply.status) {
     case Status.Failed: {
-      context.log.error(`Pick up ${pickUpQuery} failed because ${reply.message}.`)
-      await context.github.issues.createComment(context.issue({ body: reply.message }))
-      break
+      context.log.error(
+        `Pick up ${pickUpQuery} failed because ${reply.message}.`
+      );
+      await context.github.issues.createComment(
+        context.issue({ body: reply.message })
+      );
+      break;
     }
     case Status.Success: {
       // Add picked label.
-      context.log.info(`Pick up ${pickUpQuery} success.`)
-      await context.github.issues.addLabels(context.issue({ labels: [PICKED_LABEL] }))
+      context.log.info(`Pick up ${pickUpQuery} success.`);
+      await context.github.issues.addLabels(
+        context.issue({ labels: [PICKED_LABEL] })
+      );
       if (reply.warning !== undefined || reply.tip !== undefined) {
-        await context.github.issues.createComment(context.issue({ body: combineReplay(reply) }))
+        await context.github.issues.createComment(
+          context.issue({ body: combineReplay(reply) })
+        );
       } else {
-        await context.github.issues.createComment(context.issue({ body: reply.message }))
+        await context.github.issues.createComment(
+          context.issue({ body: reply.message })
+        );
       }
-      break
+      break;
     }
     case Status.Problematic: {
-      context.log.warn(`Pick up ${pickUpQuery} has some problems.`)
-      await context.github.issues.createComment(context.issue({ body: combineReplay(reply) }))
-      break
+      context.log.warn(`Pick up ${pickUpQuery} has some problems.`);
+      await context.github.issues.createComment(
+        context.issue({ body: combineReplay(reply) })
+      );
+      break;
     }
   }
-}
+};
 
-export default pickUp
+export default pickUp;

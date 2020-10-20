@@ -1,4 +1,4 @@
-export interface RankQuery{
-    challengeProgramId: number,
-    byTeam: boolean
+export interface RankQuery {
+  challengeProgramId: number;
+  byTeam: boolean;
 }
