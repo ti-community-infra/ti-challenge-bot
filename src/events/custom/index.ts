@@ -8,6 +8,11 @@ import ChallengePullService from "../../services/challenge-pull";
 import { combineReplay } from "../../services/utils/ReplyUtil";
 
 import { ChallengePullQuery } from "../../queries/ChallengePullQuery";
+import {
+  Config,
+  DEFAULT_BRANCHES,
+  DEFAULT_CONFIG_FILE_PATH,
+} from "../../config/Config";
 
 /**
  * Handle LGTM custom event.
@@ -45,12 +50,19 @@ const handleLgtm = async (
     },
   };
 
+  const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH, {
+    branches: DEFAULT_BRANCHES,
+  });
+  if (!config?.branches?.find((b) => b === data.base.ref)) {
+    return;
+  }
+
   const reply = await challengePullService.checkHasRewardToChallengePull(
     challengePullQuery
   );
 
   // It means not a challenge pull.
-  if (reply === undefined) {
+  if (reply === null || !config?.branches?.find((b) => b === data.base.ref)) {
     return;
   }
 

@@ -11,6 +11,11 @@ import { combineReplay } from "../../services/utils/ReplyUtil";
 import { IssueOrPullActions } from "../issues";
 
 import { ChallengePullQuery } from "../../queries/ChallengePullQuery";
+import {
+  Config,
+  DEFAULT_BRANCHES,
+  DEFAULT_CONFIG_FILE_PATH,
+} from "../../config/Config";
 
 const handlePullClosed = async (
   context: Context,
@@ -76,11 +81,15 @@ const handlePullClosed = async (
   }
 };
 
+/**
+ * Handle challenge pull request.
+ * @param context
+ * @param challengePullService
+ */
 const handleChallengePull = async (
   context: Context,
   challengePullService: ChallengePullService
 ) => {
-  // FIXME: this code is very similar to `handlePullClosed`.
   const { pull_request: pullRequest } = context.payload;
   const labels: LabelQuery[] = pullRequest.labels.map((label: LabelQuery) => {
     return {
@@ -107,12 +116,19 @@ const handleChallengePull = async (
     },
   };
 
+  const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH, {
+    branches: DEFAULT_BRANCHES,
+  });
+  if (!config?.branches?.find((b) => b === pullRequest.base.ref)) {
+    return;
+  }
+
   const reply = await challengePullService.checkHasRewardToChallengePull(
     pullPayload
   );
 
   // It means not a challenge pull.
-  if (reply === undefined) {
+  if (reply === null) {
     return;
   }
 
