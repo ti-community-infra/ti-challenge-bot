@@ -63,7 +63,7 @@ const handleLgtm = async (
   );
 
   // It means not a challenge pull.
-  if (reply === null || !config?.branches?.find((b) => b === data.base.ref)) {
+  if (reply === null) {
     return;
   }
 
