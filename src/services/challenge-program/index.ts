@@ -72,17 +72,22 @@ export default class ChallengeProgramService {
           challengeTeamId: teams[i].id,
         },
       });
-      let totalScore = 0;
+
+      let totalScore: number = 0;
       for (let j = 0; j < teamMembers.length; j++) {
-        totalScore += await this.scoreRepository.getCurrentScoreInProgram(
+        const score = await this.scoreRepository.getCurrentScoreInProgram(
           program.programTheme,
           teamMembers[j].challengerGithubId
         );
+
+        if (score !== null) {
+          totalScore += score;
+        }
       }
 
       result.push({
         team: teams[i],
-        score: totalScore,
+        score: Number(totalScore),
       });
     }
 
@@ -144,7 +149,7 @@ export default class ChallengeProgramService {
     // Order by score.
     return {
       data: ranks.sort(function (a, b) {
-        return a.score - b.score;
+        return b.score - a.score;
       }),
       status: StatusCodes.OK,
       message: ChallengeProgramMessage.AllRanks,
