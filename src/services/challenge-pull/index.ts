@@ -242,7 +242,7 @@ export default class ChallengePullService {
 
     // Can not find linked issue.
     const issueNumber = findLinkedIssueNumber(pullQuery.body);
-    if (issueNumber === undefined) {
+    if (issueNumber === null) {
       return;
     }
 
@@ -327,7 +327,7 @@ export default class ChallengePullService {
    */
   public async checkHasRewardToChallengePull(
     challengePullQuery: ChallengePullQuery
-  ): Promise<Reply<null> | undefined> {
+  ): Promise<Reply<null> | null> {
     const { pull: pullQuery } = challengePullQuery;
     let pull = await this.pullRepository.findOne({
       relations: ["challengePull"],
@@ -343,8 +343,8 @@ export default class ChallengePullService {
 
     // Try to find linked issue number.
     const issueNumber = findLinkedIssueNumber(pullQuery.body);
-    if (issueNumber === undefined) {
-      return;
+    if (issueNumber === null) {
+      return null;
     }
 
     // Try to find linked issue.
@@ -360,7 +360,7 @@ export default class ChallengePullService {
       issue.challengeIssue === undefined ||
       issue.challengeIssue === null
     ) {
-      return;
+      return null;
     }
 
     // Cannot find challenge pull means not reward.

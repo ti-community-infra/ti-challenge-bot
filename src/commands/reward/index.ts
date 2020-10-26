@@ -1,19 +1,25 @@
 import { Context } from "probot";
 
 import { RewardQuery } from "../../queries/RewardQuery";
-
 import { LabelQuery } from "../../queries/LabelQuery";
 import { Status } from "../../services/reply";
 import { REWARDED_LABEL } from "../labels";
-
 import ChallengePullService from "../../services/challenge-pull";
 import { combineReplay } from "../../services/utils/ReplyUtil";
-import { findLinkedIssueNumber } from "../../services/utils/PullUtil";
+import {
+  findLinkedIssueNumber,
+  isValidBranch,
+} from "../../services/utils/PullUtil";
 import {
   ChallengePullMessage,
   ChallengePullTips,
 } from "../../services/messages/ChallengePullMessage";
 import { UserQuery } from "../../queries/UserQuery";
+import {
+  Config,
+  DEFAULT_BRANCHES,
+  DEFAULT_CONFIG_FILE_PATH,
+} from "../../config/Config";
 
 /**
  * Reward score to the PR.
@@ -38,10 +44,17 @@ const reward = async (
   const issue = context.issue();
   const { user } = data;
 
+  const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH, {
+    branches: DEFAULT_BRANCHES,
+  });
+  if (!isValidBranch(config!.branches!, data.base.ref)) {
+    return;
+  }
+
   // Find linked issue assignees.
   const issueNumber = findLinkedIssueNumber(data.body);
 
-  if (issueNumber === undefined) {
+  if (issueNumber === null) {
     await context.github.issues.createComment(
       context.issue({
         body: combineReplay({

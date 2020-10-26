@@ -5,7 +5,7 @@ export function combineReplay(replay: Reply<any>) {
 ${replay.message}
 
 <details>
-<summary>More</summary>
+<summary>Details</summary>
 
 **Tip**    : ${replay.tip ? replay.tip : "None"}
 
