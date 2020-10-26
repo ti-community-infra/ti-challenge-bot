@@ -41,9 +41,14 @@ export default class ChallengeProgramService {
     };
   }
 
+  /**
+   * Get rank by team.
+   * @param challengeProgramId
+   * @private
+   */
   private async rankingByTeam(
     challengeProgramId: number
-  ): Promise<ChallengeProgramRankDTO[] | undefined> {
+  ): Promise<ChallengeProgramRankDTO[] | null> {
     const program = await this.challengeProgramRepository.findOne({
       where: {
         id: challengeProgramId,
@@ -51,7 +56,7 @@ export default class ChallengeProgramService {
     });
 
     if (program === undefined) {
-      return;
+      return null;
     }
 
     const teams = await this.challengeTeamRepository.find({
@@ -84,9 +89,14 @@ export default class ChallengeProgramService {
     return result;
   }
 
-  private async rankingByGithubId(
+  /**
+   * Get rank by github name.
+   * @param challengeProgramId
+   * @private
+   */
+  private async rankingByGithubName(
     challengeProgramId: number
-  ): Promise<ChallengeProgramRankDTO[] | undefined> {
+  ): Promise<ChallengeProgramRankDTO[] | null> {
     const program = await this.challengeProgramRepository.findOne({
       where: {
         id: challengeProgramId,
@@ -94,14 +104,14 @@ export default class ChallengeProgramService {
     });
 
     if (program === undefined) {
-      return;
+      return null;
     }
 
-    const scoreWithGithubIds = await this.scoreRepository.getCurrentScoreInProgram(
+    const scoreWithGithubNames = await this.scoreRepository.getCurrentScoreInProgram(
       program.programTheme
     );
 
-    return scoreWithGithubIds.map((s) => {
+    return scoreWithGithubNames.map((s) => {
       return {
         ...s,
       };
@@ -120,18 +130,22 @@ export default class ChallengeProgramService {
     if (rankQuery.byTeam) {
       ranks = await this.rankingByTeam(rankQuery.challengeProgramId);
     } else {
-      ranks = await this.rankingByGithubId(rankQuery.challengeProgramId);
+      ranks = await this.rankingByGithubName(rankQuery.challengeProgramId);
     }
 
-    if (ranks === undefined) {
+    if (ranks === null) {
       return {
         data: null,
         status: StatusCodes.NOT_FOUND,
         message: ChallengeProgramMessage.ProgramNotExist,
       };
     }
+
+    // Order by score.
     return {
-      data: ranks,
+      data: ranks.sort(function (a, b) {
+        return a.score - b.score;
+      }),
       status: StatusCodes.OK,
       message: ChallengeProgramMessage.AllRanks,
     };
