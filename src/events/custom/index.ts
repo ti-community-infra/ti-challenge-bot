@@ -13,6 +13,7 @@ import {
   DEFAULT_BRANCHES,
   DEFAULT_CONFIG_FILE_PATH,
 } from "../../config/Config";
+import { isValidBranch } from "../../services/utils/PullUtil";
 
 /**
  * Handle LGTM custom event.
@@ -53,7 +54,7 @@ const handleLgtm = async (
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH, {
     branches: DEFAULT_BRANCHES,
   });
-  if (!config?.branches?.find((b) => b === data.base.ref)) {
+  if (!isValidBranch(config!.branches!, data.base.ref)) {
     return;
   }
 

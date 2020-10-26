@@ -16,6 +16,7 @@ import {
   DEFAULT_BRANCHES,
   DEFAULT_CONFIG_FILE_PATH,
 } from "../../config/Config";
+import { isValidBranch } from "../../services/utils/PullUtil";
 
 const handlePullClosed = async (
   context: Context,
@@ -45,6 +46,13 @@ const handlePullClosed = async (
       authorAssociation: pullRequest.author_association,
     },
   };
+
+  const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH, {
+    branches: DEFAULT_BRANCHES,
+  });
+  if (!isValidBranch(config!.branches!, pullRequest.base.ref)) {
+    return;
+  }
 
   const reply = await challengePullService.countScoreWhenPullClosed(
     pullPayload
@@ -119,7 +127,7 @@ const handleChallengePull = async (
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH, {
     branches: DEFAULT_BRANCHES,
   });
-  if (!config?.branches?.find((b) => b === pullRequest.base.ref)) {
+  if (!isValidBranch(config!.branches!, pullRequest.base.ref)) {
     return;
   }
 
