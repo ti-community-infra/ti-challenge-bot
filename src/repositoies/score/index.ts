@@ -7,6 +7,9 @@ import { Pull } from "../../db/entities/Pull";
 
 import { Repository } from "typeorm/repository/Repository";
 
+/**
+ * Issue or Pull request status.
+ */
 export enum IssueOrPullStatus {
   Open = "open",
 
@@ -15,17 +18,29 @@ export enum IssueOrPullStatus {
   Merged = "merged",
 }
 
-export interface ScoreWithGithub {
-  githubId: string;
+/**
+ * Score with github name.
+ */
+export interface ScoreWithGithubName {
+  githubName: string;
   score: number;
 }
 
 @Service()
 @EntityRepository(ChallengeIssue)
 export default class ScoreRepository extends Repository<ChallengeIssue> {
+  /**
+   * Get current score in program.
+   * @param theme Challenge program theme.
+   */
   public async getCurrentScoreInProgram(
     theme: string
-  ): Promise<ScoreWithGithub[]>;
+  ): Promise<ScoreWithGithubName[]>;
+  /**
+   * Get current score in program.
+   * @param theme Challenge program theme.
+   * @param username Github username.
+   */
   public async getCurrentScoreInProgram(
     theme: string,
     username: string
@@ -42,7 +57,7 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
         .leftJoinAndSelect(
           ChallengePull,
           "cp",
-          " ci.issue_id = cp.challenge_issue_id"
+          "ci.issue_id = cp.challenge_issue_id"
         )
         .leftJoinAndSelect(Pull, "p", "cp.pull_id = p.id")
         .where(
@@ -54,6 +69,7 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
       return score;
     }
 
+    // Without github name.
     return (
       await this.createQueryBuilder("ci")
         .leftJoinAndSelect(
@@ -71,7 +87,7 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
           `cpg.program_theme = '${theme}' and p.status = '${IssueOrPullStatus.Merged}'`
         )
         .groupBy("p.user")
-        .select("p.user as githubId, sum(cp.reward) as score")
+        .select("p.user as githubName, sum(cp.reward) as score")
         .getRawMany()
     ).map((r) => {
       return {
@@ -80,7 +96,12 @@ export default class ScoreRepository extends Repository<ChallengeIssue> {
     });
   }
 
-  public async getCurrentLeftScore(
+  /**
+   * Get current challenge program issue left score.
+   * @param issueId
+   * @param pullId
+   */
+  public async getCurrentIssueLeftScore(
     issueId: number,
     pullId: number
   ): Promise<number | undefined> {

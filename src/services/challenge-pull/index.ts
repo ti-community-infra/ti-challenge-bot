@@ -178,7 +178,7 @@ export default class ChallengePullService {
 
     // Check the left score.
     const pull = await this.findOrCreatePull(rewardQuery);
-    const currentLeftScore = await this.scoreRepository.getCurrentLeftScore(
+    const currentLeftScore = await this.scoreRepository.getCurrentIssueLeftScore(
       challengeIssue.issueId,
       pull.id
     );
