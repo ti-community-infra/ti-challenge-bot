@@ -1,7 +1,9 @@
 const ISSUE_NUMBER_REGEX = /(Issue Number:).*#([0-9]*)/;
+const ISSUE_URL_REGEX = /(Issue Number:).*https:\/\/github.com\/.*\/.*\/issues\/([0-9]*)/;
 
 export function findLinkedIssueNumber(pullBody: string): number | null {
-  const issueNumberData = pullBody.match(ISSUE_NUMBER_REGEX);
+  const issueNumberData =
+    pullBody.match(ISSUE_NUMBER_REGEX) || pullBody.match(ISSUE_URL_REGEX);
   if (issueNumberData?.length !== 3) {
     return null;
   }

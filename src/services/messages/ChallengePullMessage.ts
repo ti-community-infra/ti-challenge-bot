@@ -23,7 +23,7 @@ export enum ChallengePullTips {
     Issue Number: close #xxx
       
     
-About issue link, there is a known [issue](https://github.com/tidb-community-bots/ti-challenge-bot/issues/22).
+About issue link, there is a trace [issue](https://github.com/tidb-community-bots/ti-challenge-bot/issues/178).
     `,
   RewardCommandRefs = "About reward you can refs to [reward-command](https://tidb-community-bots.github.io/ti-challenge-bot/commands.html).",
 }
