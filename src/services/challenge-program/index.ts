@@ -75,9 +75,11 @@ export default class ChallengeProgramService {
 
       let totalScore: number = 0;
       for (let j = 0; j < teamMembers.length; j++) {
-        const score = await this.scoreRepository.getCurrentScoreInProgram(
-          program.programTheme,
-          teamMembers[j].challengerGithubId
+        const score = Number(
+          await this.scoreRepository.getCurrentScoreInProgram(
+            program.programTheme,
+            teamMembers[j].challengerGithubId
+          )
         );
 
         if (score !== null) {
@@ -87,7 +89,7 @@ export default class ChallengeProgramService {
 
       result.push({
         team: teams[i],
-        score: Number(totalScore),
+        score: totalScore,
       });
     }
 

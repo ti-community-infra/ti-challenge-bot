@@ -18,6 +18,8 @@ describe("Pull Util", () => {
         `,
         200,
       ],
+      ["Issue Number: https://github.com/test/test/issues/19971", 19971],
+      ["Issue Number: close https://github.com/test/test/issues/19971", 19971],
     ];
 
     cases.forEach((c) => {
