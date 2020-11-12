@@ -51,7 +51,7 @@ export default class ChallengeIssueService {
     private githubLabelSigRepository: Repository<GithubLabelSig>,
     @InjectRepository(ChallengeProgram)
     private challengeProgramRepository: Repository<ChallengeProgram>
-  ) {}
+  ) { }
 
   private async findOrAddIssue(
     query: PickUpQuery | ChallengeIssueQuery
@@ -119,22 +119,23 @@ export default class ChallengeIssueService {
     if (sigLabelName === undefined) {
       return;
     }
-
-    // FIXME: now we use lower case sig label name, maybe we should fix it on github.
-    const { sigId } = await this.githubLabelSigRepository
-      .createQueryBuilder("gls")
-      .leftJoinAndSelect(
-        ProjectSig,
-        "ps",
-        "ps.project_sig_id = gls.project_sig_id"
-      )
-      .where(`gls.label = '${sigLabelName}'`)
-      .select("ps.sig_id", "sigId")
-      .getRawOne();
-    if (sigId === undefined) {
+    try {
+      // FIXME: now we use lower case sig label name, maybe we should fix it on github.
+      // FIXME: DB query raise the error, and return abnormally 
+      const { sigId } = await this.githubLabelSigRepository
+        .createQueryBuilder("gls")
+        .leftJoinAndSelect(
+          ProjectSig,
+          "ps",
+          "ps.project_sig_id = gls.project_sig_id"
+        )
+        .where(`gls.label = '${sigLabelName}'`)
+        .select("ps.sig_id", "sigId")
+        .getRawOne()
+      return sigId;
+    } catch (error) {
       return;
     }
-    return sigId;
   }
 
   private async findTeam(
@@ -375,7 +376,6 @@ export default class ChallengeIssueService {
         tip: ChallengeIssueTip.RefineSigFormat,
       };
     }
-
     // Try to find mentor and score.
     let warning, tip;
     const mentorAndScore = findMentorAndScore(issueQuery.body);
