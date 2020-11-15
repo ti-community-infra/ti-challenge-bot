@@ -1,7 +1,7 @@
 import { Context } from "probot";
 
 import { PickUpQuery } from "../../queries/PickUpQuery";
-
+import { createOrUpdateNotification, createOrUpdateStatus } from "../../services/utils/IssueUtil";
 import { LabelQuery } from "../../queries/LabelQuery";
 import { Status } from "../../services/reply";
 
@@ -58,9 +58,10 @@ const pickUp = async (
       context.log.error(
         `Pick up ${pickUpQuery} failed because ${reply.message}.`
       );
-      await context.github.issues.createComment(
-        context.issue({ body: reply.message })
-      );
+      // await context.github.issues.createComment(
+      //   context.issue({ body: reply.message })
+      // );
+      await createOrUpdateNotification(context, reply.message, sender.login);
       break;
     }
     case Status.Success: {
@@ -70,21 +71,28 @@ const pickUp = async (
         context.issue({ labels: [PICKED_LABEL] })
       );
       if (reply.warning !== undefined || reply.tip !== undefined) {
-        await context.github.issues.createComment(
-          context.issue({ body: combineReplay(reply) })
-        );
+        // await context.github.issues.createComment(
+        //   context.issue({ body: combineReplay(reply) })
+        // );
+        await createOrUpdateNotification(context, combineReplay(reply), sender.login);
+        // FIXME: maybe we should pass a program instead of the title.
+        await createOrUpdateStatus(context, sender.login, issueResponse.data.title);
       } else {
-        await context.github.issues.createComment(
-          context.issue({ body: reply.message })
-        );
+        // await context.github.issues.createComment(
+        //   context.issue({ body: reply.message })
+        // );
+        await createOrUpdateNotification(context, reply.message, sender.login);
+        await createOrUpdateStatus(context, sender.login, issueResponse.data.title);
       }
       break;
     }
     case Status.Problematic: {
       context.log.warn(`Pick up ${pickUpQuery} has some problems.`);
-      await context.github.issues.createComment(
-        context.issue({ body: combineReplay(reply) })
-      );
+      // await context.github.issues.createComment(
+      //   context.issue({ body: combineReplay(reply) })
+      // );
+      await createOrUpdateNotification(context, combineReplay(reply), sender.login);
+      await createOrUpdateStatus(context, sender.login, issueResponse.data.title);
       break;
     }
   }
