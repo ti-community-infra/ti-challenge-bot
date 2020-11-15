@@ -12,7 +12,7 @@ import { UserQuery } from "../../queries/UserQuery";
 const MENTOR_REGEX = /(Mentor).*[\r\n]+[-|* ]*[@]*([a-z0-9](?:-?[a-z0-9]){0,38})/i;
 const SCORE_REGEX = /(Score).*[\r\n]+[-|* ]*([1-9]+[0-9]*)/;
 const CHALLENGENOTIFICATION_REGEX = /(Status).*[\r\n]+([\d\D]*)(?=<!-- probot:Status -->)[\r\n]*[\d\D]*/i;
-const NOTIFICATION_REGEX = /(Notification).*[\r\n]+([\d\D]*)(?=<!-- probot:Notification -->)[\r\n]*[\d\D]*/i;
+const NOTIFICATION_REGEX = /(:warning:Notification:warning:).*[\r\n]+([\d\D]*)(?=<!-- probot:Notification -->)[\r\n]*[\d\D]*/i;
 
 export interface MentorAndScore {
   mentor: string;
@@ -79,7 +79,7 @@ export function checkIsInAssignFlow(
 }
 
 function appendNotification(): string {
-  return `\r\n\r\n-------------------------------\r\n\r\n## Notification\r\n\r\nxxx<!-- probot:Notification -->\r\n\r\n`;
+  return `\r\n\r\n-------------------------------\r\n\r\n## :warning:Notification:warning:\r\n\r\nxxx<!-- probot:Notification -->\r\n\r\n`;
 }
 
 function appendStatus(): string {
@@ -91,7 +91,7 @@ function updateNotification(
   issueBody: string,
   sender?: string
 ): string {
-  const reg = /## Notification/i;
+  const reg = /## :warning:Notification:warning:/i;
   if (!reg.test(issueBody)) {
     issueBody = issueBody + appendNotification();
   }
