@@ -65,12 +65,16 @@ const reward = async (
     //     }),
     //   })
     // );
-    await createOrUpdateNotification(context, combineReplay({
-      data: null,
-      status: Status.Problematic,
-      message: ChallengePullMessage.CanNotFindLinkedIssue,
-      tip: ChallengePullTips.CanNotFindLinkedIssue,
-    }), user.login);
+    await createOrUpdateNotification(
+      context,
+      combineReplay({
+        data: null,
+        status: Status.Problematic,
+        message: ChallengePullMessage.CanNotFindLinkedIssue,
+        tip: ChallengePullTips.CanNotFindLinkedIssue,
+      }),
+      user.login
+    );
     return;
   }
 
@@ -133,7 +137,11 @@ const reward = async (
       // await context.github.issues.createComment(
       //   context.issue({ body: combineReplay(reply) })
       // );
-      await createOrUpdateNotification(context, combineReplay(reply), user.login);
+      await createOrUpdateNotification(
+        context,
+        combineReplay(reply),
+        user.login
+      );
       break;
     }
   }

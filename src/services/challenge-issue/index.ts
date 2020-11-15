@@ -51,7 +51,7 @@ export default class ChallengeIssueService {
     private githubLabelSigRepository: Repository<GithubLabelSig>,
     @InjectRepository(ChallengeProgram)
     private challengeProgramRepository: Repository<ChallengeProgram>
-  ) { }
+  ) {}
 
   private async findOrAddIssue(
     query: PickUpQuery | ChallengeIssueQuery

@@ -1,5 +1,8 @@
 import { Context } from "probot";
-import { createOrUpdateStatus, createOrUpdateNotification } from "../../services/utils/IssueUtil";
+import {
+  createOrUpdateStatus,
+  createOrUpdateNotification,
+} from "../../services/utils/IssueUtil";
 import { GiveUpQuery } from "../../queries/GiveUpQuery";
 
 import ChallengeIssueService from "../../services/challenge-issue";

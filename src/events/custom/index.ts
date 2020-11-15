@@ -76,8 +76,12 @@ const handleLgtm = async (
       // await context.github.issues.createComment(
       //   context.issue({ body: combineReplay(reply) })
       // );
-      
-      await createOrUpdateNotification(context,combineReplay(reply),user.login);
+
+      await createOrUpdateNotification(
+        context,
+        combineReplay(reply),
+        user.login
+      );
       break;
     }
   }

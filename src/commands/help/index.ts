@@ -27,7 +27,7 @@ const help = async (context: Context) => {
   // await context.github.issues.createComment(
   //   context.issue({ body: helpMessage })
   // );
-  await createOrUpdateNotification(context,helpMessage);
+  await createOrUpdateNotification(context, helpMessage);
 };
 
 export default help;

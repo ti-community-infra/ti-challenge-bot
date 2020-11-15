@@ -1,7 +1,10 @@
 import { Context } from "probot";
 
 import { PickUpQuery } from "../../queries/PickUpQuery";
-import { createOrUpdateNotification, createOrUpdateStatus } from "../../services/utils/IssueUtil";
+import {
+  createOrUpdateNotification,
+  createOrUpdateStatus,
+} from "../../services/utils/IssueUtil";
 import { LabelQuery } from "../../queries/LabelQuery";
 import { Status } from "../../services/reply";
 
@@ -74,15 +77,27 @@ const pickUp = async (
         // await context.github.issues.createComment(
         //   context.issue({ body: combineReplay(reply) })
         // );
-        await createOrUpdateNotification(context, combineReplay(reply), sender.login);
+        await createOrUpdateNotification(
+          context,
+          combineReplay(reply),
+          sender.login
+        );
         // FIXME: maybe we should pass a program instead of the title.
-        await createOrUpdateStatus(context, sender.login, issueResponse.data.title);
+        await createOrUpdateStatus(
+          context,
+          sender.login,
+          issueResponse.data.title
+        );
       } else {
         // await context.github.issues.createComment(
         //   context.issue({ body: reply.message })
         // );
         await createOrUpdateNotification(context, reply.message, sender.login);
-        await createOrUpdateStatus(context, sender.login, issueResponse.data.title);
+        await createOrUpdateStatus(
+          context,
+          sender.login,
+          issueResponse.data.title
+        );
       }
       break;
     }
@@ -91,8 +106,16 @@ const pickUp = async (
       // await context.github.issues.createComment(
       //   context.issue({ body: combineReplay(reply) })
       // );
-      await createOrUpdateNotification(context, combineReplay(reply), sender.login);
-      await createOrUpdateStatus(context, sender.login, issueResponse.data.title);
+      await createOrUpdateNotification(
+        context,
+        combineReplay(reply),
+        sender.login
+      );
+      await createOrUpdateStatus(
+        context,
+        sender.login,
+        issueResponse.data.title
+      );
       break;
     }
   }

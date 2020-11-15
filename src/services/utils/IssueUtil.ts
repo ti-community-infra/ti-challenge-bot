@@ -97,7 +97,7 @@ function updateNotification(
   }
   let newMessage: string = message;
   if (sender !== undefined) {
-    newMessage = '@' + sender + ' ' + message;
+    newMessage = "@" + sender + " " + message;
   }
 
   const notificationData = issueBody.match(NOTIFICATION_REGEX); //new notification
@@ -105,7 +105,7 @@ function updateNotification(
     return issueBody;
   }
 
-  const newIssuebody = issueBody.replace(notificationData[2], newMessage);//update message
+  const newIssuebody = issueBody.replace(notificationData[2], newMessage); //update message
   return newIssuebody;
 }
 
@@ -122,22 +122,29 @@ function updateStatus(
   let newMessage: string;
 
   if (program === undefined && challenger === undefined) {
-    newMessage = '&nbsp;&nbsp; The challenge has not picked yet.\r\n';
-  }
-  else if (program == undefined) {
-    newMessage = '&nbsp;&nbsp;Current challenger: @' + challenger + '\r\n';
-  }
-  else {
-    newMessage = '&nbsp;&nbsp;Current challenger: @' + challenger
-      + '\r\n&nbsp;&nbsp;Current Program: ' + program + '\r\n';
+    newMessage = "&nbsp;&nbsp; The challenge has not picked yet.\r\n";
+  } else if (program == undefined) {
+    newMessage = "&nbsp;&nbsp;Current challenger: @" + challenger + "\r\n";
+  } else {
+    newMessage =
+      "&nbsp;&nbsp;Current challenger: @" +
+      challenger +
+      "\r\n&nbsp;&nbsp;Current Program: " +
+      program +
+      "\r\n";
   }
 
-  const challengenotificationData = issueBody.match(CHALLENGENOTIFICATION_REGEX); //new notification
+  const challengenotificationData = issueBody.match(
+    CHALLENGENOTIFICATION_REGEX
+  ); //new notification
   if (challengenotificationData?.length !== 3) {
     return issueBody;
   }
 
-  const newIssuebody = issueBody.replace(challengenotificationData[2], newMessage); //update message
+  const newIssuebody = issueBody.replace(
+    challengenotificationData[2],
+    newMessage
+  ); //update message
   return newIssuebody;
 }
 
@@ -149,7 +156,10 @@ export async function createOrUpdateNotification(
   const issueResponse = await context.github.issues.get(context.issue());
   const issueBody = issueResponse.data.body;
   const newIssuebody = updateNotification(message, issueBody, sender);
-  await context.github.issues.update({ ...context.issue(), body: newIssuebody });
+  await context.github.issues.update({
+    ...context.issue(),
+    body: newIssuebody,
+  });
 }
 
 export async function createOrUpdateStatus(
@@ -160,5 +170,8 @@ export async function createOrUpdateStatus(
   const issueResponse = await context.github.issues.get(context.issue());
   const issueBody = issueResponse.data.body;
   const newIssuebody = updateStatus(issueBody, sender, program);
-  await context.github.issues.update({ ...context.issue(), body: newIssuebody });
+  await context.github.issues.update({
+    ...context.issue(),
+    body: newIssuebody,
+  });
 }
