@@ -18,8 +18,8 @@
     "build:watch": "tsc && (tsc -w --preserveWatchOutput & nodemon)",
     "dev": "npm run build:watch",
     "start": "probot run ./lib/index.js",
-    "lint": "prettier --check 'src/**/*.ts' 'test/**/*.ts' *.md package.json tsconfig.json",
-    "lint:fix": "prettier --write 'src/**/*.ts' 'test/**/*.ts' *.md package.json tsconfig.json",
+    "lint": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\" *.md package.json tsconfig.json",
+    "lint:fix": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" *.md package.json tsconfig.json",
     "test": "jest --coverage",
     "test:watch": "jest --watch --notify --notifyMode=change --coverage",
     "typeorm": "ts-node ./node_modules/.bin/typeorm"
