@@ -1,5 +1,4 @@
 import { Context } from "probot";
-
 import AutoGiveUpService from "../../services/auto-give-up";
 
 import { AutoGiveUpQuery } from "../../queries/AutoGiveUpQuery";
@@ -26,6 +25,7 @@ const autoGiveUp = async (
       ...result,
       body: result.message,
     });
+    // FIXME: auto-giveup -> Notification append <-.
     await context.github.issues.removeLabel({ ...result, name: PICKED_LABEL });
     context.log.info(`Auto give up ${result} success.`);
   }

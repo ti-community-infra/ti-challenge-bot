@@ -375,7 +375,6 @@ export default class ChallengeIssueService {
         tip: ChallengeIssueTip.RefineSigFormat,
       };
     }
-
     // Try to find mentor and score.
     let warning, tip;
     const mentorAndScore = findMentorAndScore(issueQuery.body);

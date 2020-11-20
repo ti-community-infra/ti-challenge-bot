@@ -1,5 +1,5 @@
 import { Context } from "probot";
-
+import { createOrUpdateNotification } from "../../services/utils/IssueUtil";
 const helpMessage = `
 Usage:
 
@@ -24,9 +24,10 @@ The commands are:
 </details>
 `;
 const help = async (context: Context) => {
-  await context.github.issues.createComment(
-    context.issue({ body: helpMessage })
-  );
+  // await context.github.issues.createComment(
+  //   context.issue({ body: helpMessage })
+  // );
+  await createOrUpdateNotification(context, helpMessage);
 };
 
 export default help;

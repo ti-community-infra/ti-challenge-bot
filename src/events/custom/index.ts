@@ -1,5 +1,5 @@
 import { Context } from "probot";
-
+import { createOrUpdateNotification } from "../../services/utils/IssueUtil";
 import { LabelQuery } from "../../queries/LabelQuery";
 
 import { Status } from "../../services/reply";
@@ -73,8 +73,14 @@ const handleLgtm = async (
       return;
     }
     case Status.Problematic: {
-      await context.github.issues.createComment(
-        context.issue({ body: combineReplay(reply) })
+      // await context.github.issues.createComment(
+      //   context.issue({ body: combineReplay(reply) })
+      // );
+
+      await createOrUpdateNotification(
+        context,
+        combineReplay(reply),
+        user.login
       );
       break;
     }
