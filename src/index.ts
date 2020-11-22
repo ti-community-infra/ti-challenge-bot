@@ -51,9 +51,7 @@ export = (app: Application) => {
       app.log.info("App starting...");
 
       commands(app, "ping", async (context: Context) => {
-        // await context.github.issues.createComment(
-        //   context.issue({ body: "pong! I am challenge bot." })
-        // );
+        
         await createOrUpdateNotification(context, "pong! I am challenge bot.");
       });
 
@@ -76,9 +74,7 @@ export = (app: Application) => {
           const rewardData = command.arguments;
           const rewardValue = Number(rewardData);
           if (!Number.isInteger(rewardValue)) {
-            // await context.github.issues.createComment(
-            //   context.issue({ body: "The reward invalid." })
-            // );
+            
             await createOrUpdateNotification(context, "The reward invalid.");
             return;
           }

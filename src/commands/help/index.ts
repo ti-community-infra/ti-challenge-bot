@@ -24,9 +24,7 @@ The commands are:
 </details>
 `;
 const help = async (context: Context) => {
-  // await context.github.issues.createComment(
-  //   context.issue({ body: helpMessage })
-  // );
+  
   await createOrUpdateNotification(context, helpMessage);
 };
 

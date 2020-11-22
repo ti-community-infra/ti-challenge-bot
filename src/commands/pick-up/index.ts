@@ -61,9 +61,7 @@ const pickUp = async (
       context.log.error(
         `Pick up ${pickUpQuery} failed because ${reply.message}.`
       );
-      // await context.github.issues.createComment(
-      //   context.issue({ body: reply.message })
-      // );
+      
       await createOrUpdateNotification(context, reply.message, sender.login);
       break;
     }
@@ -74,24 +72,21 @@ const pickUp = async (
         context.issue({ labels: [PICKED_LABEL] })
       );
       if (reply.warning !== undefined || reply.tip !== undefined) {
-        // await context.github.issues.createComment(
-        //   context.issue({ body: combineReplay(reply) })
-        // );
+        
         await createOrUpdateNotification(
           context,
           combineReplay(reply),
           sender.login
         );
         // FIXME: maybe we should pass a program instead of the title.
+        
         await createOrUpdateStatus(
           context,
           sender.login,
           issueResponse.data.title
         );
       } else {
-        // await context.github.issues.createComment(
-        //   context.issue({ body: reply.message })
-        // );
+        
         await createOrUpdateNotification(context, reply.message, sender.login);
         await createOrUpdateStatus(
           context,
@@ -103,9 +98,7 @@ const pickUp = async (
     }
     case Status.Problematic: {
       context.log.warn(`Pick up ${pickUpQuery} has some problems.`);
-      // await context.github.issues.createComment(
-      //   context.issue({ body: combineReplay(reply) })
-      // );
+      
       await createOrUpdateNotification(
         context,
         combineReplay(reply),

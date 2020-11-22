@@ -56,10 +56,7 @@ const giveUp = async (
       break;
     }
   }
-
-  // await context.github.issues.createComment(
-  //   context.issue({ body: reply.message })
-  // );
+  
   await createOrUpdateNotification(context, reply.message, data.user.login);
   await createOrUpdateStatus(context);
 };

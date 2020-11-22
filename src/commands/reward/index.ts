@@ -55,16 +55,7 @@ const reward = async (
   const issueNumber = findLinkedIssueNumber(data.body);
 
   if (issueNumber === null) {
-    // await context.github.issues.createComment(
-    //   context.issue({
-    //     body: combineReplay({
-    //       data: null,
-    //       status: Status.Problematic,
-    //       message: ChallengePullMessage.CanNotFindLinkedIssue,
-    //       tip: ChallengePullTips.CanNotFindLinkedIssue,
-    //     }),
-    //   })
-    // );
+    
     await createOrUpdateNotification(
       context,
       combineReplay({
@@ -114,9 +105,7 @@ const reward = async (
       context.log.error(
         `Reward ${rewardQuery} failed because ${reply.message}.`
       );
-      // await context.github.issues.createComment(
-      //   context.issue({ body: reply.message })
-      // );
+      
       await createOrUpdateNotification(context, reply.message, data.user.login);
       break;
     }
@@ -126,17 +115,13 @@ const reward = async (
       await context.github.issues.addLabels(
         context.issue({ labels: [REWARDED_LABEL] })
       );
-      // await context.github.issues.createComment(
-      //   context.issue({ body: reply.message })
-      // );
+      
       await createOrUpdateNotification(context, reply.message, user.login);
       break;
     }
     case Status.Problematic: {
       context.log.info(`Reward ${rewardQuery} has some problems.`);
-      // await context.github.issues.createComment(
-      //   context.issue({ body: combineReplay(reply) })
-      // );
+      
       await createOrUpdateNotification(
         context,
         combineReplay(reply),

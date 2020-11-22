@@ -11,8 +11,27 @@ import { UserQuery } from "../../queries/UserQuery";
 
 const MENTOR_REGEX = /(Mentor).*[\r\n]+[-|* ]*[@]*([a-z0-9](?:-?[a-z0-9]){0,38})/i;
 const SCORE_REGEX = /(Score).*[\r\n]+[-|* ]*([1-9]+[0-9]*)/;
-const CHALLENGENOTIFICATION_REGEX = /(Status).*[\r\n]+([\d\D]*)(?=<!-- probot:Status -->)[\r\n]*[\d\D]*/i;
+const STATUS_REGEX = /(Status).*[\r\n]+([\d\D]*)(?=<!-- probot:Status -->)[\r\n]*[\d\D]*/i;
 const NOTIFICATION_REGEX = /(:warning:Notification:warning:).*[\r\n]+([\d\D]*)(?=<!-- probot:Notification -->)[\r\n]*[\d\D]*/i;
+export enum IssueNotificationHead {
+  STATUS = `
+
+
+## Status
+
+xxx<!-- probot:Status -->
+
+`,
+
+  NOTIFICATION = `
+
+
+## :warning:Notification:warning:
+
+xxx<!-- probot:Notification -->
+
+`,
+}
 
 export interface MentorAndScore {
   mentor: string;
@@ -78,22 +97,14 @@ export function checkIsInAssignFlow(
   return hasMentor;
 }
 
-function appendNotification(): string {
-  return `\r\n\r\n-------------------------------\r\n\r\n## :warning:Notification:warning:\r\n\r\nxxx<!-- probot:Notification -->\r\n\r\n`;
-}
-
-function appendStatus(): string {
-  return `\r\n\r\n-------------------------------\r\n\r\n## Status\r\n\r\nxxx<!-- probot:Status -->\r\n\r\n`;
-}
-
-function updateNotification(
+export function updateNotification(
   message: string,
   issueBody: string,
   sender?: string
 ): string {
   const reg = /## :warning:Notification:warning:/i;
   if (!reg.test(issueBody)) {
-    issueBody = issueBody + appendNotification();
+    issueBody = issueBody + IssueNotificationHead.NOTIFICATION;
   }
   let newMessage: string = message;
   if (sender !== undefined) {
@@ -109,42 +120,36 @@ function updateNotification(
   return newIssuebody;
 }
 
-function updateStatus(
+export function updateStatus(
   issueBody: string,
   challenger?: string,
   program?: string
 ): string {
   const reg = /## Status/i;
   if (!reg.test(issueBody)) {
-    issueBody = issueBody + appendStatus();
+    issueBody = issueBody + IssueNotificationHead.STATUS;
   }
 
   let newMessage: string;
 
   if (program === undefined && challenger === undefined) {
-    newMessage = "&nbsp;&nbsp; The challenge has not picked yet.\r\n";
+    newMessage = `&nbsp;&nbsp; The challenge has not picked yet.
+`;
   } else if (program == undefined) {
-    newMessage = "&nbsp;&nbsp;Current challenger: @" + challenger + "\r\n";
+    newMessage = `&nbsp;&nbsp;Current challenger: @${challenger}
+`;
   } else {
-    newMessage =
-      "&nbsp;&nbsp;Current challenger: @" +
-      challenger +
-      "\r\n&nbsp;&nbsp;Current Program: " +
-      program +
-      "\r\n";
+    newMessage = `&nbsp;&nbsp;Current challenger: @${challenger}
+&nbsp;&nbsp;Current Program: ${program}
+`;
   }
 
-  const challengenotificationData = issueBody.match(
-    CHALLENGENOTIFICATION_REGEX
-  ); //new notification
-  if (challengenotificationData?.length !== 3) {
+  const StatusData = issueBody.match(STATUS_REGEX); //new notification
+  if (StatusData?.length !== 3) {
     return issueBody;
   }
 
-  const newIssuebody = issueBody.replace(
-    challengenotificationData[2],
-    newMessage
-  ); //update message
+  const newIssuebody = issueBody.replace(StatusData[2], newMessage); //update message
   return newIssuebody;
 }
 

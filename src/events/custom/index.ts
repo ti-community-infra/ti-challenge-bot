@@ -73,10 +73,7 @@ const handleLgtm = async (
       return;
     }
     case Status.Problematic: {
-      // await context.github.issues.createComment(
-      //   context.issue({ body: combineReplay(reply) })
-      // );
-
+      
       await createOrUpdateNotification(
         context,
         combineReplay(reply),

@@ -109,9 +109,7 @@ const handleIssuesOpened = async (
       context.log.error(
         `Create challenge issue failed ${challengeIssueQuery}.`
       );
-      // await context.github.issues.createComment(
-      //   context.issue({ body: reply.message })
-      // );
+      
       await createOrUpdateNotification(context, reply.message);
     }
 
@@ -119,9 +117,7 @@ const handleIssuesOpened = async (
       context.log.warn(
         `Create challenge issue have some problems ${challengeIssueQuery}.`
       );
-      // await context.github.issues.createComment(
-      //   context.issue({ body: combineReplay(reply) })
-      // );
+      
       await createOrUpdateNotification(context, combineReplay(reply));
     }
   }
@@ -166,9 +162,7 @@ const handleIssuesEdited = async (
       context.log.error(
         `Update challenge issue failed ${challengeIssueQuery}.`
       );
-      // await context.github.issues.createComment(
-      //   context.issue({ body: reply.message })
-      // );
+      
       await createOrUpdateNotification(context, reply.message);
     }
 
@@ -176,9 +170,7 @@ const handleIssuesEdited = async (
       context.log.warn(
         `Update challenge issue have some problems ${challengeIssueQuery}.`
       );
-      // await context.github.issues.createComment(
-      //   context.issue({ body: combineReplay(reply) })
-      // );
+      
       await createOrUpdateNotification(context, combineReplay(reply));
     }
   }
@@ -248,9 +240,7 @@ const handleIssuesLabeled = async (
     context.log.error(
       `Labeled challenge program and try to update or add challenge issue failed ${challengeIssueQuery}.`
     );
-    // await context.github.issues.createComment(
-    //   context.issue({ body: reply.message })
-    // );
+    
     await createOrUpdateNotification(context, reply.message);
   }
 
@@ -258,9 +248,7 @@ const handleIssuesLabeled = async (
     context.log.warn(
       `Labeled challenge program and try to update or add challenge issue have some problems ${challengeIssueQuery}.`
     );
-    // await context.github.issues.createComment(
-    //   context.issue({ body: combineReplay(reply) })
-    // );
+    
     await createOrUpdateNotification(context, combineReplay(reply));
   }
 };
@@ -319,9 +307,7 @@ const handleIssuesUnlabeled = async (
     context.log.error(
       `Unlabeled challenge program and try to remove challenge issue failed ${oldIssue}.`
     );
-    // await context.github.issues.createComment(
-    //   context.issue({ body: reply.message })
-    // );
+    
     await createOrUpdateNotification(context, reply.message);
     await context.github.issues.addLabels(
       context.issue({ labels: [CHALLENGE_PROGRAM_LABEL] })
@@ -332,9 +318,7 @@ const handleIssuesUnlabeled = async (
     context.log.info(
       `Unlabeled challenge program and try to remove challenge issue have some problems ${oldIssue}.`
     );
-    // await context.github.issues.createComment(
-    //   context.issue({ body: reply.message })
-    // );
+    
     await createOrUpdateNotification(context, reply.message);
   }
 };
