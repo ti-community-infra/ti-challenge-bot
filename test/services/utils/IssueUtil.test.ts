@@ -12,7 +12,7 @@ import {
 } from "../../../src/commands/labels";
 
 describe("Issue Util", () => {
-  test("issue have sig label", () => {
+  test("sig label can be found", () => {
     const sigLabel = findSigLabel([
       {
         id: 1,
@@ -36,7 +36,7 @@ describe("Issue Util", () => {
     });
   });
 
-  test("have challenge-program label", () => {
+  test("challenge-program label can be found", () => {
     const issueLabels = [
       {
         id: 1,
@@ -55,7 +55,7 @@ describe("Issue Util", () => {
     expect(isChallengeIssue(issueLabels)).toBe(true);
   });
 
-  test("have not challenge-program label", () => {
+  test("challenge-program label could not be found", () => {
     const issueLabels = [
       {
         id: 2,
@@ -68,7 +68,7 @@ describe("Issue Util", () => {
     expect(isChallengeIssue(issueLabels)).toBe(false);
   });
 
-  test("haven not need-help label", () => {
+  test("need-help label could not be found", () => {
     const issueLabels = [
       {
         id: 2,
@@ -81,7 +81,7 @@ describe("Issue Util", () => {
     expect(needHelp(issueLabels)).toBe(false);
   });
 
-  test("have need-help label", () => {
+  test("need-help label can be found", () => {
     const issueLabels = [
       {
         id: 1,
@@ -94,7 +94,7 @@ describe("Issue Util", () => {
     expect(needHelp(issueLabels)).toBe(true);
   });
 
-  test("found in assignees", () => {
+  test("mentor can be found in the assignees", () => {
     const assignees = [
       {
         login: "bot1",
@@ -111,7 +111,7 @@ describe("Issue Util", () => {
     expect(checkIsInAssignFlow(assignees, "bot2")).toBe(true);
   });
 
-  test("not found in assignees", () => {
+  test("mentor could not be found in the assignees", () => {
     const assignees = [
       {
         login: "bot1",
@@ -176,7 +176,7 @@ describe("Issue Util", () => {
     expect(isClosed(openedIssue)).toBe(false);
   });
 
-  test("issue content with mentor and score", () => {
+  test("mentor and score both can be found in the issue content", () => {
     const issueContent = `Score
     300
     Mentor
@@ -189,7 +189,7 @@ describe("Issue Util", () => {
     expect(findMentorAndScore(issueContent)).toEqual(expectMentorAndScore);
   });
 
-  test("issue content without mentor", () => {
+  test("mentor cloud not be found in the issue content", () => {
     let issueContent = `Score
     300
     Mentor`;
@@ -197,7 +197,7 @@ describe("Issue Util", () => {
     expect(findMentorAndScore(issueContent)).toBeUndefined();
   });
 
-  test("issue content without score", () => {
+  test("score cloud not be found in the issue content", () => {
     let issueContent = `Score
 
     Mentor
