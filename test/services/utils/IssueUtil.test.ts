@@ -55,7 +55,7 @@ describe("Issue Util", () => {
     expect(isChallengeIssue(issueLabels)).toBe(true);
   });
 
-  test("challenge-program label could not be found", () => {
+  test("challenge-program label can not be found", () => {
     const issueLabels = [
       {
         id: 2,
@@ -68,7 +68,7 @@ describe("Issue Util", () => {
     expect(isChallengeIssue(issueLabels)).toBe(false);
   });
 
-  test("need-help label could not be found", () => {
+  test("need-help label can not be found", () => {
     const issueLabels = [
       {
         id: 2,
@@ -111,7 +111,7 @@ describe("Issue Util", () => {
     expect(checkIsInAssignFlow(assignees, "bot2")).toBe(true);
   });
 
-  test("mentor could not be found in the assignees", () => {
+  test("mentor can not be found in the assignees", () => {
     const assignees = [
       {
         login: "bot1",
@@ -189,7 +189,7 @@ describe("Issue Util", () => {
     expect(findMentorAndScore(issueContent)).toEqual(expectMentorAndScore);
   });
 
-  test("mentor cloud not be found in the issue content", () => {
+  test("mentor can not be found in the issue content", () => {
     let issueContent = `Score
     300
     Mentor`;
@@ -197,7 +197,7 @@ describe("Issue Util", () => {
     expect(findMentorAndScore(issueContent)).toBeUndefined();
   });
 
-  test("score cloud not be found in the issue content", () => {
+  test("score can not be found in the issue content", () => {
     let issueContent = `Score
 
     Mentor
