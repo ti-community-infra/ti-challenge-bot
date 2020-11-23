@@ -111,3 +111,6 @@ dist
 # IDEA
 .idea
 /docs/_book/
+
+# Probot logs
+bot-logs/
