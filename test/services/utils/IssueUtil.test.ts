@@ -13,22 +13,22 @@ import {
 
 describe("Issue Util", () => {
   test("issue have sig label", () => {
-    expect(
-      findSigLabel([
-        {
-          id: 1,
-          name: "sig/execution",
-          description: "SIG: execution",
-          default: false,
-        },
-        {
-          id: 2,
-          name: "plan/document",
-          description: "document",
-          default: false,
-        },
-      ])
-    ).toEqual({
+    const sigLabel = findSigLabel([
+      {
+        id: 1,
+        name: "sig/execution",
+        description: "SIG: execution",
+        default: false,
+      },
+      {
+        id: 2,
+        name: "plan/document",
+        description: "document",
+        default: false,
+      },
+    ]);
+
+    expect(sigLabel).toEqual({
       id: 1,
       name: "sig/execution",
       description: "SIG: execution",
@@ -37,177 +37,172 @@ describe("Issue Util", () => {
   });
 
   test("have challenge-program label", () => {
-    expect(
-      isChallengeIssue([
-        {
-          id: 1,
-          name: CHALLENGE_PROGRAM_LABEL,
-          description: "challenge program",
-          default: false,
-        },
-        {
-          id: 2,
-          name: "sig/execution",
-          description: "SIG: execution",
-          default: true,
-        },
-      ])
-    ).toBe(true);
+    const issueLabels = [
+      {
+        id: 1,
+        name: CHALLENGE_PROGRAM_LABEL,
+        description: "challenge program",
+        default: false,
+      },
+      {
+        id: 2,
+        name: "sig/execution",
+        description: "SIG: execution",
+        default: true,
+      },
+    ];
+
+    expect(isChallengeIssue(issueLabels)).toBe(true);
   });
 
   test("have not challenge-program label", () => {
-    expect(
-      isChallengeIssue([
-        {
-          id: 2,
-          name: "sig/execution",
-          description: "SIG: execution",
-          default: true,
-        },
-      ])
-    ).toBe(false);
+    const issueLabels = [
+      {
+        id: 2,
+        name: "sig/execution",
+        description: "SIG: execution",
+        default: true,
+      },
+    ];
+
+    expect(isChallengeIssue(issueLabels)).toBe(false);
   });
 
   test("haven not need-help label", () => {
-    expect(
-      needHelp([
-        {
-          id: 2,
-          name: "challenge-program",
-          description: "challenge program",
-          default: false,
-        },
-      ])
-    ).toBe(false);
+    const issueLabels = [
+      {
+        id: 2,
+        name: "challenge-program",
+        description: "challenge program",
+        default: false,
+      },
+    ];
+
+    expect(needHelp(issueLabels)).toBe(false);
   });
 
   test("have need-help label", () => {
-    expect(
-      needHelp([
-        {
-          id: 1,
-          name: HELP_WANTED_LABEL,
-          description: "status：help-wanted",
-          default: false,
-        },
-      ])
-    ).toBe(true);
+    const issueLabels = [
+      {
+        id: 1,
+        name: HELP_WANTED_LABEL,
+        description: "status：help-wanted",
+        default: false,
+      },
+    ];
+
+    expect(needHelp(issueLabels)).toBe(true);
   });
 
   test("found in assignees", () => {
-    expect(
-      checkIsInAssignFlow(
-        [
-          {
-            login: "bot1",
-            id: 1,
-            type: "string",
-          },
-          {
-            login: "bot2",
-            id: 2,
-            type: "string",
-          },
-        ],
-        "bot2"
-      )
-    ).toBe(true);
+    const assignees = [
+      {
+        login: "bot1",
+        id: 1,
+        type: "string",
+      },
+      {
+        login: "bot2",
+        id: 2,
+        type: "string",
+      },
+    ];
+
+    expect(checkIsInAssignFlow(assignees, "bot2")).toBe(true);
   });
 
   test("not found in assignees", () => {
-    expect(
-      checkIsInAssignFlow(
-        [
-          {
-            login: "bot1",
-            id: 1,
-            type: "string",
-          },
-          {
-            login: "bot2",
-            id: 2,
-            type: "string",
-          },
-        ],
-        "bot3"
-      )
-    ).toBe(false);
+    const assignees = [
+      {
+        login: "bot1",
+        id: 1,
+        type: "string",
+      },
+      {
+        login: "bot2",
+        id: 2,
+        type: "string",
+      },
+    ];
+
+    expect(checkIsInAssignFlow(assignees, "bot3")).toBe(false);
   });
 
   test("issue is closed", () => {
-    expect(
-      isClosed({
+    const closedIssue = {
+      id: 1,
+      url: "https://pingcap.com/",
+      number: 1,
+      state: "closed",
+      title: "test",
+      body: "test content",
+      user: {
+        login: "user",
         id: 1,
-        url: "https://pingcap.com/",
-        number: 1,
-        state: "closed",
-        title: "test",
-        body: "test content",
-        user: {
-          login: "user",
-          id: 1,
-          type: "user",
-        },
-        labels: [],
-        closedAt: "2020-11-20",
-        createdAt: "2020-11-20",
-        updatedAt: "2020-11-20",
-        authorAssociation: "test",
-        assignees: [],
-      })
-    ).toBe(true);
+        type: "user",
+      },
+      labels: [],
+      closedAt: "2020-11-20",
+      createdAt: "2020-11-20",
+      updatedAt: "2020-11-20",
+      authorAssociation: "test",
+      assignees: [],
+    };
+
+    expect(isClosed(closedIssue)).toBe(true);
   });
 
   test("issue is open", () => {
-    expect(
-      isClosed({
+    const openedIssue = {
+      id: 1,
+      url: "https://pingcap.com/",
+      number: 1,
+      state: "open",
+      title: "test",
+      body: "test content",
+      user: {
+        login: "user",
         id: 1,
-        url: "https://pingcap.com/",
-        number: 1,
-        state: "open",
-        title: "test",
-        body: "test content",
-        user: {
-          login: "user",
-          id: 1,
-          type: "user",
-        },
-        labels: [],
-        closedAt: "2020-11-20",
-        createdAt: "2020-11-20",
-        updatedAt: "2020-11-20",
-        authorAssociation: "test",
-        assignees: [],
-      })
-    ).toBe(false);
+        type: "user",
+      },
+      labels: [],
+      closedAt: "2020-11-20",
+      createdAt: "2020-11-20",
+      updatedAt: "2020-11-20",
+      authorAssociation: "test",
+      assignees: [],
+    };
+
+    expect(isClosed(openedIssue)).toBe(false);
   });
 
-  test("isuue content have mentor and score", () => {
-    let text = `Score
+  test("issue content with mentor and score", () => {
+    const issueContent = `Score
     300
     Mentor
     @lzmhhh123`;
-
-    expect(findMentorAndScore(text)).toEqual({
+    const expectMentorAndScore = {
       mentor: "lzmhhh123",
       score: 300,
-    });
+    };
+
+    expect(findMentorAndScore(issueContent)).toEqual(expectMentorAndScore);
   });
 
-  test("isuue content haven't mentor", () => {
-    let text = `Score
+  test("issue content without mentor", () => {
+    let issueContent = `Score
     300
     Mentor`;
 
-    expect(findMentorAndScore(text)).toBeUndefined();
+    expect(findMentorAndScore(issueContent)).toBeUndefined();
   });
 
-  test("isuue content haven't score", () => {
-    let text = `Score
+  test("issue content without score", () => {
+    let issueContent = `Score
 
     Mentor
     @lzmhhh123`;
 
-    expect(findMentorAndScore(text)).toBeUndefined();
+    expect(findMentorAndScore(issueContent)).toBeUndefined();
   });
 });
