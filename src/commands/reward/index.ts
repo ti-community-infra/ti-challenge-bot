@@ -43,28 +43,12 @@ const reward = async (
       pull_number: issue.number,
     });
   } catch (e) {
-    if (e.status === 404) {
-      context.log.error(
-        `Reward pull request ${JSON.stringify(
-          issue
-        )} failed because fail to get the pull request.`
-      );
-      await context.github.issues.createComment(
-        context.issue({
-          body: combineReplay({
-            data: null,
-            status: Status.Problematic,
-            message: ChallengePullMessage.NotValidPullRequest,
-            tip: ChallengePullTips.CanNotRewardIssue,
-          }),
-        })
-      );
-    } else {
-      console.error(e);
-    }
-  }
-
-  if (!pullResponse) {
+    context.log.error(
+      `Reward pull request ${JSON.stringify(
+        issue
+      )} failed because fail to get the pull request, maybe it is an issue.`,
+      e
+    );
     return;
   }
 

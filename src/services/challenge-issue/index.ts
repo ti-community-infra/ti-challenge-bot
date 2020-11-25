@@ -168,15 +168,6 @@ export default class ChallengeIssueService {
       status: Status.Failed,
     };
 
-    // Check if is a pull request
-    if (pickUpQuery.issue.isPullRequest) {
-      return {
-        data: null,
-        status: Status.Problematic,
-        message: ChallengeIssueMessage.CanNotPickUpPullRequest,
-      };
-    }
-
     // Check if issue closed.
     const { issue: issueQuery } = pickUpQuery;
     if (isClosed(issueQuery)) {

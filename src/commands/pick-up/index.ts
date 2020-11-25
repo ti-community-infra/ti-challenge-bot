@@ -38,6 +38,12 @@ const pickUp = async (
   const { user } = data;
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
 
+  // Check it is not a pull request.
+  if (data.pull_request != null) {
+    context.log.warn("Picking up a pull request is not allowed.");
+    return;
+  }
+
   const pickUpQuery: PickUpQuery = {
     challenger: sender.login,
     ...issue,
@@ -47,7 +53,6 @@ const pickUp = async (
         ...user,
       },
       labels: labels,
-      isPullRequest: data.pull_request != null,
       // @ts-ignore
       closedAt: data.closed_at,
       createdAt: data.created_at,

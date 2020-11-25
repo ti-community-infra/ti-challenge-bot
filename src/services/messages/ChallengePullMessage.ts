@@ -12,7 +12,6 @@ export enum ChallengePullMessage {
   NotValidReward = "Not a valid reward.",
   RewardSuccess = "Reward success.",
   Rewarded = "Reward.",
-  NotValidPullRequest = "Not a valid pull request.",
 }
 
 export enum ChallengePullTips {

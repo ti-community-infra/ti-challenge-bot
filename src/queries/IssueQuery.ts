@@ -15,7 +15,6 @@ export interface IssueQuery {
   createdAt: string;
   updatedAt: string;
   authorAssociation: string;
-  isPullRequest: boolean;
   // TODO: check all places to add this value.
   assignees: UserQuery[];
 }
