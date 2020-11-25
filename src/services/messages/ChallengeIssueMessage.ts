@@ -4,6 +4,7 @@ export enum ChallengeIssueMessage {
   NotChallengeProgramIssue = "It is not a pickable issue!",
   PickUpSuccess = "Pick up success.",
   NoSigInfo = "This issue does not belong to any SIG.",
+  CanNotPickUpPullRequest = "You can't pick up a pull request.",
   NoTeam = "You do not have a team yet, and the current challenge program only supports team participation.",
   AddedButMissInfo = "It has been added to the challenge program, but your issue description has some problems.",
   UpdatedButStillMissInfo = "The description of issue updated, but still has some problems.",

@@ -17,7 +17,12 @@ const giveUp = async (
   context: Context,
   challengeIssueService: ChallengeIssueService
 ) => {
-  const issueResponse = await context.github.issues.get(context.issue());
+  const issue = context.issue();
+  const issueResponse = await context.github.issues.get({
+    owner: issue.owner,
+    repo: issue.repo,
+    issue_number: issue.number,
+  });
   const { data } = issueResponse;
   const { sender } = context.payload;
   const labels: LabelQuery[] = data.labels.map((label) => {

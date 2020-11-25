@@ -33,7 +33,41 @@ const reward = async (
   challengePullService: ChallengePullService
 ) => {
   // Notice: because the context come form issue_comment.created, so we need to get the pull.
-  const pullResponse = await context.github.pulls.get(context.issue());
+  const issue = context.issue();
+  let pullResponse = null;
+
+  try {
+    pullResponse = await context.github.pulls.get({
+      owner: issue.owner,
+      repo: issue.repo,
+      pull_number: issue.number,
+    });
+  } catch (e) {
+    if (e.status === 404) {
+      context.log.error(
+        `Reward pull request ${JSON.stringify(
+          issue
+        )} failed because fail to get the pull request.`
+      );
+      await context.github.issues.createComment(
+        context.issue({
+          body: combineReplay({
+            data: null,
+            status: Status.Problematic,
+            message: ChallengePullMessage.NotValidPullRequest,
+            tip: ChallengePullTips.CanNotRewardIssue,
+          }),
+        })
+      );
+    } else {
+      console.error(e);
+    }
+  }
+
+  if (!pullResponse) {
+    return;
+  }
+
   const { data } = pullResponse;
   const { sender } = context.payload;
   const labels: LabelQuery[] = data.labels.map((label) => {
@@ -41,7 +75,6 @@ const reward = async (
       ...label,
     };
   });
-  const issue = context.issue();
   const { user } = data;
 
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH, {

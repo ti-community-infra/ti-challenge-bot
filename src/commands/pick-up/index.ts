@@ -22,8 +22,12 @@ const pickUp = async (
 ) => {
   // Notice: because the context come form issue_comment.created event,
   // so we need to get this issue.
-  const issueResponse = await context.github.issues.get(context.issue());
   const issue = context.issue();
+  const issueResponse = await context.github.issues.get({
+    owner: issue.owner,
+    repo: issue.repo,
+    issue_number: issue.number,
+  });
   const { data } = issueResponse;
   const { sender } = context.payload;
   const labels: LabelQuery[] = data.labels.map((label) => {
@@ -43,6 +47,7 @@ const pickUp = async (
         ...user,
       },
       labels: labels,
+      isPullRequest: data.pull_request != null,
       // @ts-ignore
       closedAt: data.closed_at,
       createdAt: data.created_at,
