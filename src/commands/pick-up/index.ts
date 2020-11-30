@@ -10,6 +10,7 @@ import { PICKED_LABEL } from "../labels";
 
 import ChallengeIssueService from "../../services/challenge-issue";
 import { combineReplay } from "../../services/utils/ReplyUtil";
+import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMessage";
 
 /**
  * Pick up the issue.
@@ -40,7 +41,7 @@ const pickUp = async (
 
   // Check it is not a pull request.
   if (data.pull_request != null) {
-    context.log.warn("Picking up a pull request is not allowed.");
+    context.log.warn(ChallengeIssueWarning.NotAllowedToPickUpAPullRequest);
     return;
   }
 

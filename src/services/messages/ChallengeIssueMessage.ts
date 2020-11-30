@@ -19,6 +19,7 @@ export enum ChallengeIssueMessage {
 
 export enum ChallengeIssueWarning {
   IllegalIssueFormat = "The description format for this issue is wrong.",
+  NotAllowedToPickUpAPullRequest = "Picking up a pull request is not allowed.",
 }
 
 export enum ChallengeIssueTip {
