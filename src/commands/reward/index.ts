@@ -1,5 +1,5 @@
 import { Context } from "probot";
-import { createOrUpdateNotification } from "../../services/utils/IssueUtil";
+import { createOrUpdateNotification } from "../api/issue-update/issue-update";
 import { RewardQuery } from "../../queries/RewardQuery";
 import { LabelQuery } from "../../queries/LabelQuery";
 import { Status } from "../../services/reply";
@@ -55,7 +55,6 @@ const reward = async (
   const issueNumber = findLinkedIssueNumber(data.body);
 
   if (issueNumber === null) {
-    
     await createOrUpdateNotification(
       context,
       combineReplay({
@@ -105,7 +104,7 @@ const reward = async (
       context.log.error(
         `Reward ${rewardQuery} failed because ${reply.message}.`
       );
-      
+
       await createOrUpdateNotification(context, reply.message, data.user.login);
       break;
     }
@@ -115,13 +114,13 @@ const reward = async (
       await context.github.issues.addLabels(
         context.issue({ labels: [REWARDED_LABEL] })
       );
-      
+
       await createOrUpdateNotification(context, reply.message, user.login);
       break;
     }
     case Status.Problematic: {
       context.log.info(`Reward ${rewardQuery} has some problems.`);
-      
+
       await createOrUpdateNotification(
         context,
         combineReplay(reply),

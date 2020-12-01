@@ -2,7 +2,7 @@ import { Context } from "probot";
 import {
   createOrUpdateStatus,
   createOrUpdateNotification,
-} from "../../services/utils/IssueUtil";
+} from "../api/issue-update/issue-update";
 import { GiveUpQuery } from "../../queries/GiveUpQuery";
 
 import ChallengeIssueService from "../../services/challenge-issue";
@@ -56,7 +56,7 @@ const giveUp = async (
       break;
     }
   }
-  
+
   await createOrUpdateNotification(context, reply.message, data.user.login);
   await createOrUpdateStatus(context);
 };

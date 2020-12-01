@@ -1,6 +1,6 @@
 import { Context } from "probot";
 import AutoGiveUpService from "../../services/auto-give-up";
-import { createOrUpdateStatus } from "../../services/utils/IssueUtil";
+import { createOrUpdateStatus } from "../../commands/api/issue-update/issue-update";
 import { AutoGiveUpQuery } from "../../queries/AutoGiveUpQuery";
 import { PICKED_LABEL } from "../../commands/labels";
 

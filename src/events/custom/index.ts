@@ -1,5 +1,5 @@
 import { Context } from "probot";
-import { createOrUpdateNotification } from "../../services/utils/IssueUtil";
+import { createOrUpdateNotification } from "../../commands/api/issue-update/issue-update";
 import { LabelQuery } from "../../queries/LabelQuery";
 
 import { Status } from "../../services/reply";
@@ -73,7 +73,6 @@ const handleLgtm = async (
       return;
     }
     case Status.Problematic: {
-      
       await createOrUpdateNotification(
         context,
         combineReplay(reply),

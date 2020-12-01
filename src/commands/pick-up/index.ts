@@ -3,8 +3,8 @@ import { Context } from "probot";
 import { PickUpQuery } from "../../queries/PickUpQuery";
 import {
   createOrUpdateNotification,
-  createOrUpdateStatus,
-} from "../../services/utils/IssueUtil";
+  createOrUpdateStatus
+} from "../api/issue-update/issue-update";
 import { LabelQuery } from "../../queries/LabelQuery";
 import { Status } from "../../services/reply";
 
@@ -61,7 +61,7 @@ const pickUp = async (
       context.log.error(
         `Pick up ${pickUpQuery} failed because ${reply.message}.`
       );
-      
+
       await createOrUpdateNotification(context, reply.message, sender.login);
       break;
     }
@@ -72,21 +72,19 @@ const pickUp = async (
         context.issue({ labels: [PICKED_LABEL] })
       );
       if (reply.warning !== undefined || reply.tip !== undefined) {
-        
         await createOrUpdateNotification(
           context,
           combineReplay(reply),
           sender.login
         );
         // FIXME: maybe we should pass a program instead of the title.
-        
+
         await createOrUpdateStatus(
           context,
           sender.login,
           issueResponse.data.title
         );
       } else {
-        
         await createOrUpdateNotification(context, reply.message, sender.login);
         await createOrUpdateStatus(
           context,
@@ -98,7 +96,7 @@ const pickUp = async (
     }
     case Status.Problematic: {
       context.log.warn(`Pick up ${pickUpQuery} has some problems.`);
-      
+
       await createOrUpdateNotification(
         context,
         combineReplay(reply),

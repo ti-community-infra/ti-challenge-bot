@@ -10,8 +10,14 @@ import { Probot } from "probot";
 import payload from "./fixtures/issues.ping.comment.json";
 import typeorm = require("typeorm");
 const pongBody = {
-  body:
-    "\r\n\r\n-------------------------------\r\n\r\n## :warning:Notification:warning:\r\n\r\npong! I am challenge bot.<!-- probot:Notification -->\r\n\r\n",
+  body: `
+
+
+## :warning:Notification:warning:
+
+pong! I am challenge bot.<!-- probot:Notification -->
+
+`,
 };
 const fs = require("fs");
 const path = require("path");
@@ -74,7 +80,7 @@ describe("My Probot app", () => {
 
     // Receive a webhook event
     await probot.receive({ name: "issue_comment", payload });
-  }, 100000);
+  });
 
   afterEach(() => {
     nock.cleanAll();

@@ -1,5 +1,5 @@
 import { Context } from "probot";
-import { createOrUpdateNotification } from "../../services/utils/IssueUtil";
+import { createOrUpdateNotification } from "../api/issue-update/issue-update";
 const helpMessage = `
 Usage:
 
@@ -24,7 +24,6 @@ The commands are:
 </details>
 `;
 const help = async (context: Context) => {
-  
   await createOrUpdateNotification(context, helpMessage);
 };
 
