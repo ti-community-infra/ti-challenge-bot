@@ -82,6 +82,9 @@ export async function createOrUpdateNotification(
   message: string,
   sender?: string
 ) {
+  if (context.isBot === true) {
+    return;
+  }
   const issueContext = context.issue();
   const issueResponse = await context.github.issues.get(issueContext);
   const issueBody = issueResponse.data.body;
@@ -97,6 +100,9 @@ export async function createOrUpdateStatus(
   sender?: string,
   program?: string
 ) {
+  if (context.isBot === true) {
+    return;
+  }
   const issueResponse = await context.github.issues.get(context.issue());
   const issueBody = issueResponse.data.body;
   const newIssuebody = updateStatus(issueBody, sender, program);

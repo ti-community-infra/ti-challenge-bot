@@ -3,7 +3,7 @@ import { Context } from "probot";
 import { PickUpQuery } from "../../queries/PickUpQuery";
 import {
   createOrUpdateNotification,
-  createOrUpdateStatus
+  createOrUpdateStatus,
 } from "../api/issue-update/issue-update";
 import { LabelQuery } from "../../queries/LabelQuery";
 import { Status } from "../../services/reply";

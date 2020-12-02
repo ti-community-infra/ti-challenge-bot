@@ -14,5 +14,8 @@
   },
   "comment": {
     "body": "/ping"
+  },
+  "sender": {
+    "type": "User"
   }
 }
