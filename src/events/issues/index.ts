@@ -1,5 +1,5 @@
 import { Context } from "probot";
-import { createOrUpdateNotification } from "../../commands/api/issue-update/issue-update";
+import { createOrUpdateNotification } from "../../commands/common/issue-update";
 import IssueService from "../../services/issue";
 
 import ChallengeIssueService from "../../services/challenge-issue";

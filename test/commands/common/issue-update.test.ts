@@ -1,12 +1,12 @@
 import nock from "nock";
-import myProbotApp from "../../../../src";
+import myProbotApp from "../../../src";
 import { Probot } from "probot";
 import {
   updateNotification,
   updateStatus,
-} from "../../../../src/commands/api/issue-update/issue-update";
+} from "../../../src/commands/common/issue-update";
 
-import payload from "../../../../test/fixtures/issues.ping.comment.json";
+import payload from "../../fixtures/issues.ping.comment.json";
 import typeorm = require("typeorm");
 
 const fs = require("fs");
@@ -51,7 +51,7 @@ describe("Issue Update", () => {
 
   beforeAll((done: Function) => {
     fs.readFile(
-      path.join(__dirname, "../../../fixtures/mock-cert.pem"),
+      path.join(__dirname, "../../fixtures/mock-cert.pem"),
       (err: Error, cert: string) => {
         if (err) return done(err);
         mockCert = cert;
@@ -147,8 +147,8 @@ this is a message<!-- probot:Notification -->
 
 ## Status
 
-&nbsp;&nbsp;Current challenger: @asuka730
-&nbsp;&nbsp;Current Program: chanllenge1
+Current challenger: @asuka730
+Current Program: chanllenge1
 <!-- probot:Status -->
 
 `,
@@ -171,7 +171,7 @@ this is a message<!-- probot:Notification -->
 
 ## Status
 
-&nbsp;&nbsp;Current challenger: @asuka730
+Current challenger: @asuka730
 <!-- probot:Status -->
 
 `,
@@ -193,7 +193,7 @@ this is a message<!-- probot:Notification -->
 
 ## Status
 
-&nbsp;&nbsp; The challenge has not picked yet.
+The challenge has not picked yet.
 <!-- probot:Status -->
 
 `,

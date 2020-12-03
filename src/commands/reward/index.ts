@@ -1,5 +1,5 @@
 import { Context } from "probot";
-import { createOrUpdateNotification } from "../api/issue-update/issue-update";
+import { createOrUpdateNotification } from "../common/issue-update";
 import { RewardQuery } from "../../queries/RewardQuery";
 import { LabelQuery } from "../../queries/LabelQuery";
 import { Status } from "../../services/reply";

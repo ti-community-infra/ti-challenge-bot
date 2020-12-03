@@ -1,6 +1,5 @@
 import { Context } from "probot";
 import AutoGiveUpService from "../../services/auto-give-up";
-import { createOrUpdateStatus } from "../../commands/api/issue-update/issue-update";
 import { AutoGiveUpQuery } from "../../queries/AutoGiveUpQuery";
 import { PICKED_LABEL } from "../../commands/labels";
 
@@ -21,10 +20,10 @@ const autoGiveUp = async (
 
   for (let i = 0; i < autoGiveUpResults.length; i++) {
     const result = autoGiveUpResults[i];
-    // update context
-    let autoGiveUpContext: Context = context;
-    Object.assign(autoGiveUpContext, autoGiveUpResults[i]);
-    await createOrUpdateStatus(autoGiveUpContext, result.message);
+    await context.github.issues.createComment({
+      ...result,
+      body: result.message,
+    });
     await context.github.issues.removeLabel({ ...result, name: PICKED_LABEL });
     context.log.info(`Auto give up ${result} success.`);
   }

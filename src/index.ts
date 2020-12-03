@@ -1,7 +1,7 @@
 import { Application, Context } from "probot";
 import { createConnection, useContainer } from "typeorm";
 import { Container } from "typedi";
-import { createOrUpdateNotification } from "./commands/api/issue-update/issue-update";
+import { createOrUpdateNotification } from "./commands/common/issue-update";
 import pickUp from "./commands/pick-up";
 import giveUp from "./commands/give-up";
 import reward from "./commands/reward";
@@ -73,7 +73,9 @@ export = (app: Application) => {
           const rewardData = command.arguments;
           const rewardValue = Number(rewardData);
           if (!Number.isInteger(rewardValue)) {
-            await createOrUpdateNotification(context, "The reward invalid.");
+            await context.github.issues.createComment(
+              context.issue({ body: "The reward invalid." })
+            );
             return;
           }
 

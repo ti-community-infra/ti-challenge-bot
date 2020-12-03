@@ -4,7 +4,7 @@ import { PickUpQuery } from "../../queries/PickUpQuery";
 import {
   createOrUpdateNotification,
   createOrUpdateStatus,
-} from "../api/issue-update/issue-update";
+} from "../common/issue-update";
 import { LabelQuery } from "../../queries/LabelQuery";
 import { Status } from "../../services/reply";
 

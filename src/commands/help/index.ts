@@ -1,5 +1,5 @@
 import { Context } from "probot";
-import { createOrUpdateNotification } from "../api/issue-update/issue-update";
+import { createOrUpdateNotification } from "../common/issue-update";
 const helpMessage = `
 Usage:
 
