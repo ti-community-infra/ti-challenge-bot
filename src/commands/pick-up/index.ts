@@ -31,6 +31,14 @@ const pickUp = async (
   });
   const { data } = issueResponse;
   const { sender } = context.payload;
+
+  // Check if an issue, if it is a pull request, no response.
+  if (data.pull_request != null) {
+    context.log.warn(ChallengeIssueWarning.NotAllowedToPickUpAPullRequest);
+    return;
+  }
+  console.log(2333);
+
   const labels: LabelQuery[] = data.labels.map((label) => {
     return {
       ...label,
@@ -38,12 +46,6 @@ const pickUp = async (
   });
   const { user } = data;
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
-
-  // Check it is not a pull request.
-  if (data.pull_request != null) {
-    context.log.warn(ChallengeIssueWarning.NotAllowedToPickUpAPullRequest);
-    return;
-  }
 
   const pickUpQuery: PickUpQuery = {
     challenger: sender.login,

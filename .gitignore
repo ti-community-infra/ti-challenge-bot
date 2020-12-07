@@ -114,3 +114,6 @@ dist
 
 # Probot logs
 bot-logs/
+
+# VS Code
+.vscode
