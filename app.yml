@@ -42,7 +42,7 @@ default_events:
 # - release
 # - repository
 # - repository_import
-  - status
+- status
 # - team
 # - team_add
 # - watch
