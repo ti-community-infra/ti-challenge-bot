@@ -65,10 +65,6 @@ const pickUp = async (
 
   const reply = await challengeIssueService.pickUp(pickUpQuery);
 
-  if (reply === undefined) {
-    return;
-  }
-
   switch (reply.status) {
     case Status.Failed: {
       context.log.error(

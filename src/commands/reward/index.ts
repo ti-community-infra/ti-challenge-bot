@@ -116,10 +116,6 @@ const reward = async (
 
   const reply = await challengePullService.reward(rewardQuery);
 
-  if (reply === undefined || reply === null) {
-    return;
-  }
-
   switch (reply.status) {
     case Status.Failed: {
       context.log.error(
