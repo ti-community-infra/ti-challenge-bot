@@ -8,8 +8,9 @@ import { Status } from "../../services/reply";
 import { Config, DEFAULT_CONFIG_FILE_PATH } from "../../config/Config";
 import { PICKED_LABEL } from "../labels";
 
-import ChallengeIssueService from "../../services/challenge-issue";
+import { IChallengeIssueService } from "../../services/challenge-issue";
 import { combineReplay } from "../../services/utils/ReplyUtil";
+import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMessage";
 
 /**
  * Pick up the issue.
@@ -18,14 +19,25 @@ import { combineReplay } from "../../services/utils/ReplyUtil";
  */
 const pickUp = async (
   context: Context,
-  challengeIssueService: ChallengeIssueService
+  challengeIssueService: IChallengeIssueService
 ) => {
   // Notice: because the context come form issue_comment.created event,
   // so we need to get this issue.
-  const issueResponse = await context.github.issues.get(context.issue());
   const issue = context.issue();
+  const issueResponse = await context.github.issues.get({
+    owner: issue.owner,
+    repo: issue.repo,
+    issue_number: issue.number,
+  });
   const { data } = issueResponse;
   const { sender } = context.payload;
+
+  // Check if an issue, if it is a pull request, no response.
+  if (data.pull_request != null) {
+    context.log.warn(ChallengeIssueWarning.NotAllowedToPickUpAPullRequest);
+    return;
+  }
+
   const labels: LabelQuery[] = data.labels.map((label) => {
     return {
       ...label,

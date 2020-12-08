@@ -1,0 +1,29 @@
+{
+  "action": "created",
+  "issue": {
+    "number": 1,
+    "url": "https://github.com/Rustin-Liu/ti-challenge-bot/pulls/1",
+    "html_url": "https://github.com/Rustin-Liu/ti-challenge-bot/pull/1",
+    "user": {
+      "login": "Rustin-Liu"
+    },
+    "pull_request": {
+      "url": "https://api.github.com/repos/Rustin-Liu/ti-challenge-bot/pulls/1",
+      "html_url": "https://github.com/Rustin-Liu/ti-challenge-bot/pull/1",
+      "diff_url": "https://github.com/Rustin-Liu/ti-challenge-bot/pull/1.diff",
+      "patch_url": "https://github.com/Rustin-Liu/ti-challenge-bot/pull/1.patch"
+    }
+  },
+  "repository": {
+    "name": "ti-challenge-bot",
+    "owner": {
+      "login": "Rustin-Liu"
+    }
+  },
+  "comment": {
+    "body": "/pick-up"
+  },
+  "sender": {
+    "login": "Rustin-Liu"
+  }
+}

@@ -1,4 +1,4 @@
-import { Service } from "typedi";
+import { Service, Token } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Issue } from "../../db/entities/Issue";
 
@@ -30,8 +30,20 @@ import { ChallengePullQuery } from "../../queries/ChallengePullQuery";
 import { ChallengeIssueTip } from "../messages/ChallengeIssueMessage";
 import { checkIsInAssignFlow } from "../utils/IssueUtil";
 
-@Service()
-export default class ChallengePullService {
+export interface IChallengePullService {
+  reward(rewardQuery: RewardQuery): Promise<Reply<null>>;
+  countScoreWhenPullClosed(
+    pullPayload: PullPayload
+  ): Promise<Reply<number | null> | undefined>;
+  checkHasRewardToChallengePull(
+    challengePullQuery: ChallengePullQuery
+  ): Promise<Reply<null> | null>;
+}
+
+export const IChallengePullServiceToken = new Token<IChallengePullService>();
+
+@Service(IChallengePullServiceToken)
+export default class ChallengePullService implements IChallengePullService {
   constructor(
     @InjectRepository(Issue)
     private issueRepository: Repository<Issue>,

@@ -4,7 +4,7 @@ import { RewardQuery } from "../../queries/RewardQuery";
 import { LabelQuery } from "../../queries/LabelQuery";
 import { Status } from "../../services/reply";
 import { REWARDED_LABEL } from "../labels";
-import ChallengePullService from "../../services/challenge-pull";
+import { IChallengePullService } from "../../services/challenge-pull";
 import { combineReplay } from "../../services/utils/ReplyUtil";
 import {
   findLinkedIssueNumber,
@@ -30,10 +30,28 @@ import {
 const reward = async (
   context: Context,
   score: number,
-  challengePullService: ChallengePullService
+  challengePullService: IChallengePullService
 ) => {
   // Notice: because the context come form issue_comment.created, so we need to get the pull.
-  const pullResponse = await context.github.pulls.get(context.issue());
+  const issue = context.issue();
+  let pullResponse = null;
+
+  try {
+    pullResponse = await context.github.pulls.get({
+      owner: issue.owner,
+      repo: issue.repo,
+      pull_number: issue.number,
+    });
+  } catch (e) {
+    context.log.error(
+      `Reward pull request ${JSON.stringify(
+        issue
+      )} failed because fail to get the pull request, maybe it is an issue.`,
+      e
+    );
+    return;
+  }
+
   const { data } = pullResponse;
   const { sender } = context.payload;
   const labels: LabelQuery[] = data.labels.map((label) => {
@@ -41,7 +59,6 @@ const reward = async (
       ...label,
     };
   });
-  const issue = context.issue();
   const { user } = data;
 
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH, {
