@@ -1,4 +1,4 @@
-import { Service } from "typedi";
+import { Service, Token } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { ChallengeIssue } from "../../db/entities/ChallengeIssue";
 
@@ -40,8 +40,24 @@ import { ChallengeTeam } from "../../db/entities/ChallengeTeam";
 import { ChallengersChallengeTeams } from "../../db/entities/ChallengersChallengeTeams";
 import { DEFAULT_CHALLENGE_PROGRAM_THEME } from "../../config/Config";
 
-@Service()
-export default class ChallengeIssueService {
+export interface IChallengeIssueService {
+  pickUp(pickUpQuery: PickUpQuery): Promise<Reply<null>>;
+  giveUp(giveUpQuery: GiveUpQuery): Promise<Reply<null> | undefined>;
+  createWhenIssueOpened(
+    issueId: number,
+    challengeIssueQuery: ChallengeIssueQuery
+  ): Promise<Reply<ChallengeIssue | undefined>>;
+  updateWhenIssueEdited(
+    issueId: number,
+    challengeIssueQuery: ChallengeIssueQuery
+  ): Promise<Reply<ChallengeIssue | undefined> | undefined>;
+  removeWhenIssueUnlabeled(issueId: number): Promise<Reply<null> | undefined>;
+}
+
+export const IChallengeIssueServiceToken = new Token<IChallengeIssueService>();
+
+@Service(IChallengeIssueServiceToken)
+export default class ChallengeIssueService implements IChallengeIssueService {
   constructor(
     @InjectRepository(ChallengeIssue)
     private challengeIssueRepository: Repository<ChallengeIssue>,

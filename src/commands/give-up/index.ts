@@ -2,11 +2,12 @@ import { Context } from "probot";
 
 import { GiveUpQuery } from "../../queries/GiveUpQuery";
 
-import ChallengeIssueService from "../../services/challenge-issue";
+import { IChallengeIssueService } from "../../services/challenge-issue";
 
 import { LabelQuery } from "../../queries/LabelQuery";
 import { Status } from "../../services/reply";
 import { PICKED_LABEL } from "../labels";
+import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMessage";
 
 /**
  * Give up challenge issue.
@@ -15,7 +16,7 @@ import { PICKED_LABEL } from "../labels";
  */
 const giveUp = async (
   context: Context,
-  challengeIssueService: ChallengeIssueService
+  challengeIssueService: IChallengeIssueService
 ) => {
   const issue = context.issue();
   const issueResponse = await context.github.issues.get({
@@ -24,6 +25,13 @@ const giveUp = async (
     issue_number: issue.number,
   });
   const { data } = issueResponse;
+
+  // Check if an issue, if it is a pull request, no response.
+  if (data.pull_request != null) {
+    context.log.warn(ChallengeIssueWarning.NotAllowedToGiveUpAPullRequest);
+    return;
+  }
+
   const { sender } = context.payload;
   const labels: LabelQuery[] = data.labels.map((label) => {
     return {
@@ -37,7 +45,8 @@ const giveUp = async (
   };
 
   const reply = await challengeIssueService.giveUp(giveUpQuery);
-  if (reply === undefined) {
+
+  if (reply === undefined || reply === null) {
     return;
   }
 

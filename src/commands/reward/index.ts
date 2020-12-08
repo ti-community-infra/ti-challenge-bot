@@ -4,7 +4,7 @@ import { RewardQuery } from "../../queries/RewardQuery";
 import { LabelQuery } from "../../queries/LabelQuery";
 import { Status } from "../../services/reply";
 import { REWARDED_LABEL } from "../labels";
-import ChallengePullService from "../../services/challenge-pull";
+import { IChallengePullService } from "../../services/challenge-pull";
 import { combineReplay } from "../../services/utils/ReplyUtil";
 import {
   findLinkedIssueNumber,
@@ -30,7 +30,7 @@ import {
 const reward = async (
   context: Context,
   score: number,
-  challengePullService: ChallengePullService
+  challengePullService: IChallengePullService
 ) => {
   // Notice: because the context come form issue_comment.created, so we need to get the pull.
   const issue = context.issue();
@@ -115,6 +115,10 @@ const reward = async (
   };
 
   const reply = await challengePullService.reward(rewardQuery);
+
+  if (reply === undefined || reply === null) {
+    return;
+  }
 
   switch (reply.status) {
     case Status.Failed: {

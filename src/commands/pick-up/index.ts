@@ -8,7 +8,7 @@ import { Status } from "../../services/reply";
 import { Config, DEFAULT_CONFIG_FILE_PATH } from "../../config/Config";
 import { PICKED_LABEL } from "../labels";
 
-import ChallengeIssueService from "../../services/challenge-issue";
+import { IChallengeIssueService } from "../../services/challenge-issue";
 import { combineReplay } from "../../services/utils/ReplyUtil";
 import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMessage";
 
@@ -19,7 +19,7 @@ import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMes
  */
 const pickUp = async (
   context: Context,
-  challengeIssueService: ChallengeIssueService
+  challengeIssueService: IChallengeIssueService
 ) => {
   // Notice: because the context come form issue_comment.created event,
   // so we need to get this issue.
@@ -37,7 +37,6 @@ const pickUp = async (
     context.log.warn(ChallengeIssueWarning.NotAllowedToPickUpAPullRequest);
     return;
   }
-  console.log(2333);
 
   const labels: LabelQuery[] = data.labels.map((label) => {
     return {
@@ -65,6 +64,10 @@ const pickUp = async (
   };
 
   const reply = await challengeIssueService.pickUp(pickUpQuery);
+
+  if (reply === undefined || reply == null) {
+    return;
+  }
 
   switch (reply.status) {
     case Status.Failed: {

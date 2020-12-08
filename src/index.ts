@@ -10,9 +10,13 @@ import help from "./commands/help";
 import autoGiveUp from "./tasks/auto-give-up";
 import AutoGiveUpService from "./services/auto-give-up";
 import IssueService from "./services/issue";
-import ChallengeIssueService from "./services/challenge-issue";
+import ChallengeIssueService, {
+  IChallengeIssueServiceToken,
+} from "./services/challenge-issue";
 import handleIssueEvents from "./events/issues";
-import ChallengePullService from "./services/challenge-pull";
+import ChallengePullService, {
+  IChallengePullServiceToken,
+} from "./services/challenge-pull";
 import ChallengeTeamService from "./services/challenge-team";
 import { handleLgtm } from "./events/custom";
 
@@ -51,9 +55,13 @@ export = (app: Application) => {
       app.log.info("App starting...");
 
       commands(app, "ping", async (context: Context) => {
-        await context.github.issues.createComment(
-          context.issue({ body: "pong! I am challenge bot." })
-        );
+        const issue = context.issue();
+        await context.github.issues.createComment({
+          repo: issue.repo,
+          owner: issue.owner,
+          issue_number: issue.number,
+          body: "pong! I am challenge bot.",
+        });
       });
 
       commands(app, "help", async (context: Context) => {
@@ -61,11 +69,11 @@ export = (app: Application) => {
       });
 
       commands(app, "pick-up", async (context: Context) => {
-        await pickUp(context, Container.get(ChallengeIssueService));
+        await pickUp(context, Container.get(IChallengeIssueServiceToken));
       });
 
       commands(app, "give-up", async (context: Context) => {
-        await giveUp(context, Container.get(ChallengeIssueService));
+        await giveUp(context, Container.get(IChallengeIssueServiceToken));
       });
 
       commands(
@@ -84,7 +92,7 @@ export = (app: Application) => {
           await reward(
             context,
             rewardValue,
-            Container.get(ChallengePullService)
+            Container.get(IChallengePullServiceToken)
           );
         }
       );

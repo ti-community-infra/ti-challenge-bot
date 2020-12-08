@@ -24,7 +24,9 @@ export default class ChallengeProgramService {
     @InjectRepository(ChallengeTeam)
     private challengeTeamRepository: Repository<ChallengeTeam>,
     @InjectRepository(ChallengersChallengeTeams)
-    private challengersChallengeTeamsRepository: Repository<ChallengersChallengeTeams>,
+    private challengersChallengeTeamsRepository: Repository<
+      ChallengersChallengeTeams
+    >,
     @InjectRepository()
     private scoreRepository: ScoreRepository
   ) {}
