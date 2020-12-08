@@ -65,7 +65,7 @@ const pickUp = async (
 
   const reply = await challengeIssueService.pickUp(pickUpQuery);
 
-  if (reply === undefined || reply == null) {
+  if (reply === undefined) {
     return;
   }
 

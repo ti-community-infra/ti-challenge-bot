@@ -46,7 +46,7 @@ const giveUp = async (
 
   const reply = await challengeIssueService.giveUp(giveUpQuery);
 
-  if (reply === undefined || reply === null) {
+  if (reply === undefined) {
     return;
   }
 
