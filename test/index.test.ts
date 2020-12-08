@@ -19,25 +19,12 @@ const pongBody = { body: "pong! I am challenge bot." };
 const fs = require("fs");
 const path = require("path");
 
-// Mock the challenge-issue service
-const mockGiveUpMethod = jest.fn();
-const mockPickUpMethod = jest.fn();
-
-@Service(IChallengeIssueServiceToken)
-// @ts-ignore
-class MockChallengeIssueService implements IChallengeIssueService {
-  giveUp = mockGiveUpMethod.mockResolvedValue(undefined);
-  createWhenIssueOpened = jest.fn().mockResolvedValue(undefined);
-  updateWhenIssueEdited = jest.fn().mockResolvedValue(undefined);
-  removeWhenIssueUnlabeled = jest.fn().mockResolvedValue(undefined);
-  pickUp = mockPickUpMethod.mockResolvedValue(undefined);
-}
-
-Container.set(IChallengeIssueServiceToken, new MockChallengeIssueService());
-
 describe("My Probot app", () => {
   let probot: any;
   let mockCert: string;
+
+  const mockGiveUpMethod = jest.fn();
+  const mockPickUpMethod = jest.fn();
 
   beforeAll((done: Function) => {
     fs.readFile(
@@ -48,6 +35,19 @@ describe("My Probot app", () => {
         done();
       }
     );
+
+    // Mock the challenge-issue service.
+    @Service(IChallengeIssueServiceToken)
+    // TODO: remove the experimentalDecorators warning.
+    class MockChallengeIssueService implements IChallengeIssueService {
+      giveUp = mockGiveUpMethod.mockResolvedValue(undefined);
+      createWhenIssueOpened = jest.fn().mockResolvedValue(undefined);
+      updateWhenIssueEdited = jest.fn().mockResolvedValue(undefined);
+      removeWhenIssueUnlabeled = jest.fn().mockResolvedValue(undefined);
+      pickUp = mockPickUpMethod.mockResolvedValue(undefined);
+    }
+
+    Container.set(IChallengeIssueServiceToken, new MockChallengeIssueService());
   });
 
   beforeEach(() => {
@@ -117,7 +117,7 @@ describe("My Probot app", () => {
     await probot.receive({ name: "issue_comment", payload: pickUpPayload });
 
     // If the robot receive a pick-up command to a pull request, the `pickUp` method will not be called.
-    expect(mockPickUpMethod.mock.calls[0]).toBeUndefined();
+    expect(mockPickUpMethod).not.toHaveBeenCalled();
   });
 
   test("creates a comment with give-up command to a pull request", async () => {
@@ -157,7 +157,7 @@ describe("My Probot app", () => {
     await probot.receive({ name: "issue_comment", payload: giveUpPayload });
 
     // If the robot receive a give-up command to a pull request, the `giveUp` method will not be called.
-    expect(mockGiveUpMethod.mock.calls[0]).toBeUndefined();
+    expect(mockGiveUpMethod).not.toHaveBeenCalled();
   });
 
   afterEach(() => {
