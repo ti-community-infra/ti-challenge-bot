@@ -90,11 +90,11 @@ const handlePullClosed = async (
 };
 
 /**
- * Handle challenge pull request.
+ * Handle challenge pull request open.
  * @param context
  * @param challengePullService
  */
-const handleChallengePull = async (
+const handleChallengePullOpen = async (
   context: Context,
   challengePullService: ChallengePullService
 ) => {
@@ -140,41 +140,26 @@ const handleChallengePull = async (
     return;
   }
 
-  const status = {
-    sha: pullRequest.head.sha,
-    state: reply.status === Status.Success ? "success" : "failure",
-    target_url:
-      "https://tidb-community-bots.github.io/ti-challenge-bot/commands.html",
-    description: reply.message,
-    context: "Challenge Pull Request Reward",
-  };
-
   switch (reply.status) {
     case Status.Failed: {
       context.log.error(`${pullPayload} not reward ${reply.message}.`);
-      // @ts-ignore
-      await context.github.repos.createStatus({
-        ...context.repo(),
-        ...status,
-      });
+      await context.github.issues.createComment(
+        context.issue({ body: reply.message })
+      );
       break;
     }
     case Status.Success: {
       context.log.info(`${pullPayload} already rewarded.`);
-      // @ts-ignore
-      await context.github.repos.createStatus({
-        ...context.repo(),
-        ...status,
-      });
+      await context.github.issues.createComment(
+        context.issue({ body: reply.message })
+      );
       break;
     }
     case Status.Problematic: {
+      await context.github.issues.createComment(
+        context.issue({ body: combineReplay(reply) })
+      );
       context.log.warn(`${pullPayload} check reward has some problems.`);
-      // @ts-ignore
-      await context.github.repos.createStatus({
-        ...context.repo(),
-        ...status,
-      });
       break;
     }
   }
@@ -186,8 +171,11 @@ const handlePullEvents = async (
 ) => {
   if (context.payload.action === IssueOrPullActions.Closed) {
     await handlePullClosed(context, challengePullService);
-  } else {
-    await handleChallengePull(context, challengePullService);
+  } else if (
+    context.payload.action === IssueOrPullActions.Opened ||
+    context.payload.action === IssueOrPullActions.Reopened
+  ) {
+    await handleChallengePullOpen(context, challengePullService);
   }
 };
 
