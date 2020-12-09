@@ -96,19 +96,10 @@ export default class ChallengePullService implements IChallengePullService {
    * @param rewardQuery
    */
   public async reward(rewardQuery: RewardQuery): Promise<Reply<null>> {
-    const { pull: pullQuery } = rewardQuery;
     const baseFailedMessage = {
       data: null,
       status: Status.Failed,
     };
-
-    // Check if pull closed.
-    if (pullQuery.state === IssueOrPullStatus.Closed) {
-      return {
-        ...baseFailedMessage,
-        message: ChallengePullMessage.PullRequestAlreadyClosed,
-      };
-    }
 
     // Try to find linked issue.
     const issue = await this.issueRepository.findOne({
