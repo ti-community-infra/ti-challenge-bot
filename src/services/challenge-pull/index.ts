@@ -385,4 +385,31 @@ export default class ChallengePullService implements IChallengePullService {
       message: ChallengePullMessage.Rewarded,
     };
   }
+
+  public async getCurrentIssueLeftScore(issueNumber: number, number: number) {
+    return await this.scoreRepository.getCurrentIssueLeftScore(
+      issueNumber,
+      number
+    );
+  }
+
+  public async getIssueIdByIssueNumber(
+    issueNumber: number
+  ): Promise<number | undefined> {
+    let issue = await this.issueRepository.findOne({
+      issueNumber: issueNumber,
+    });
+    return issue?.id;
+  }
+
+  public async getPullIdByPullNumber(
+    number: number
+  ): Promise<number | undefined> {
+    let pull = await this.pullRepository.findOne({ pullNumber: number });
+    return pull?.id;
+  }
+
+  public async rewardLeftSore(challengePull: ChallengePull) {
+    await this.challengePullRepository.save(challengePull);
+  }
 }

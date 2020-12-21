@@ -16,7 +16,11 @@ import {
   DEFAULT_BRANCHES,
   DEFAULT_CONFIG_FILE_PATH,
 } from "../../config/Config";
-import { isValidBranch } from "../../services/utils/PullUtil";
+import {
+  findLinkedIssueNumber,
+  isValidBranch,
+} from "../../services/utils/PullUtil";
+import { ChallengePull } from "../../db/entities/ChallengePull";
 
 const handlePullClosed = async (
   context: Context,
@@ -52,6 +56,41 @@ const handlePullClosed = async (
   });
   if (!isValidBranch(config!.branches!, pullRequest.base.ref)) {
     return;
+  }
+
+  // Judge PR is associated with an Issue and uses close semantics
+  const issueNumber = findLinkedIssueNumber(pullRequest.body);
+  const closeIndex = pullRequest.body.toLowerCase().indexOf("close");
+  if (issueNumber && closeIndex != -1) {
+    const issueId = await challengePullService.getIssueIdByIssueNumber(
+      issueNumber
+    );
+    const pullId = await challengePullService.getPullIdByPullNumber(
+      pullPayload.number
+    );
+    if (issueId == undefined || pullId == undefined) {
+      return;
+    }
+    // Query remaining score
+    const currentLeftScore = await challengePullService.getCurrentIssueLeftScore(
+      issueId,
+      pullId
+    );
+    if (currentLeftScore == undefined) {
+      return;
+    }
+    // Assign remaining scores to pr
+    const newChallengeIssue = new ChallengePull();
+    newChallengeIssue.pullId = pullId;
+    newChallengeIssue.reward = currentLeftScore;
+    newChallengeIssue.challengeIssueId = issueId;
+    await challengePullService.rewardLeftSore(newChallengeIssue);
+    await context.github.issues.createComment(
+      context.issue({
+        body:
+          "Congratulations! You have successfully resolved this issue. Now, the remaining points for this issue is awarded to you. ",
+      })
+    );
   }
 
   const reply = await challengePullService.countScoreWhenPullClosed(
