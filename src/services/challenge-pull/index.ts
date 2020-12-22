@@ -402,21 +402,19 @@ export default class ChallengePullService implements IChallengePullService {
       if (issue == undefined || pull == undefined) {
         return false;
       }
-      const issueId = issue.id;
-      const pullId = pull.id;
       // Query remaining score
       const currentLeftScore = await this.scoreRepository.getCurrentIssueLeftScore(
-        issueId,
-        pullId
+        issue.id,
+        pull.id
       );
       if (currentLeftScore == undefined) {
         return false;
       }
       // Assign remaining scores to pr
       const newChallengeIssue = new ChallengePull();
-      newChallengeIssue.pullId = pullId;
+      newChallengeIssue.pullId = pull.id;
       newChallengeIssue.reward = currentLeftScore;
-      newChallengeIssue.challengeIssueId = issueId;
+      newChallengeIssue.challengeIssueId = issue.id;
       await this.challengePullRepository.save(newChallengeIssue);
       return true;
     }
