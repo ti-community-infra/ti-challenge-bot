@@ -386,14 +386,14 @@ export default class ChallengePullService implements IChallengePullService {
     };
   }
 
-  public async getCurrentIssueLeftScore(issueNumber: number, number: number) {
+  private async getCurrentIssueLeftScore(issueNumber: number, number: number) {
     return await this.scoreRepository.getCurrentIssueLeftScore(
       issueNumber,
       number
     );
   }
 
-  public async getIssueIdByIssueNumber(
+  private async getIssueIdByIssueNumber(
     issueNumber: number
   ): Promise<number | undefined> {
     let issue = await this.issueRepository.findOne({
@@ -402,14 +402,46 @@ export default class ChallengePullService implements IChallengePullService {
     return issue?.id;
   }
 
-  public async getPullIdByPullNumber(
+  private async getPullIdByPullNumber(
     number: number
   ): Promise<number | undefined> {
     let pull = await this.pullRepository.findOne({ pullNumber: number });
     return pull?.id;
   }
 
-  public async rewardLeftSore(challengePull: ChallengePull) {
+  private async rewardLeftSore(challengePull: ChallengePull) {
     await this.challengePullRepository.save(challengePull);
+  }
+
+  public async awardWhenPullClosedAndContainClose(
+    pullPayload: PullPayload
+  ): Promise<boolean> {
+    const issueNumber = findLinkedIssueNumber(pullPayload.pull.body);
+    const closeIndex = pullPayload.pull.body.toLowerCase().indexOf("close");
+    // Judge PR is associated with an Issue and uses close semantics
+    if (issueNumber && closeIndex != -1) {
+      const issueId = await this.getIssueIdByIssueNumber(issueNumber);
+
+      const pullId = await this.getPullIdByPullNumber(pullPayload.pull.number);
+      if (issueId == undefined || pullId == undefined) {
+        return false;
+      }
+      // Query remaining score
+      const currentLeftScore = await this.getCurrentIssueLeftScore(
+        issueId,
+        pullId
+      );
+      if (currentLeftScore == undefined) {
+        return false;
+      }
+      // Assign remaining scores to pr
+      const newChallengeIssue = new ChallengePull();
+      newChallengeIssue.pullId = pullId;
+      newChallengeIssue.reward = currentLeftScore;
+      newChallengeIssue.challengeIssueId = issueId;
+      await this.rewardLeftSore(newChallengeIssue);
+      return true;
+    }
+    return false;
   }
 }
