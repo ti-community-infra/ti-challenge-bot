@@ -386,33 +386,6 @@ export default class ChallengePullService implements IChallengePullService {
     };
   }
 
-  private async getCurrentIssueLeftScore(issueNumber: number, number: number) {
-    return await this.scoreRepository.getCurrentIssueLeftScore(
-      issueNumber,
-      number
-    );
-  }
-
-  private async getIssueIdByIssueNumber(
-    issueNumber: number
-  ): Promise<number | undefined> {
-    let issue = await this.issueRepository.findOne({
-      issueNumber: issueNumber,
-    });
-    return issue?.id;
-  }
-
-  private async getPullIdByPullNumber(
-    number: number
-  ): Promise<number | undefined> {
-    let pull = await this.pullRepository.findOne({ pullNumber: number });
-    return pull?.id;
-  }
-
-  private async rewardLeftSore(challengePull: ChallengePull) {
-    await this.challengePullRepository.save(challengePull);
-  }
-
   public async awardWhenPullClosedAndContainClose(
     pullPayload: PullPayload
   ): Promise<boolean> {
@@ -420,14 +393,19 @@ export default class ChallengePullService implements IChallengePullService {
     const closeIndex = pullPayload.pull.body.toLowerCase().indexOf("close");
     // Judge PR is associated with an Issue and uses close semantics
     if (issueNumber && closeIndex != -1) {
-      const issueId = await this.getIssueIdByIssueNumber(issueNumber);
-
-      const pullId = await this.getPullIdByPullNumber(pullPayload.pull.number);
-      if (issueId == undefined || pullId == undefined) {
+      const issue = await this.issueRepository.findOne({
+        issueNumber: issueNumber,
+      });
+      const pull = await this.pullRepository.findOne({
+        pullNumber: pullPayload.pull.number,
+      });
+      if (issue == undefined || pull == undefined) {
         return false;
       }
+      const issueId = issue.id;
+      const pullId = pull.id;
       // Query remaining score
-      const currentLeftScore = await this.getCurrentIssueLeftScore(
+      const currentLeftScore = await this.scoreRepository.getCurrentIssueLeftScore(
         issueId,
         pullId
       );
@@ -439,7 +417,7 @@ export default class ChallengePullService implements IChallengePullService {
       newChallengeIssue.pullId = pullId;
       newChallengeIssue.reward = currentLeftScore;
       newChallengeIssue.challengeIssueId = issueId;
-      await this.rewardLeftSore(newChallengeIssue);
+      await this.challengePullRepository.save(newChallengeIssue);
       return true;
     }
     return false;
