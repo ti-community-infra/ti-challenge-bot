@@ -54,7 +54,7 @@ describe("ChallengePull Service", () => {
     scoreRepository
   );
 
-  const scoreFindOneMock = jest.spyOn(
+  let scoreFindOneMock = jest.spyOn(
     scoreRepository,
     "getCurrentIssueLeftScore"
   );
@@ -63,13 +63,13 @@ describe("ChallengePull Service", () => {
   let issueFindOneMock = jest.spyOn(issueRepository, "findOne");
   issueFindOneMock.mockResolvedValue(new Issue());
 
-  const cpFindOneMock = jest.spyOn(challengePullRepository, "findOne");
+  let cpFindOneMock = jest.spyOn(challengePullRepository, "findOne");
   cpFindOneMock.mockResolvedValue(new ChallengePull());
 
-  const pullFindOneMock = jest.spyOn(pullRepository, "findOne");
+  let pullFindOneMock = jest.spyOn(pullRepository, "findOne");
   pullFindOneMock.mockResolvedValue(new Pull());
 
-  const cpSaveMock = jest.spyOn(challengePullRepository, "save");
+  let cpSaveMock = jest.spyOn(challengePullRepository, "save");
   cpSaveMock.mockResolvedValue(new ChallengePull());
 
   test("a default test", async () => {
