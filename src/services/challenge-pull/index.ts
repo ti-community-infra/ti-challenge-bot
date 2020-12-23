@@ -392,14 +392,19 @@ export default class ChallengePullService implements IChallengePullService {
     const issueNumber = findLinkedIssueNumber(pullPayload.pull.body);
     const closeIndex = pullPayload.pull.body.toLowerCase().indexOf("close");
     // Judge PR is associated with an Issue and uses close semantics
-    if (issueNumber && closeIndex != -1) {
+    if (issueNumber && closeIndex && closeIndex != -1) {
       const issue = await this.issueRepository.findOne({
         issueNumber: issueNumber,
       });
       const pull = await this.pullRepository.findOne({
         pullNumber: pullPayload.pull.number,
       });
-      if (issue == undefined || pull == undefined) {
+      if (
+        issue === undefined ||
+        pull === undefined ||
+        issue.id === undefined ||
+        pull.id === undefined
+      ) {
         return false;
       }
       // Query remaining score
@@ -407,7 +412,7 @@ export default class ChallengePullService implements IChallengePullService {
         issue.id,
         pull.id
       );
-      if (currentLeftScore == undefined) {
+      if (currentLeftScore === undefined) {
         return false;
       }
       // Assign remaining scores to pr
