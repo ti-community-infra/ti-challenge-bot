@@ -390,7 +390,9 @@ export default class ChallengePullService implements IChallengePullService {
     pullPayload: PullPayload
   ): Promise<boolean> {
     const issueNumber = findLinkedIssueNumber(pullPayload.pull.body);
-    const closeIndex = pullPayload.pull.body.toLowerCase().indexOf("close");
+    const closeIndex = pullPayload.pull.body.search(
+      /Issue Number: close #\d+/i
+    );
     // Judge PR is associated with an Issue and uses close semantics
     if (issueNumber && closeIndex && closeIndex != -1) {
       const issue = await this.issueRepository.findOne({
