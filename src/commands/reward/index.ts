@@ -69,9 +69,10 @@ const reward = async (
   }
 
   // Find linked issue assignees.
-  const issueNumber = findLinkedIssueNumber(data.body);
+  const issueMsg = findLinkedIssueNumber(data.body);
+  const issueNumber = issueMsg[0];
 
-  if (issueNumber === null) {
+  if (issueNumber === null || typeof issueNumber === "boolean") {
     await context.github.issues.createComment(
       context.issue({
         body: combineReplay({

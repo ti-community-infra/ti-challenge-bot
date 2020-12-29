@@ -5,8 +5,8 @@ import {
 
 describe("Pull Util", () => {
   test("found linked issue", () => {
-    const cases: [string, number][] = [
-      ["Issue Number: #100", 100],
+    const cases: (string | (number | boolean)[])[][] = [
+      ["Issue Number: #100", [100, false]],
       [
         `
         tidb
@@ -16,20 +16,26 @@ describe("Pull Util", () => {
         ...
         Issue Number: #200
         `,
-        200,
+        [200, false],
       ],
-      ["Issue Number: https://github.com/test/test/issues/19971", 19971],
-      ["Issue Number: close https://github.com/test/test/issues/19971", 19971],
+      [
+        "Issue Number: https://github.com/test/test/issues/19971",
+        [19971, false],
+      ],
+      [
+        "Issue Number: close https://github.com/test/test/issues/19971",
+        [19971, true],
+      ],
     ];
 
     cases.forEach((c) => {
-      expect(findLinkedIssueNumber(c[0])).toBe(c[1]);
+      expect(findLinkedIssueNumber(String(c[0]))).toEqual(c[1]);
     });
   });
 
   test("linked issue could not be found", () => {
-    const cases: [string, null][] = [
-      ["Issue Number: 100", null],
+    const cases: (string | null[])[][] = [
+      ["Issue Number: 100", [null, null]],
       [
         `
         tidb
@@ -39,12 +45,12 @@ describe("Pull Util", () => {
         ...
         Issue Number #200
         `,
-        null,
+        [null, null],
       ],
     ];
 
     cases.forEach((c) => {
-      expect(findLinkedIssueNumber(c[0])).toBe(c[1]);
+      expect(findLinkedIssueNumber(String(c[0]))).toEqual(c[1]);
     });
   });
 

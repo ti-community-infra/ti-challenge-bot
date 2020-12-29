@@ -1,20 +1,19 @@
-const ISSUE_NUMBER_REGEX = /(Issue Number:).*#([0-9]*)/;
-const ISSUE_URL_REGEX = /(Issue Number:).*https:\/\/github.com\/.*\/.*\/issues\/([0-9]*)/;
-const PULL_CLOSE_REGEX = /(Issue Number: close).*#([0-9]*)/;
+const ISSUE_NUMBER_REGEX = /(Issue Number:)\s*(close)?\s*#([0-9]*)/;
+const ISSUE_URL_REGEX = /(Issue Number:)\s*(close)?\s*https:\/\/github.com\/.*\/.*\/issues\/([0-9]*)/;
 
-export function findLinkedIssueNumber(pullBody: string): number | null {
+/**
+ * findLinkedIssueNumber
+ * @param pullBody
+ * @return issueNumber
+ * @return containsClose
+ */
+export function findLinkedIssueNumber(pullBody: string) {
   const issueNumberData =
     pullBody.match(ISSUE_NUMBER_REGEX) || pullBody.match(ISSUE_URL_REGEX);
-  if (issueNumberData?.length !== 3) {
-    return null;
+  if (issueNumberData?.length !== 4) {
+    return [null, null];
   }
-
-  return Number(issueNumberData[2]);
-}
-
-export function findLinkedIssueNumberAndClose(pullBody: string): boolean {
-  const closeData = pullBody.match(PULL_CLOSE_REGEX);
-  return closeData != null;
+  return [Number(issueNumberData[3]), issueNumberData[2] === "close"];
 }
 
 export function isValidBranch(branches: string[], baseRef: string) {

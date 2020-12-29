@@ -22,10 +22,7 @@ import {
   rewardNotEnoughLeftScoreMessage,
   rewardScoreInvalidWarning,
 } from "../messages/ChallengePullMessage";
-import {
-  findLinkedIssueNumber,
-  findLinkedIssueNumberAndClose,
-} from "../utils/PullUtil";
+import { findLinkedIssueNumber } from "../utils/PullUtil";
 
 import { PullPayload } from "../../events/payloads/PullPayload";
 
@@ -247,8 +244,9 @@ export default class ChallengePullService implements IChallengePullService {
     }
 
     // Can not find linked issue.
-    const issueNumber = findLinkedIssueNumber(pullQuery.body);
-    if (issueNumber === null) {
+    const issueData = findLinkedIssueNumber(pullQuery.body);
+    const issueNumber = issueData[0];
+    if (issueNumber === null || typeof issueNumber === "boolean") {
       return;
     }
 
@@ -392,12 +390,10 @@ export default class ChallengePullService implements IChallengePullService {
   public async awardWhenPullClosedAndContainClose(
     pullPayload: PullPayload
   ): Promise<boolean> {
-    const issueNumber = findLinkedIssueNumber(pullPayload.pull.body);
+    const issueData = findLinkedIssueNumber(pullPayload.pull.body);
+    const issueNumber = issueData[0];
     // Judge PR is associated with an Issue and uses close semantics
-    if (
-      issueNumber != null &&
-      findLinkedIssueNumberAndClose(pullPayload.pull.body)
-    ) {
+    if (issueNumber !== null && typeof issueNumber !== "boolean") {
       const issue = await this.issueRepository.findOne({
         issueNumber: issueNumber,
       });
