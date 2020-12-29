@@ -394,19 +394,15 @@ export default class ChallengePullService implements IChallengePullService {
       /Issue Number: close #\d+/i
     );
     // Judge PR is associated with an Issue and uses close semantics
-    if (issueNumber && closeIndex && closeIndex != -1) {
+    if (issueNumber != null && closeIndex != -1) {
       const issue = await this.issueRepository.findOne({
         issueNumber: issueNumber,
       });
       const pull = await this.pullRepository.findOne({
         pullNumber: pullPayload.pull.number,
       });
-      if (
-        issue === undefined ||
-        pull === undefined ||
-        issue.id === undefined ||
-        pull.id === undefined
-      ) {
+      // Determine whether the database contains data
+      if (issue === undefined || pull === undefined) {
         return false;
       }
       // Query remaining score
