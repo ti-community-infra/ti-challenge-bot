@@ -1,5 +1,6 @@
 const ISSUE_NUMBER_REGEX = /(Issue Number:).*#([0-9]*)/;
 const ISSUE_URL_REGEX = /(Issue Number:).*https:\/\/github.com\/.*\/.*\/issues\/([0-9]*)/;
+const PULL_CLOSE_REGEX = /(Issue Number: close).*#([0-9]*)/;
 
 export function findLinkedIssueNumber(pullBody: string): number | null {
   const issueNumberData =
@@ -9,6 +10,11 @@ export function findLinkedIssueNumber(pullBody: string): number | null {
   }
 
   return Number(issueNumberData[2]);
+}
+
+export function findLinkedIssueNumberAndClose(pullBody: string): boolean {
+  const closeData = pullBody.match(PULL_CLOSE_REGEX);
+  return closeData != null;
 }
 
 export function isValidBranch(branches: string[], baseRef: string) {
