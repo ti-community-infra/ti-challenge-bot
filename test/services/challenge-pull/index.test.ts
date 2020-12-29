@@ -123,15 +123,8 @@ describe("ChallengePull Service", () => {
     expect.assertions(1);
     pullPayload.pull.body = "- Issue Number: close #36 ";
 
-    let issue = new Issue();
-    // issue.id = 93;
-    issue.issueNumber = 36;
-    issueFindOneMock.mockResolvedValue(issue);
-
-    let pull = new Pull();
-    // pull.id = 35;
-    pull.pullNumber = 37;
-    pullFindOneMock.mockResolvedValue(pull);
+    issueFindOneMock.mockResolvedValue(undefined);
+    pullFindOneMock.mockResolvedValue(undefined);
     const ret = await challengePullService.awardWhenPullClosedAndContainClose(
       pullPayload
     );
