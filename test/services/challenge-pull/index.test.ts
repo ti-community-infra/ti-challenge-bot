@@ -62,40 +62,58 @@ describe("ChallengePull Service", () => {
   });
 
   test("not contains close", async () => {
-    expect.assertions(1);
-    let issue: Issue = <Issue>{
-      id: 93,
-      issueNumber: 36,
-    };
-    let issueFindOneMock = jest.spyOn(issueRepository, "findOne");
-    issueFindOneMock.mockResolvedValue(issue);
+    const cases = [
+      ["Issue Number: #100", false],
+      [
+        `
+        tidb
+        tikv
+        pd
+        ...
+        ...
+        Issue Number: #200
+        `,
+        false,
+      ],
+      ["Issue Number: https://github.com/test/test/issues/19971", false],
+      ["Issue Number: close https://github.com/test/test/issues/19971", true],
+    ];
 
-    let pull: Pull = <Pull>{
-      id: 35,
-      pullNumber: 37,
-    };
-    let pullFindOneMock = jest.spyOn(pullRepository, "findOne");
-    pullFindOneMock.mockResolvedValue(pull);
+    for (const c of cases) {
+      let issue: Issue = <Issue>{
+        id: 93,
+        issueNumber: 36,
+      };
+      let issueFindOneMock = jest.spyOn(issueRepository, "findOne");
+      issueFindOneMock.mockResolvedValue(issue);
 
-    let cpFindOneMock = jest.spyOn(challengePullRepository, "findOne");
-    cpFindOneMock.mockResolvedValue(new ChallengePull());
+      let pull: Pull = <Pull>{
+        id: 35,
+        pullNumber: 37,
+      };
+      let pullFindOneMock = jest.spyOn(pullRepository, "findOne");
+      pullFindOneMock.mockResolvedValue(pull);
 
-    let cpSaveMock = jest.spyOn(challengePullRepository, "save");
-    cpSaveMock.mockResolvedValue(new ChallengePull());
+      let cpFindOneMock = jest.spyOn(challengePullRepository, "findOne");
+      cpFindOneMock.mockResolvedValue(new ChallengePull());
 
-    let scoreFindOneMock = jest.spyOn(
-      scoreRepository,
-      "getCurrentIssueLeftScore"
-    );
-    scoreFindOneMock.mockResolvedValue(100);
-    const ret = await challengePullService.awardWhenPullClosedAndContainClose(<
-      PullPayload
-    >{
-      action: "",
-      number: 0,
-      pull: { body: "Issue Number: #36 " },
-    });
-    expect(ret).toBe(false);
+      let cpSaveMock = jest.spyOn(challengePullRepository, "save");
+      cpSaveMock.mockResolvedValue(new ChallengePull());
+
+      let scoreFindOneMock = jest.spyOn(
+        scoreRepository,
+        "getCurrentIssueLeftScore"
+      );
+      scoreFindOneMock.mockResolvedValue(100);
+      const ret = await challengePullService.awardWhenPullClosedAndContainClose(
+        <PullPayload>{
+          action: "",
+          number: 0,
+          pull: { body: c[0] },
+        }
+      );
+      expect(ret).toEqual(c[1]);
+    }
   });
 
   test("Unable to parse correctly issueNumber", async () => {

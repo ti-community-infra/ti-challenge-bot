@@ -13,7 +13,8 @@ export function findLinkedIssueNumber(pullBody: string) {
   if (issueNumberData?.length !== 4) {
     return [null, null];
   }
-  return [Number(issueNumberData[3]), issueNumberData[2] === "close"];
+  const isClose = issueNumberData[2] === "close";
+  return [Number(issueNumberData[3]), isClose];
 }
 
 export function isValidBranch(branches: string[], baseRef: string) {
