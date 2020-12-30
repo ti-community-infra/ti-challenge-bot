@@ -392,8 +392,13 @@ export default class ChallengePullService implements IChallengePullService {
   ): Promise<boolean> {
     const issueData = findLinkedIssueNumber(pullPayload.pull.body);
     const issueNumber = issueData[0];
+    const isClose = issueData[1];
     // Judge PR is associated with an Issue and uses close semantics
-    if (issueNumber !== null && typeof issueNumber !== "boolean") {
+    if (
+      issueNumber !== null &&
+      typeof issueNumber !== "boolean" &&
+      isClose == true
+    ) {
       const issue = await this.issueRepository.findOne({
         issueNumber: issueNumber,
       });
