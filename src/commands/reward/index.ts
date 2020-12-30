@@ -69,9 +69,8 @@ const reward = async (
   }
 
   // Find linked issue assignees.
-  const issueMsg = findLinkedIssueNumber(data.body);
-  const issueNumber = issueMsg[0];
-
+  // @ts-ignore
+  const [issueNumber, isClose] = findLinkedIssueNumber(data.body);
   if (issueNumber === null || typeof issueNumber === "boolean") {
     await context.github.issues.createComment(
       context.issue({
