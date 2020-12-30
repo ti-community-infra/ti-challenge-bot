@@ -17,6 +17,7 @@ import {
   DEFAULT_CONFIG_FILE_PATH,
 } from "../../config/Config";
 import { isValidBranch } from "../../services/utils/PullUtil";
+import { ChallengePullMessage } from "../../services/messages/ChallengePullMessage";
 
 const handlePullClosed = async (
   context: Context,
@@ -60,8 +61,7 @@ const handlePullClosed = async (
   if (isAward) {
     await context.github.issues.createComment(
       context.issue({
-        body:
-          "Congratulations! You have successfully resolved this issue. Now, the remaining points for this issue is awarded to you. ",
+        body: ChallengePullMessage.GetRemainingScores,
       })
     );
   }

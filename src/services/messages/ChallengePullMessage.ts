@@ -12,6 +12,7 @@ export enum ChallengePullMessage {
   NotValidReward = "Not a valid reward.",
   RewardSuccess = "Reward success.",
   Rewarded = "Reward.",
+  GetRemainingScores = "Congratulations! You have successfully resolved this issue. Now, the remaining points for this issue is awarded to you. ",
 }
 
 export enum ChallengePullTips {
