@@ -1,24 +1,19 @@
 import { Context } from "probot";
 
 import IssueService from "../../services/issue";
-
 import ChallengeIssueService from "../../services/challenge-issue";
-
-import { LabelQuery } from "../../queries/LabelQuery";
-
-import { IssuePayload } from "../payloads/IssuePayload";
-import { isChallengeIssue } from "../../services/utils/IssueUtil";
-
-import { Config, DEFAULT_CONFIG_FILE_PATH } from "../../config/Config";
-
-import { ChallengeIssueQuery } from "../../queries/ChallengeIssueQuery";
-
 import { Reply, Status } from "../../services/reply";
 import { combineReplay } from "../../services/utils/ReplyUtil";
+import { isChallengeIssue } from "../../services/utils/IssueUtil";
 
+import { IssuePayload } from "../payloads/IssuePayload";
+import { UserQuery } from "../../queries/UserQuery";
+import { LabelQuery } from "../../queries/LabelQuery";
+import { ChallengeIssueQuery } from "../../queries/ChallengeIssueQuery";
+
+import { Config, DEFAULT_CONFIG_FILE_PATH } from "../../config/Config";
 import { ChallengeIssue } from "../../db/entities/ChallengeIssue";
 import { CHALLENGE_PROGRAM_LABEL } from "../../commands/labels";
-import { UserQuery } from "../../queries/UserQuery";
 
 export enum IssueOrPullActions {
   Opened = "opened",
@@ -109,7 +104,7 @@ const handleIssuesOpened = async (
       context.log.error(
         `Create challenge issue failed ${challengeIssueQuery}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
     }
@@ -118,7 +113,7 @@ const handleIssuesOpened = async (
       context.log.warn(
         `Create challenge issue have some problems ${challengeIssueQuery}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
     }
@@ -164,7 +159,7 @@ const handleIssuesEdited = async (
       context.log.error(
         `Update challenge issue failed ${challengeIssueQuery}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
     }
@@ -173,7 +168,7 @@ const handleIssuesEdited = async (
       context.log.warn(
         `Update challenge issue have some problems ${challengeIssueQuery}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
     }
@@ -244,7 +239,7 @@ const handleIssuesLabeled = async (
     context.log.error(
       `Labeled challenge program and try to update or add challenge issue failed ${challengeIssueQuery}.`
     );
-    await context.github.issues.createComment(
+    await context.octokit.issues.createComment(
       context.issue({ body: reply.message })
     );
   }
@@ -253,7 +248,7 @@ const handleIssuesLabeled = async (
     context.log.warn(
       `Labeled challenge program and try to update or add challenge issue have some problems ${challengeIssueQuery}.`
     );
-    await context.github.issues.createComment(
+    await context.octokit.issues.createComment(
       context.issue({ body: combineReplay(reply) })
     );
   }
@@ -313,10 +308,10 @@ const handleIssuesUnlabeled = async (
     context.log.error(
       `Unlabeled challenge program and try to remove challenge issue failed ${oldIssue}.`
     );
-    await context.github.issues.createComment(
+    await context.octokit.issues.createComment(
       context.issue({ body: reply.message })
     );
-    await context.github.issues.addLabels(
+    await context.octokit.issues.addLabels(
       context.issue({ labels: [CHALLENGE_PROGRAM_LABEL] })
     );
   }
@@ -325,7 +320,7 @@ const handleIssuesUnlabeled = async (
     context.log.info(
       `Unlabeled challenge program and try to remove challenge issue have some problems ${oldIssue}.`
     );
-    await context.github.issues.createComment(
+    await context.octokit.issues.createComment(
       context.issue({ body: reply.message })
     );
   }

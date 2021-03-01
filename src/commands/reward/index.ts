@@ -14,7 +14,7 @@ import {
   ChallengePullMessage,
   ChallengePullTips,
 } from "../../services/messages/ChallengePullMessage";
-import { UserQuery } from "../../queries/UserQuery";
+
 import {
   Config,
   DEFAULT_BRANCHES,
@@ -37,10 +37,10 @@ const reward = async (
   let pullResponse = null;
 
   try {
-    pullResponse = await context.github.pulls.get({
+    pullResponse = await context.octokit.pulls.get({
       owner: issue.owner,
       repo: issue.repo,
-      pull_number: issue.number,
+      pull_number: issue.issue_number,
     });
   } catch (e) {
     context.log.error(
@@ -69,10 +69,10 @@ const reward = async (
   }
 
   // Find linked issue assignees.
-  const issueNumber = findLinkedIssueNumber(data.body);
+  const issueNumber = findLinkedIssueNumber(data.body || "");
 
   if (issueNumber === null) {
-    await context.github.issues.createComment(
+    await context.octokit.issues.createComment(
       context.issue({
         body: combineReplay({
           data: null,
@@ -85,13 +85,15 @@ const reward = async (
     return;
   }
 
-  const { data: issueData } = await context.github.issues.get({
+  const { data: issueData } = await context.octokit.issues.get({
     ...context.repo(),
     issue_number: issueNumber,
   });
 
-  const issueAssignees = issueData.assignees.map((a: UserQuery) => {
-    return { ...a };
+  const issueAssignees = (issueData.assignees || []).map((assignee) => {
+    return {
+      ...(assignee as any),
+    };
   });
 
   const rewardQuery: RewardQuery = {
@@ -99,9 +101,7 @@ const reward = async (
     ...issue,
     pull: {
       ...data,
-      user: {
-        ...user,
-      },
+      user: user,
       labels: labels,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
@@ -121,7 +121,7 @@ const reward = async (
       context.log.error(
         `Reward ${rewardQuery} failed because ${reply.message}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
@@ -129,17 +129,17 @@ const reward = async (
     case Status.Success: {
       // Add rewarded label.
       context.log.info(`Reward ${rewardQuery} success.`);
-      await context.github.issues.addLabels(
+      await context.octokit.issues.addLabels(
         context.issue({ labels: [REWARDED_LABEL] })
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Problematic: {
       context.log.info(`Reward ${rewardQuery} has some problems.`);
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
       break;

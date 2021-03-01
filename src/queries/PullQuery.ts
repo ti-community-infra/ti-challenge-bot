@@ -7,12 +7,12 @@ export interface PullQuery {
   number: number;
   state: string;
   title: string;
-  user: UserQuery;
-  body: string;
+  user: UserQuery | null;
+  body: string | null;
   labels: Array<LabelQuery>;
   createdAt: string;
   updatedAt: string;
-  closedAt: string;
-  mergedAt: string;
+  closedAt: string | null;
+  mergedAt: string | null;
   authorAssociation: string;
 }

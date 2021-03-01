@@ -9,7 +9,6 @@ import { Pull } from "../../db/entities/Pull";
 import ScoreRepository, { IssueOrPullStatus } from "../../repositoies/score";
 
 import { RewardQuery } from "../../queries/RewardQuery";
-
 import { LabelQuery } from "../../queries/LabelQuery";
 
 import { Reply, Status } from "../reply";
@@ -74,7 +73,7 @@ export default class ChallengePullService implements IChallengePullService {
       newPull.pullNumber = pullQuery.number;
       newPull.title = pullQuery.title;
       newPull.body = pullQuery.body;
-      newPull.user = pullQuery.user.login;
+      newPull.user = pullQuery.user?.login;
       // FIXME: add relations.
       newPull.association = pullQuery.authorAssociation;
       newPull.label = pullQuery.labels
@@ -244,7 +243,7 @@ export default class ChallengePullService implements IChallengePullService {
     }
 
     // Can not find linked issue.
-    const issueNumber = findLinkedIssueNumber(pullQuery.body);
+    const issueNumber = findLinkedIssueNumber(pullQuery.body || "");
     if (issueNumber === null) {
       return;
     }
@@ -260,7 +259,9 @@ export default class ChallengePullService implements IChallengePullService {
     if (
       issue === undefined ||
       issue.challengeIssue === undefined ||
-      issue.challengeIssue === null
+      issue.challengeIssue === null ||
+      pullQuery.user === undefined ||
+      pullQuery.user === null
     ) {
       return;
     }
@@ -345,7 +346,7 @@ export default class ChallengePullService implements IChallengePullService {
     }
 
     // Try to find linked issue number.
-    const issueNumber = findLinkedIssueNumber(pullQuery.body);
+    const issueNumber = findLinkedIssueNumber(pullQuery.body || "");
     if (issueNumber === null) {
       return null;
     }

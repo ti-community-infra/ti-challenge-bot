@@ -1,16 +1,14 @@
 import { Context } from "probot";
 
-import { PullPayload } from "../payloads/PullPayload";
-
-import { LabelQuery } from "../../queries/LabelQuery";
-
-import { Status } from "../../services/reply";
-
 import ChallengePullService from "../../services/challenge-pull";
 import { combineReplay } from "../../services/utils/ReplyUtil";
+import { Status } from "../../services/reply";
 import { IssueOrPullActions } from "../issues";
 
+import { LabelQuery } from "../../queries/LabelQuery";
 import { ChallengePullQuery } from "../../queries/ChallengePullQuery";
+import { PullPayload } from "../payloads/PullPayload";
+
 import {
   Config,
   DEFAULT_BRANCHES,
@@ -67,21 +65,21 @@ const handlePullClosed = async (
       context.log.error(
         `Count ${pullPayload} failed because ${reply.message}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Success: {
       context.log.info(`Count ${pullPayload} success.`);
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Problematic: {
       context.log.warn(`Count ${pullPayload} has some problems.`);
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
       break;
@@ -143,20 +141,20 @@ const handleChallengePullOpen = async (
   switch (reply.status) {
     case Status.Failed: {
       context.log.error(`${pullPayload} not reward ${reply.message}.`);
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Success: {
       context.log.info(`${pullPayload} already rewarded.`);
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Problematic: {
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
       context.log.warn(`${pullPayload} check reward has some problems.`);

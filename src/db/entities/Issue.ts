@@ -21,7 +21,7 @@ export class Issue {
   body: string;
 
   @Column({ default: null })
-  user: string;
+  user?: string;
 
   @Column({ default: null })
   association: string;

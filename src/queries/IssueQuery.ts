@@ -9,7 +9,7 @@ export interface IssueQuery {
   state: string;
   title: string;
   body: string;
-  user: UserQuery;
+  user: UserQuery | null;
   labels: Array<LabelQuery>;
   closedAt: string;
   createdAt: string;

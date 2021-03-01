@@ -1,28 +1,31 @@
-import { Application, Context } from "probot";
+import "reflect-metadata";
+
+import { ApplicationFunctionOptions, Context, Probot } from "probot";
 import { createConnection, useContainer } from "typeorm";
 import { Container } from "typedi";
 
 import pickUp from "./commands/pick-up";
-import giveUp from "./commands/give-up";
 import reward from "./commands/reward";
-import { handlePullEvents } from "./events/pull";
 import help from "./commands/help";
+import giveUp from "./commands/give-up";
 import autoGiveUp from "./tasks/auto-give-up";
+
+import { handlePullEvents } from "./events/pull";
+import handleIssueEvents from "./events/issues";
+import { handleLgtm } from "./events/custom";
+
 import AutoGiveUpService from "./services/auto-give-up";
 import IssueService from "./services/issue";
 import ChallengeIssueService, {
   IChallengeIssueServiceToken,
 } from "./services/challenge-issue";
-import handleIssueEvents from "./events/issues";
 import ChallengePullService, {
   IChallengePullServiceToken,
 } from "./services/challenge-pull";
 import ChallengeTeamService from "./services/challenge-team";
-import { handleLgtm } from "./events/custom";
-
-import "reflect-metadata";
-import createTeam from "./api/challenge-team";
 import ChallengeProgramService from "./services/challenge-program";
+
+import createTeam from "./api/challenge-team";
 import { findAllChallengePrograms, ranking } from "./api/challenge-program";
 
 const commands = require("probot-commands-pro");
@@ -33,20 +36,22 @@ const allowedAccounts = (process.env.ALLOWED_ACCOUNTS || "")
   .toLowerCase()
   .split(",");
 
-export = (app: Application) => {
+const SCHEDULE_REPOSITORY_EVENT: any = "schedule.repository";
+
+export = async (app: Probot, { getRouter }: ApplicationFunctionOptions) => {
   useContainer(Container);
 
   createScheduler(app);
 
-  app.log.target.addStream({
-    type: "rotating-file",
-    path: "./bot-logs/ti-challenge-bot.log",
-    period: "1d", // daily rotation
-    count: 10, // keep 10 back copies
-  });
+  // TODO: make new logger support output to file.
 
   // Get an express router to expose new HTTP endpoints.
-  const router = app.route("/ti-challenge-bot");
+  if (!getRouter) {
+    app.log.fatal("Failed to obtain getRouter.");
+    return;
+  }
+
+  const router = getRouter("/ti-challenge-bot");
   router.use(bodyParser.json());
   router.use(cors());
 
@@ -55,13 +60,11 @@ export = (app: Application) => {
       app.log.info("App starting...");
 
       commands(app, "ping", async (context: Context) => {
-        const issue = context.issue();
-        await context.github.issues.createComment({
-          repo: issue.repo,
-          owner: issue.owner,
-          issue_number: issue.number,
-          body: "pong! I am challenge bot.",
-        });
+        await context.octokit.issues.createComment(
+          context.issue({
+            body: "pong! I am challenge bot.",
+          })
+        );
       });
 
       commands(app, "help", async (context: Context) => {
@@ -83,7 +86,7 @@ export = (app: Application) => {
           const rewardData = command.arguments;
           const rewardValue = Number(rewardData);
           if (!Number.isInteger(rewardValue)) {
-            await context.github.issues.createComment(
+            await context.octokit.issues.createComment(
               context.issue({ body: "The reward invalid." })
             );
             return;
@@ -97,7 +100,7 @@ export = (app: Application) => {
         }
       );
 
-      app.on("issue_comment.created", async (context) => {
+      app.on("issue_comment.created", async (context: Context) => {
         const { comment } = context.payload;
         if (comment.body.toLowerCase().includes("lgtm")) {
           await handleLgtm(context, Container.get(ChallengePullService));
@@ -116,7 +119,7 @@ export = (app: Application) => {
         await handlePullEvents(context, Container.get(ChallengePullService));
       });
 
-      app.on("schedule.repository", async (context: Context) => {
+      app.on(SCHEDULE_REPOSITORY_EVENT, async (context: Context) => {
         app.log.info("Scheduling coming...");
         await autoGiveUp(context, Container.get(AutoGiveUpService));
       });
@@ -153,6 +156,6 @@ export = (app: Application) => {
     })
     .catch((err) => {
       // TODO: this log format is wrong.
-      app.log.fatal("Connect to db failed", err);
+      app.log.fatal("Connect to db failed.", err);
     });
 };

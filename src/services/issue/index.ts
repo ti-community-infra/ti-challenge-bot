@@ -34,7 +34,7 @@ export default class IssueService {
     newIssue.issueNumber = issueQuery.number;
     newIssue.title = issueQuery.title;
     newIssue.body = issueQuery.body;
-    newIssue.user = issueQuery.user.login;
+    newIssue.user = issueQuery.user?.login;
     // FIXME: we need add relation.
     newIssue.association = issueQuery.authorAssociation;
     newIssue.label = issueQuery.labels
@@ -68,7 +68,7 @@ export default class IssueService {
     issue.repo = issuePayload.repo;
     issue.title = issueQuery.title;
     issue.body = issueQuery.body;
-    issue.user = issueQuery.user.login;
+    issue.user = issueQuery.user?.login;
     // FIXME: we need add association and relation.
     issue.label = issueQuery.labels
       .map((label) => {

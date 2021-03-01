@@ -37,7 +37,7 @@ export function findMentorAndScore(
 
 export function findSigLabel(labels: LabelQuery[]): LabelQuery | undefined {
   return labels.find((l: LabelQuery) => {
-    return l.name.startsWith("sig/");
+    return l.name?.startsWith("sig/");
   });
 }
 

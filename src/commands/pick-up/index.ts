@@ -1,14 +1,14 @@
 import { Context } from "probot";
+import { components } from "@octokit/openapi-types";
 
 import { PickUpQuery } from "../../queries/PickUpQuery";
-
 import { LabelQuery } from "../../queries/LabelQuery";
-import { Status } from "../../services/reply";
 
 import { Config, DEFAULT_CONFIG_FILE_PATH } from "../../config/Config";
 import { PICKED_LABEL } from "../labels";
 
 import { IChallengeIssueService } from "../../services/challenge-issue";
+import { Status } from "../../services/reply";
 import { combineReplay } from "../../services/utils/ReplyUtil";
 import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMessage";
 
@@ -24,11 +24,7 @@ const pickUp = async (
   // Notice: because the context come form issue_comment.created event,
   // so we need to get this issue.
   const issue = context.issue();
-  const issueResponse = await context.github.issues.get({
-    owner: issue.owner,
-    repo: issue.repo,
-    issue_number: issue.number,
-  });
+  const issueResponse = await context.octokit.issues.get(issue);
   const { data } = issueResponse;
   const { sender } = context.payload;
 
@@ -40,7 +36,7 @@ const pickUp = async (
 
   const labels: LabelQuery[] = data.labels.map((label) => {
     return {
-      ...label,
+      ...(label as components["schemas"]["label"]),
     };
   });
   const { user } = data;
@@ -51,9 +47,7 @@ const pickUp = async (
     ...issue,
     issue: {
       ...data,
-      user: {
-        ...user,
-      },
+      user: user,
       labels: labels,
       // @ts-ignore
       closedAt: data.closed_at,
@@ -70,7 +64,7 @@ const pickUp = async (
       context.log.error(
         `Pick up ${pickUpQuery} failed because ${reply.message}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
@@ -78,15 +72,15 @@ const pickUp = async (
     case Status.Success: {
       // Add picked label.
       context.log.info(`Pick up ${pickUpQuery} success.`);
-      await context.github.issues.addLabels(
+      await context.octokit.issues.addLabels(
         context.issue({ labels: [PICKED_LABEL] })
       );
       if (reply.warning !== undefined || reply.tip !== undefined) {
-        await context.github.issues.createComment(
+        await context.octokit.issues.createComment(
           context.issue({ body: combineReplay(reply) })
         );
       } else {
-        await context.github.issues.createComment(
+        await context.octokit.issues.createComment(
           context.issue({ body: reply.message })
         );
       }
@@ -94,7 +88,7 @@ const pickUp = async (
     }
     case Status.Problematic: {
       context.log.warn(`Pick up ${pickUpQuery} has some problems.`);
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
       break;
