@@ -8,13 +8,7 @@ import reward from "./commands/reward";
 import { handlePullEvents } from "./events/pull";
 import help from "./commands/help";
 import autoGiveUp from "./tasks/auto-give-up";
-import AutoGiveUpService from "./services/auto-give-up";
-import IssueService from "./services/issue";
-import ChallengeIssueService from "./services/challenge-issue";
-import handleIssueEvents from "./events/issues";
-import ChallengePullService from "./services/challenge-pull";
-import ChallengeTeamService from "./services/challenge-team";
-import { handleLgtm } from "./events/custom";
+
 
 import "reflect-metadata";
 import createTeam from "./api/challenge-team";
@@ -60,13 +54,6 @@ export = (app: Application) => {
         await help(context);
       });
 
-      commands(app, "pick-up", async (context: Context) => {
-        await pickUp(context, Container.get(ChallengeIssueService));
-      });
-
-      commands(app, "give-up", async (context: Context) => {
-        await giveUp(context, Container.get(ChallengeIssueService));
-      });
 
       commands(
         app,
@@ -129,18 +116,6 @@ export = (app: Application) => {
 
       router.post("/teams", async (req, res) => {
         await createTeam(req, res, Container.get(ChallengeTeamService));
-      });
-
-      router.get("/programs", async (req, res) => {
-        await findAllChallengePrograms(
-          req,
-          res,
-          Container.get(ChallengeProgramService)
-        );
-      });
-
-      router.get("/program/:id/ranks", async (req, res) => {
-        await ranking(req, res, Container.get(ChallengeProgramService));
       });
     })
     .catch((err) => {
