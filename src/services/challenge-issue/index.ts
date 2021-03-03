@@ -221,7 +221,7 @@ export default class ChallengeIssueService implements IChallengeIssueService {
     let inAssignFlow = false;
     let warning, tip;
     if (mentorAndScore === undefined) {
-      warning = pickUpSuccessMissInfoWarning(issueQuery.user?.login || "");
+      warning = pickUpSuccessMissInfoWarning(issueQuery.user?.login);
       tip = ChallengeIssueTip.RefineIssueFormat;
     } else {
       inAssignFlow = checkIsInAssignFlow(

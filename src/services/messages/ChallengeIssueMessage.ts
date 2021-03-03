@@ -41,11 +41,11 @@ export enum ChallengeIssueTip {
   RefineSigFormat = "Currently, we only support sig labels starting with `sig/`, maybe you should add this type of label.",
 }
 
-export function pickUpSuccessMissInfoWarning(author: string): string {
+export function pickUpSuccessMissInfoWarning(author?: string): string {
   return `
 Pick up success, but the issue miss mentor or score information. 
-cc: @${author}
-    `;
+${author !== undefined ? `cc: @${author}` : ""}
+`;
 }
 
 export function alreadyPickedMessage(currentChallenger: string) {
