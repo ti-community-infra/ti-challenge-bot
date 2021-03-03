@@ -39,7 +39,7 @@ const allowedAccounts = (process.env.ALLOWED_ACCOUNTS || "")
 const SCHEDULE_REPOSITORY_EVENT: any = "schedule.repository";
 
 export = async (app: Probot, { getRouter }: ApplicationFunctionOptions) => {
-  useContainer(Container, { fallbackOnErrors: true });
+  useContainer(Container);
 
   createScheduler(app);
 
