@@ -243,7 +243,7 @@ export default class ChallengePullService implements IChallengePullService {
     }
 
     // Can not find linked issue.
-    const issueNumber = findLinkedIssueNumber(pullQuery.body || "");
+    const issueNumber = findLinkedIssueNumber(pullQuery.body);
     if (issueNumber === null) {
       return;
     }
@@ -346,7 +346,7 @@ export default class ChallengePullService implements IChallengePullService {
     }
 
     // Try to find linked issue number.
-    const issueNumber = findLinkedIssueNumber(pullQuery.body || "");
+    const issueNumber = findLinkedIssueNumber(pullQuery.body);
     if (issueNumber === null) {
       return null;
     }
