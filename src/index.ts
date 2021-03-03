@@ -39,7 +39,7 @@ const allowedAccounts = (process.env.ALLOWED_ACCOUNTS || "")
 const SCHEDULE_REPOSITORY_EVENT: any = "schedule.repository";
 
 export = async (app: Probot, { getRouter }: ApplicationFunctionOptions) => {
-  useContainer(Container);
+  useContainer(Container, { fallbackOnErrors: true });
 
   createScheduler(app);
 
@@ -156,6 +156,6 @@ export = async (app: Probot, { getRouter }: ApplicationFunctionOptions) => {
     })
     .catch((err) => {
       // TODO: this log format is wrong.
-      app.log.fatal("Connect to db failed.", err);
+      app.log.fatal(err, "Connect to db failed.");
     });
 };
