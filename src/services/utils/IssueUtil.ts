@@ -17,8 +17,12 @@ export interface MentorAndScore {
 }
 
 export function findMentorAndScore(
-  issueBody: string
+  issueBody?: string
 ): MentorAndScore | undefined {
+  if (issueBody === undefined) {
+    return undefined;
+  }
+
   const mentorData = issueBody.match(MENTOR_REGEX);
   if (mentorData?.length !== 3) {
     return undefined;
@@ -61,16 +65,18 @@ export function isClosed(issue: IssueQuery): boolean {
 }
 
 export function checkIsInAssignFlow(
-  assignees: UserQuery[],
+  assignees: (UserQuery | null)[] | null | undefined,
   mentor: string
 ): boolean {
   let hasMentor = false;
 
-  assignees.forEach((a) => {
-    if (a.login === mentor) {
-      hasMentor = true;
-    }
-  });
+  if (Array.isArray(assignees)) {
+    assignees.forEach((a) => {
+      if (a !== null && a.login === mentor) {
+        hasMentor = true;
+      }
+    });
+  }
 
   return hasMentor;
 }

@@ -1,6 +1,7 @@
 import "reflect-metadata";
 
 import { ApplicationFunctionOptions, Context, Probot } from "probot";
+import { EventPayloads } from "@octokit/webhooks";
 import { createConnection, useContainer } from "typeorm";
 import { Container } from "typedi";
 
@@ -71,18 +72,29 @@ export = async (app: Probot, { getRouter }: ApplicationFunctionOptions) => {
         await help(context);
       });
 
-      commands(app, "pick-up", async (context: Context) => {
-        await pickUp(context, Container.get(IChallengeIssueServiceToken));
-      });
+      commands(
+        app,
+        "pick-up",
+        async (context: Context<EventPayloads.WebhookPayloadIssueComment>) => {
+          await pickUp(context, Container.get(IChallengeIssueServiceToken));
+        }
+      );
 
-      commands(app, "give-up", async (context: Context) => {
-        await giveUp(context, Container.get(IChallengeIssueServiceToken));
-      });
+      commands(
+        app,
+        "give-up",
+        async (context: Context<EventPayloads.WebhookPayloadIssueComment>) => {
+          await giveUp(context, Container.get(IChallengeIssueServiceToken));
+        }
+      );
 
       commands(
         app,
         "reward",
-        async (context: Context, command: { arguments: string }) => {
+        async (
+          context: Context<EventPayloads.WebhookPayloadIssueComment>,
+          command: { arguments: string }
+        ) => {
           const rewardData = command.arguments;
           const rewardValue = Number(rewardData);
           if (!Number.isInteger(rewardValue)) {
@@ -100,14 +112,14 @@ export = async (app: Probot, { getRouter }: ApplicationFunctionOptions) => {
         }
       );
 
-      app.on("issue_comment.created", async (context: Context) => {
+      app.on("issue_comment.created", async (context) => {
         const { comment } = context.payload;
         if (comment.body.toLowerCase().includes("lgtm")) {
           await handleLgtm(context, Container.get(ChallengePullService));
         }
       });
 
-      app.on("issues", async (context: Context) => {
+      app.on("issues", async (context) => {
         await handleIssueEvents(
           context,
           Container.get(IssueService),
@@ -115,17 +127,17 @@ export = async (app: Probot, { getRouter }: ApplicationFunctionOptions) => {
         );
       });
 
-      app.on("pull_request", async (context: Context) => {
+      app.on("pull_request", async (context) => {
         await handlePullEvents(context, Container.get(ChallengePullService));
       });
 
-      app.on(SCHEDULE_REPOSITORY_EVENT, async (context: Context) => {
+      app.on(SCHEDULE_REPOSITORY_EVENT, async (context) => {
         app.log.info("Scheduling coming...");
         await autoGiveUp(context, Container.get(AutoGiveUpService));
       });
 
       // TODO: move this into events.
-      app.on("installation.created", async (context: Context) => {
+      app.on("installation.created", async (context) => {
         const { installation } = context.payload;
         // Notice: if not allowed account we need to uninstall itself.
         if (!allowedAccounts.includes(installation.account.login)) {

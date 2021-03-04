@@ -1,5 +1,6 @@
 import { Context } from "probot";
 import { components } from "@octokit/openapi-types";
+import { EventPayloads } from "@octokit/webhooks";
 
 import { GiveUpQuery } from "../../queries/GiveUpQuery";
 import { LabelQuery } from "../../queries/LabelQuery";
@@ -16,7 +17,7 @@ import { PICKED_LABEL } from "../labels";
  * @param challengeIssueService
  */
 const giveUp = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssueComment>,
   challengeIssueService: IChallengeIssueService
 ) => {
   const issueKey = context.issue();

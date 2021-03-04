@@ -8,13 +8,13 @@ export interface IssueQuery {
   number: number;
   state: string;
   title: string;
-  body: string;
+  body?: string;
   user: UserQuery | null;
   labels: Array<LabelQuery>;
-  closedAt: string;
+  closedAt: string | null;
   createdAt: string;
   updatedAt: string;
   authorAssociation: string;
   // TODO: check all places to add this value.
-  assignees: UserQuery[];
+  assignees?: (UserQuery | null)[] | null;
 }

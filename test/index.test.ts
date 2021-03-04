@@ -90,7 +90,7 @@ describe("My Probot app", () => {
       .reply(200);
 
     // Receive a webhook event
-    await probot.receive({ id: "1", name: "issue_comment", payload });
+    await probot.receive({ id: "1000", name: "issue_comment", payload });
   });
 
   test("creates a comment with pick-up command to a pull request", async () => {

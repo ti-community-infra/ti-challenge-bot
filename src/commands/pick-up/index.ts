@@ -1,5 +1,6 @@
 import { Context } from "probot";
 import { components } from "@octokit/openapi-types";
+import { EventPayloads } from "@octokit/webhooks";
 
 import { PickUpQuery } from "../../queries/PickUpQuery";
 import { LabelQuery } from "../../queries/LabelQuery";
@@ -18,41 +19,43 @@ import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMes
  * @param challengeIssueService
  */
 const pickUp = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssueComment>,
   challengeIssueService: IChallengeIssueService
 ) => {
   // Notice: because the context come form issue_comment.created event,
   // so we need to get this issue.
-  const issue = context.issue();
-  const issueResponse = await context.octokit.issues.get(issue);
-  const { data } = issueResponse;
+  const issueKey = context.issue();
+  const issueResponse = await context.octokit.issues.get(issueKey);
+  const { data: issue } = issueResponse;
   const { sender } = context.payload;
 
   // Check if an issue, if it is a pull request, no response.
-  if (data.pull_request != null) {
+  if (issue.pull_request != null) {
     context.log.warn(ChallengeIssueWarning.NotAllowedToPickUpAPullRequest);
     return;
   }
 
-  const labels: LabelQuery[] = data.labels.map((label) => {
+  const labels: LabelQuery[] = issue.labels.map((label) => {
     return {
       ...(label as components["schemas"]["label"]),
     };
   });
-  const { user } = data;
+  const { user } = issue;
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
 
   const pickUpQuery: PickUpQuery = {
     challenger: sender.login,
-    ...issue,
+    ...issueKey,
     issue: {
-      ...data,
+      ...issue,
       user: user,
       labels: labels,
+      authorAssociation: issue.author_association,
+      assignees: issue.assignees,
       // @ts-ignore
-      closedAt: data.closed_at,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
+      closedAt: issue.closed_at,
+      createdAt: issue.created_at,
+      updatedAt: issue.updated_at,
     },
     defaultSigLabel: config?.defaultSigLabel,
   };

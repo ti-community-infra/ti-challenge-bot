@@ -1,4 +1,5 @@
 import { Context } from "probot";
+import { EventPayloads } from "@octokit/webhooks";
 
 import IssueService from "../../services/issue";
 import ChallengeIssueService from "../../services/challenge-issue";
@@ -36,8 +37,9 @@ export enum IssueOrPullActions {
  * @param context
  */
 const constructIssuePayloadAndLabels = (
-  context: Context
+  context: Context<EventPayloads.WebhookPayloadIssues>
 ): { payload: IssuePayload; labels: LabelQuery[] } => {
+  const issueKey = context.issue();
   const { issue: issuePayload } = context.payload;
   const labels: LabelQuery[] = issuePayload.labels.map((label: LabelQuery) => {
     return {
@@ -52,7 +54,10 @@ const constructIssuePayloadAndLabels = (
 
   return {
     payload: {
-      ...context.issue(),
+      action: context.payload.action,
+      owner: issueKey.owner,
+      repo: issueKey.repo,
+      number: issueKey.issue_number,
       issue: {
         ...issuePayload,
         user: {
@@ -62,7 +67,6 @@ const constructIssuePayloadAndLabels = (
         createdAt: issuePayload.created_at,
         updatedAt: issuePayload.updated_at,
         closedAt: issuePayload.closed_at,
-        mergedAt: issuePayload.merged_at,
         authorAssociation: issuePayload.author_association,
         assignees,
       },
@@ -78,10 +82,11 @@ const constructIssuePayloadAndLabels = (
  * @param challengeIssueService
  */
 const handleIssuesOpened = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssues>,
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
+  const issueKey = context.issue();
   const { payload, labels } = constructIssuePayloadAndLabels(context);
   const issue = await issueService.add(payload);
 
@@ -90,7 +95,7 @@ const handleIssuesOpened = async (
     // Get config form repo.
     const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
     const challengeIssueQuery: ChallengeIssueQuery = {
-      ...context.issue(),
+      ...issueKey,
       issue: payload.issue,
       defaultSigLabel: config?.defaultSigLabel,
     };
@@ -127,10 +132,11 @@ const handleIssuesOpened = async (
  * @param challengeIssueService
  */
 const handleIssuesEdited = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssues>,
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
+  const issueKey = context.issue();
   const { payload, labels } = constructIssuePayloadAndLabels(context);
 
   // Notice: if the issue not exist we need to add it.
@@ -140,7 +146,7 @@ const handleIssuesEdited = async (
   if (isChallengeIssue(labels)) {
     const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
     const challengeIssueQuery: ChallengeIssueQuery = {
-      ...context.issue(),
+      ...issueKey,
       issue: payload.issue,
       defaultSigLabel: config?.defaultSigLabel,
     };
@@ -182,10 +188,11 @@ const handleIssuesEdited = async (
  * @param challengeIssueService
  */
 const handleIssuesLabeled = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssues>,
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
+  const issueKey = context.issue();
   const { payload, labels } = constructIssuePayloadAndLabels(context);
 
   // Try to find old issue.
@@ -198,7 +205,7 @@ const handleIssuesLabeled = async (
   let reply: Reply<ChallengeIssue | undefined> | undefined;
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
   const challengeIssueQuery: ChallengeIssueQuery = {
-    ...context.issue(),
+    ...issueKey,
     issue: payload.issue,
     defaultSigLabel: config?.defaultSigLabel,
   };
@@ -261,7 +268,7 @@ const handleIssuesLabeled = async (
  * @param challengeIssueService
  */
 const handleIssuesUnlabeled = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssues>,
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
@@ -333,7 +340,7 @@ const handleIssuesUnlabeled = async (
  * @param issueService
  */
 const handleIssuesClosedOrReopened = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssues>,
   issueService: IssueService
 ) => {
   const { payload } = constructIssuePayloadAndLabels(context);
@@ -346,7 +353,7 @@ const handleIssuesClosedOrReopened = async (
 };
 
 const handleIssueEvents = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssues>,
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
@@ -367,12 +374,10 @@ const handleIssueEvents = async (
       await handleIssuesUnlabeled(context, issueService, challengeIssueService);
       break;
     }
-
     case IssueOrPullActions.Closed: {
       await handleIssuesClosedOrReopened(context, issueService);
       break;
     }
-
     case IssueOrPullActions.Reopened: {
       await handleIssuesClosedOrReopened(context, issueService);
       break;

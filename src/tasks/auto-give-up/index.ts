@@ -11,10 +11,11 @@ const autoGiveUp = async (
   context: Context,
   autoGiveUpService: AutoGiveUpService
 ) => {
+  const issueKey = context.issue();
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
 
   const autoGiveUpQuery: AutoGiveUpQuery = {
-    ...context.issue(),
+    ...issueKey,
     timeout: config?.timeout,
   };
 

@@ -1,4 +1,5 @@
 import { Context } from "probot";
+import { EventPayloads } from "@octokit/webhooks";
 
 import { RewardQuery } from "../../queries/RewardQuery";
 import { LabelQuery } from "../../queries/LabelQuery";
@@ -28,48 +29,48 @@ import {
  * @param challengePullService
  */
 const reward = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssueComment>,
   score: number,
   challengePullService: IChallengePullService
 ) => {
   // Notice: because the context come form issue_comment.created, so we need to get the pull.
-  const issue = context.issue();
+  const issueKey = context.issue();
   let pullResponse = null;
 
   try {
     pullResponse = await context.octokit.pulls.get({
-      owner: issue.owner,
-      repo: issue.repo,
-      pull_number: issue.issue_number,
+      owner: issueKey.owner,
+      repo: issueKey.repo,
+      pull_number: issueKey.issue_number,
     });
   } catch (e) {
     context.log.error(
       `Reward pull request ${JSON.stringify(
-        issue
+        issueKey
       )} failed because fail to get the pull request, maybe it is an issue.`,
       e
     );
     return;
   }
 
-  const { data } = pullResponse;
+  const { data: pullRequest } = pullResponse;
   const { sender } = context.payload;
-  const labels: LabelQuery[] = data.labels.map((label) => {
+  const labels: LabelQuery[] = pullRequest.labels.map((label) => {
     return {
       ...label,
     };
   });
-  const { user } = data;
+  const { user } = pullRequest;
 
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH, {
     branches: DEFAULT_BRANCHES,
   });
-  if (!isValidBranch(config!.branches!, data.base.ref)) {
+  if (!isValidBranch(config!.branches!, pullRequest.base.ref)) {
     return;
   }
 
   // Find linked issue assignees.
-  const issueNumber = findLinkedIssueNumber(data.body || "");
+  const issueNumber = findLinkedIssueNumber(pullRequest.body);
 
   if (issueNumber === null) {
     await context.octokit.issues.createComment(
@@ -85,12 +86,10 @@ const reward = async (
     return;
   }
 
-  const { data: issueData } = await context.octokit.issues.get({
-    ...context.repo(),
-    issue_number: issueNumber,
-  });
+  const { data: issue } = await context.octokit.issues.get(issueKey);
 
-  const issueAssignees = (issueData.assignees || []).map((assignee) => {
+  const issueAssignees = (issue.assignees || []).map((assignee) => {
+    // TODO: Use clear type definitions for assignee.
     return {
       ...(assignee as any),
     };
@@ -98,16 +97,16 @@ const reward = async (
 
   const rewardQuery: RewardQuery = {
     mentor: sender.login,
-    ...issue,
+    ...issueKey,
     pull: {
-      ...data,
+      ...pullRequest,
       user: user,
       labels: labels,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-      closedAt: data.closed_at,
-      mergedAt: data.merged_at,
-      authorAssociation: data.author_association,
+      createdAt: pullRequest.created_at,
+      updatedAt: pullRequest.updated_at,
+      closedAt: pullRequest.closed_at,
+      mergedAt: pullRequest.merged_at,
+      authorAssociation: pullRequest.author_association,
     },
     reward: score,
     issueAssignees,

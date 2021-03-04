@@ -1,4 +1,5 @@
 import { Context } from "probot";
+import { EventPayloads } from "@octokit/webhooks";
 
 import { LabelQuery } from "../../queries/LabelQuery";
 import { ChallengePullQuery } from "../../queries/ChallengePullQuery";
@@ -21,7 +22,7 @@ import {
  * @param challengePullService
  */
 const handleLgtm = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssueComment>,
   challengePullService: ChallengePullService
 ) => {
   const { owner, repo, issue_number: issueNumber } = context.issue();

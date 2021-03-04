@@ -1,4 +1,5 @@
 import { Context } from "probot";
+import { EventPayloads } from "@octokit/webhooks";
 
 import ChallengePullService from "../../services/challenge-pull";
 import { combineReplay } from "../../services/utils/ReplyUtil";
@@ -17,7 +18,7 @@ import {
 import { isValidBranch } from "../../services/utils/PullUtil";
 
 const handlePullClosed = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadPullRequest>,
   challengePullService: ChallengePullService
 ) => {
   const { pull_request: pullRequest } = context.payload;
@@ -93,9 +94,10 @@ const handlePullClosed = async (
  * @param challengePullService
  */
 const handleChallengePullOpen = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadPullRequest>,
   challengePullService: ChallengePullService
 ) => {
+  const issueKey = context.issue();
   const { pull_request: pullRequest } = context.payload;
   const labels: LabelQuery[] = pullRequest.labels.map((label: LabelQuery) => {
     return {
@@ -107,7 +109,7 @@ const handleChallengePullOpen = async (
 
   const pullPayload: ChallengePullQuery = {
     ...payload,
-    ...context.issue(),
+    ...issueKey,
     pull: {
       ...pullRequest,
       user: {
@@ -164,7 +166,7 @@ const handleChallengePullOpen = async (
 };
 
 const handlePullEvents = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadPullRequest>,
   challengePullService: ChallengePullService
 ) => {
   if (context.payload.action === IssueOrPullActions.Closed) {
