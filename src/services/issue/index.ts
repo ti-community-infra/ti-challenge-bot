@@ -56,14 +56,18 @@ export default class IssueService {
   public async update(issuePayload: IssuePayload): Promise<Issue | undefined> {
     const issue = await this.findOne({
       where: {
+        owner: issuePayload.owner,
+        repo: issuePayload.repo,
         issueNumber: issuePayload.issue.number,
       },
     });
+
     if (issue === undefined) {
       return;
     }
 
     const { issue: issueQuery } = issuePayload;
+
     issue.owner = issuePayload.owner;
     issue.repo = issuePayload.repo;
     issue.title = issueQuery.title;
@@ -78,6 +82,7 @@ export default class IssueService {
     issue.status = issueQuery.state;
     issue.updatedAt = issueQuery.updatedAt;
     issue.closedAt = issueQuery.closedAt;
+
     await this.issueRepository.save(issue);
 
     return issue;
@@ -86,6 +91,8 @@ export default class IssueService {
   public async delete(issuePayload: IssuePayload): Promise<Issue | undefined> {
     const issue = await this.findOne({
       where: {
+        owner: issuePayload.owner,
+        repo: issuePayload.repo,
         issueNumber: issuePayload.issue.number,
       },
     });
