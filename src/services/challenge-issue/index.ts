@@ -238,6 +238,7 @@ export default class ChallengeIssueService implements IChallengeIssueService {
 
     // TODO: maybe we should check the ONLY_INDIVIDUAL case.
     if (program?.type === ChallengeProgramType.ONLY_TEAM) {
+      // FIXME: Challengers may participate in different teams in different seasons of the same match.
       const team = await this.findTeam(
         pickUpQuery.challenger,
         program.programTheme
@@ -284,7 +285,7 @@ export default class ChallengeIssueService implements IChallengeIssueService {
       } else {
         challengeIssue.hasPicked = true;
         challengeIssue.currentChallengerGitHubId = pickUpQuery.challenger;
-        challengeIssue.pickedAt = new Date().toLocaleString();
+        challengeIssue.pickedAt = new Date().toISOString();
         await this.challengeIssueRepository.save(challengeIssue);
         return {
           data: null,

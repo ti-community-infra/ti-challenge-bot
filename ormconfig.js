@@ -6,6 +6,7 @@ module.exports = {
   password: process.env.BOT_DB_PASSWORD,
   database: process.env.BOT_DB_NAME,
   timezone: 'Z',
+  logging: false,
   // FIXME: this config can not working on cli migration.
   entities: [
     'lib/db/entities/**/*.js'
