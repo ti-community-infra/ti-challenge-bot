@@ -1,5 +1,4 @@
 import { Context } from "probot";
-import { components } from "@octokit/openapi-types";
 import { EventPayloads } from "@octokit/webhooks";
 
 import { PickUpQuery } from "../../queries/PickUpQuery";
@@ -12,6 +11,7 @@ import { IChallengeIssueService } from "../../services/challenge-issue";
 import { Status } from "../../services/reply";
 import { combineReplay } from "../../services/utils/ReplyUtil";
 import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMessage";
+import { Label } from "../../types";
 
 /**
  * Pick up the issue.
@@ -22,9 +22,12 @@ const pickUp = async (
   context: Context<EventPayloads.WebhookPayloadIssueComment>,
   challengeIssueService: IChallengeIssueService
 ) => {
+  const issueKey = context.issue();
+  const { owner, repo, issue_number: issueNumber } = issueKey;
+  const issueSignature = `${owner}/${repo}#${issueNumber}`;
+
   // Notice: because the context come form issue_comment.created event,
   // so we need to get this issue.
-  const issueKey = context.issue();
   const issueResponse = await context.octokit.issues.get(issueKey);
   const { data: issue } = issueResponse;
   const { sender } = context.payload;
@@ -37,7 +40,7 @@ const pickUp = async (
 
   const labels: LabelQuery[] = issue.labels.map((label) => {
     return {
-      ...(label as components["schemas"]["label"]),
+      ...(label as Label),
     };
   });
   const { user } = issue;
@@ -45,7 +48,8 @@ const pickUp = async (
 
   const pickUpQuery: PickUpQuery = {
     challenger: sender.login,
-    ...issueKey,
+    owner: owner,
+    repo: repo,
     issue: {
       ...issue,
       user: user,
@@ -64,7 +68,8 @@ const pickUp = async (
   switch (reply.status) {
     case Status.Failed: {
       context.log.error(
-        `Pick up ${pickUpQuery} failed because ${reply.message}.`
+        pickUpQuery,
+        `Pick up ${issueSignature} failed because ${reply.message}.`
       );
       await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
@@ -73,7 +78,7 @@ const pickUp = async (
     }
     case Status.Success: {
       // Add picked label.
-      context.log.info(`Pick up ${pickUpQuery} success.`);
+      context.log.info(pickUpQuery, `Pick up ${issueSignature} success.`);
       await context.octokit.issues.addLabels(
         context.issue({ labels: [PICKED_LABEL] })
       );
@@ -89,7 +94,10 @@ const pickUp = async (
       break;
     }
     case Status.Problematic: {
-      context.log.warn(`Pick up ${pickUpQuery} has some problems.`);
+      context.log.warn(
+        pickUpQuery,
+        `Pick up ${issueSignature} has some problems.`
+      );
       await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );

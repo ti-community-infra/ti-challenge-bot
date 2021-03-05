@@ -1,5 +1,4 @@
 import { Context } from "probot";
-import { components } from "@octokit/openapi-types";
 import { EventPayloads } from "@octokit/webhooks";
 
 import { GiveUpQuery } from "../../queries/GiveUpQuery";
@@ -10,6 +9,7 @@ import { Status } from "../../services/reply";
 import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMessage";
 
 import { PICKED_LABEL } from "../labels";
+import { Label } from "../../types";
 
 /**
  * Give up challenge issue.
@@ -34,7 +34,7 @@ const giveUp = async (
   const { sender } = context.payload;
   const labels: LabelQuery[] = issue.labels.map((label) => {
     return {
-      ...(label as components["schemas"]["label"]),
+      ...(label as Label),
     };
   });
   const giveUpQuery: GiveUpQuery = {

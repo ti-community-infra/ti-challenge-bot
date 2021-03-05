@@ -33,8 +33,11 @@ const reward = async (
   score: number,
   challengePullService: IChallengePullService
 ) => {
-  // Notice: because the context come form issue_comment.created, so we need to get the pull.
   const issueKey = context.issue();
+  const { owner, repo, issue_number: issueNumber } = issueKey;
+  const issueSignature = `${owner}/${repo}#${issueNumber}`;
+
+  // Notice: because the context come form issue_comment.created, so we need to get the pull.
   let pullResponse = null;
 
   try {
@@ -70,9 +73,9 @@ const reward = async (
   }
 
   // Find linked issue assignees.
-  const issueNumber = findLinkedIssueNumber(pullRequest.body);
+  const linkedIssueNumber = findLinkedIssueNumber(pullRequest.body);
 
-  if (issueNumber === null) {
+  if (linkedIssueNumber === null) {
     await context.octokit.issues.createComment(
       context.issue({
         body: combineReplay({
@@ -110,7 +113,7 @@ const reward = async (
     },
     reward: score,
     issueAssignees,
-    linkedIssueNumber: issueNumber,
+    linkedIssueNumber: linkedIssueNumber,
   };
 
   const reply = await challengePullService.reward(rewardQuery);
@@ -118,7 +121,8 @@ const reward = async (
   switch (reply.status) {
     case Status.Failed: {
       context.log.error(
-        `Reward ${rewardQuery} failed because ${reply.message}.`
+        rewardQuery,
+        `Reward ${issueSignature} failed because ${reply.message}.`
       );
       await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
@@ -127,7 +131,7 @@ const reward = async (
     }
     case Status.Success: {
       // Add rewarded label.
-      context.log.info(`Reward ${rewardQuery} success.`);
+      context.log.info(rewardQuery, `Reward ${issueSignature} success.`);
       await context.octokit.issues.addLabels(
         context.issue({ labels: [REWARDED_LABEL] })
       );
@@ -137,7 +141,10 @@ const reward = async (
       break;
     }
     case Status.Problematic: {
-      context.log.info(`Reward ${rewardQuery} has some problems.`);
+      context.log.info(
+        rewardQuery,
+        `Reward ${issueSignature} has some problems.`
+      );
       await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
