@@ -75,6 +75,8 @@ export default class ChallengeIssueService implements IChallengeIssueService {
     let issue = await this.issueRepository.findOne({
       relations: ["challengeIssue"],
       where: {
+        owner: query.owner,
+        repo: query.repo,
         issueNumber: issueQuery.number,
       },
     });
@@ -329,7 +331,9 @@ export default class ChallengeIssueService implements IChallengeIssueService {
     const issue = await this.issueRepository.findOne({
       relations: ["challengeIssue"],
       where: {
-        issueNumber: giveUpQuery.issueId,
+        owner: giveUpQuery.owner,
+        repo: giveUpQuery.repo,
+        issueNumber: giveUpQuery.issueNumber,
       },
     });
     // Also not a challenge issue.

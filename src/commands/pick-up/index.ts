@@ -52,7 +52,6 @@ const pickUp = async (
       labels: labels,
       authorAssociation: issue.author_association,
       assignees: issue.assignees,
-      // @ts-ignore
       closedAt: issue.closed_at,
       createdAt: issue.created_at,
       updatedAt: issue.updated_at,

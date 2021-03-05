@@ -21,17 +21,20 @@ const handlePullClosed = async (
   context: Context<EventPayloads.WebhookPayloadPullRequest>,
   challengePullService: ChallengePullService
 ) => {
-  const { pull_request: pullRequest } = context.payload;
+  const pullKey = context.pullRequest();
+  const { action, pull_request: pullRequest } = context.payload;
   const labels: LabelQuery[] = pullRequest.labels.map((label: LabelQuery) => {
     return {
       ...label,
     };
   });
-  const { payload } = context;
   const { user } = pullRequest;
 
   const pullPayload: PullPayload = {
-    ...payload,
+    action: action,
+    owner: pullKey.owner,
+    repo: pullKey.repo,
+    number: pullKey.pull_number,
     pull: {
       ...pullRequest,
       user: {

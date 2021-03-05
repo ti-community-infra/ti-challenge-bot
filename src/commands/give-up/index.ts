@@ -21,6 +21,8 @@ const giveUp = async (
   challengeIssueService: IChallengeIssueService
 ) => {
   const issueKey = context.issue();
+  const { owner, repo, issue_number: issueNumber } = issueKey;
+  const issueSignature = `${owner}/${repo}#${issueNumber}`;
   const { data: issue } = await context.octokit.issues.get(issueKey);
 
   // Check if an issue, if it is a pull request, no response.
@@ -37,7 +39,9 @@ const giveUp = async (
   });
   const giveUpQuery: GiveUpQuery = {
     challenger: sender.login,
-    issueId: issue.number,
+    owner: issueKey.owner,
+    repo: issueKey.repo,
+    issueNumber: issueKey.issue_number,
     labels,
   };
 
@@ -50,7 +54,8 @@ const giveUp = async (
   switch (reply.status) {
     case Status.Failed: {
       context.log.error(
-        `Give up ${giveUpQuery} failed because ${reply.message}.`
+        giveUpQuery,
+        `Give up ${issueSignature} failed because ${reply.message}.`
       );
       break;
     }
@@ -60,7 +65,7 @@ const giveUp = async (
           name: PICKED_LABEL,
         })
       );
-      context.log.info(`Give up ${giveUpQuery} success.`);
+      context.log.info(giveUpQuery, `Give up ${issueSignature} success.`);
       break;
     }
   }

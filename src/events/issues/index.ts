@@ -86,7 +86,6 @@ const handleIssuesOpened = async (
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
-  const issueKey = context.issue();
   const { payload, labels } = constructIssuePayloadAndLabels(context);
   const issue = await issueService.add(payload);
 
@@ -95,7 +94,8 @@ const handleIssuesOpened = async (
     // Get config form repo.
     const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
     const challengeIssueQuery: ChallengeIssueQuery = {
-      ...issueKey,
+      owner: payload.owner,
+      repo: payload.repo,
       issue: payload.issue,
       defaultSigLabel: config?.defaultSigLabel,
     };
@@ -136,7 +136,6 @@ const handleIssuesEdited = async (
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
-  const issueKey = context.issue();
   const { payload, labels } = constructIssuePayloadAndLabels(context);
 
   // Notice: if the issue not exist we need to add it.
@@ -146,7 +145,8 @@ const handleIssuesEdited = async (
   if (isChallengeIssue(labels)) {
     const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
     const challengeIssueQuery: ChallengeIssueQuery = {
-      ...issueKey,
+      owner: payload.owner,
+      repo: payload.repo,
       issue: payload.issue,
       defaultSigLabel: config?.defaultSigLabel,
     };
@@ -192,20 +192,22 @@ const handleIssuesLabeled = async (
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
-  const issueKey = context.issue();
   const { payload, labels } = constructIssuePayloadAndLabels(context);
 
   // Try to find old issue.
   const oldIssue = await issueService.findOne({
     where: {
-      issueNumber: payload.number,
+      owner: payload.owner,
+      repo: payload.repo,
+      issueNumber: payload.issue.number,
     },
   });
 
   let reply: Reply<ChallengeIssue | undefined> | undefined;
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
   const challengeIssueQuery: ChallengeIssueQuery = {
-    ...issueKey,
+    owner: payload.owner,
+    repo: payload.repo,
     issue: payload.issue,
     defaultSigLabel: config?.defaultSigLabel,
   };
@@ -262,7 +264,7 @@ const handleIssuesLabeled = async (
 };
 
 /**
- * Handl;e issue unlabeled event.
+ * Handle issue unlabeled event.
  * @param context
  * @param issueService
  * @param challengeIssueService
@@ -277,6 +279,8 @@ const handleIssuesUnlabeled = async (
   // Try to find old issue.
   const oldIssue = await issueService.findOne({
     where: {
+      owner: payload.owner,
+      repo: payload.repo,
       issueNumber: payload.number,
     },
   });
@@ -284,6 +288,7 @@ const handleIssuesUnlabeled = async (
   // Notice: we need to update the issue's label.
   if (oldIssue === undefined) {
     await issueService.add(payload);
+    // TODO: Check if it need to return.
     return;
   } else {
     await issueService.update(payload);
