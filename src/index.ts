@@ -44,8 +44,6 @@ export = async (app: Probot, { getRouter }: ApplicationFunctionOptions) => {
 
   createScheduler(app);
 
-  // TODO: Use a new way to output logs.
-
   // Get an express router to expose new HTTP endpoints.
   if (!getRouter) {
     app.log.fatal("Failed to obtain getRouter.");
@@ -167,7 +165,6 @@ export = async (app: Probot, { getRouter }: ApplicationFunctionOptions) => {
       });
     })
     .catch((err) => {
-      // TODO: this log format is wrong.
       app.log.fatal(err, "Connect to db failed.");
     });
 };

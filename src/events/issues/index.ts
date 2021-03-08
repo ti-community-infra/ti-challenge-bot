@@ -288,7 +288,6 @@ const handleIssuesUnlabeled = async (
   // Notice: we need to update the issue's label.
   if (oldIssue === undefined) {
     await issueService.add(payload);
-    // TODO: Check if it need to return.
     return;
   } else {
     await issueService.update(payload);

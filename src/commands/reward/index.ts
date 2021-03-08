@@ -92,7 +92,6 @@ const reward = async (
   const { data: issue } = await context.octokit.issues.get(issueKey);
 
   const issueAssignees = (issue.assignees || []).map((assignee) => {
-    // TODO: Use clear type definitions for assignee.
     return {
       ...(assignee as any),
     };
