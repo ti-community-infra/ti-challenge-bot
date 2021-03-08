@@ -33,7 +33,6 @@ describe("My Probot app", () => {
   beforeAll(() => {
     // Mock the challenge-issue service.
     @Service(IChallengeIssueServiceToken)
-    // TODO: remove the experimentalDecorators warning.
     class MockChallengeIssueService implements IChallengeIssueService {
       giveUp = mockGiveUpMethod.mockResolvedValue(undefined);
       createWhenIssueOpened = jest.fn().mockResolvedValue(undefined);

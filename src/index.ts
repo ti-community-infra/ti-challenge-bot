@@ -44,7 +44,7 @@ export = async (app: Probot, { getRouter }: ApplicationFunctionOptions) => {
 
   createScheduler(app);
 
-  // TODO: make new logger support output to file.
+  // TODO: Use a new way to output logs.
 
   // Get an express router to expose new HTTP endpoints.
   if (!getRouter) {
