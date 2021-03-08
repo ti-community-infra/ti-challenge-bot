@@ -89,7 +89,7 @@ export default class ChallengeIssueService implements IChallengeIssueService {
       newIssue.issueNumber = issueQuery.number;
       newIssue.title = issueQuery.title;
       newIssue.body = issueQuery.body;
-      newIssue.user = issueQuery.user?.login || "";
+      newIssue.user = issueQuery.user?.login;
       // FIXME: we need add association and relation.
       newIssue.label = issueQuery.labels
         .map((label) => {
