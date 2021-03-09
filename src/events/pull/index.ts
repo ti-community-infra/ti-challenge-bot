@@ -100,19 +100,21 @@ const handleChallengePullOpen = async (
   context: Context<EventPayloads.WebhookPayloadPullRequest>,
   challengePullService: ChallengePullService
 ) => {
-  const issueKey = context.issue();
+  const pullKey = context.pullRequest();
+  const { owner, repo, pull_number: pullNumber } = pullKey;
+  const pullSignature = `${owner}/${repo}#${pullNumber}`;
+
   const { pull_request: pullRequest } = context.payload;
   const labels: LabelQuery[] = pullRequest.labels.map((label: LabelQuery) => {
     return {
       ...label,
     };
   });
-  const { payload } = context;
   const { user } = pullRequest;
 
   const pullPayload: ChallengePullQuery = {
-    ...payload,
-    ...issueKey,
+    owner: owner,
+    repo: repo,
     pull: {
       ...pullRequest,
       user: {
@@ -145,14 +147,17 @@ const handleChallengePullOpen = async (
 
   switch (reply.status) {
     case Status.Failed: {
-      context.log.error(`${pullPayload} not reward ${reply.message}.`);
+      context.log.error(
+        pullPayload,
+        `${pullSignature} not reward ${reply.message}.`
+      );
       await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Success: {
-      context.log.info(`${pullPayload} already rewarded.`);
+      context.log.info(pullPayload, `${pullSignature} already rewarded.`);
       await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
@@ -162,7 +167,10 @@ const handleChallengePullOpen = async (
       await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
-      context.log.warn(`${pullPayload} check reward has some problems.`);
+      context.log.warn(
+        pullPayload,
+        `${pullSignature} check reward has some problems.`
+      );
       break;
     }
   }

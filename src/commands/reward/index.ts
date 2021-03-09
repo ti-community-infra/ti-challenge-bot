@@ -33,25 +33,19 @@ const reward = async (
   score: number,
   challengePullService: IChallengePullService
 ) => {
-  const issueKey = context.issue();
-  const { owner, repo, issue_number: issueNumber } = issueKey;
-  const issueSignature = `${owner}/${repo}#${issueNumber}`;
+  const pullKey = context.pullRequest();
+  const { owner, repo, pull_number: pullNumber } = pullKey;
+  const pullSignature = `${owner}/${repo}#${pullNumber}`;
 
   // Notice: because the context come form issue_comment.created, so we need to get the pull.
   let pullResponse = null;
 
   try {
-    pullResponse = await context.octokit.pulls.get({
-      owner: issueKey.owner,
-      repo: issueKey.repo,
-      pull_number: issueKey.issue_number,
-    });
-  } catch (e) {
+    pullResponse = await context.octokit.pulls.get(pullKey);
+  } catch (err) {
     context.log.error(
-      `Reward pull request ${JSON.stringify(
-        issueKey
-      )} failed because fail to get the pull request, maybe it is an issue.`,
-      e
+      err,
+      `Reward pull request ${pullSignature} failed because fail to get the pull request, maybe it is an issue.`
     );
     return;
   }
@@ -89,7 +83,11 @@ const reward = async (
     return;
   }
 
-  const { data: issue } = await context.octokit.issues.get(issueKey);
+  const { data: issue } = await context.octokit.issues.get(
+    context.repo({
+      issue_number: linkedIssueNumber,
+    })
+  );
 
   const issueAssignees = (issue.assignees || []).map((assignee) => {
     return {
@@ -99,7 +97,8 @@ const reward = async (
 
   const rewardQuery: RewardQuery = {
     mentor: sender.login,
-    ...issueKey,
+    owner: owner,
+    repo: repo,
     pull: {
       ...pullRequest,
       user: user,
@@ -121,7 +120,7 @@ const reward = async (
     case Status.Failed: {
       context.log.error(
         rewardQuery,
-        `Reward ${issueSignature} failed because ${reply.message}.`
+        `Reward ${pullSignature} failed because ${reply.message}.`
       );
       await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
@@ -130,7 +129,7 @@ const reward = async (
     }
     case Status.Success: {
       // Add rewarded label.
-      context.log.info(rewardQuery, `Reward ${issueSignature} success.`);
+      context.log.info(rewardQuery, `Reward ${pullSignature} success.`);
       await context.octokit.issues.addLabels(
         context.issue({ labels: [REWARDED_LABEL] })
       );
@@ -142,7 +141,7 @@ const reward = async (
     case Status.Problematic: {
       context.log.info(
         rewardQuery,
-        `Reward ${issueSignature} has some problems.`
+        `Reward ${pullSignature} has some problems.`
       );
       await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
