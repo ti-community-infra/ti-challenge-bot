@@ -11,7 +11,7 @@ import { autoGiveUpdMessage } from "../messages/ChallengeIssueMessage";
 interface AutoGiveUpResult {
   owner: string;
   repo: string;
-  number: number;
+  issue_number: number;
   message: string;
 }
 
@@ -68,7 +68,7 @@ export default class AutoGiveUpService {
       if (c.currentChallengerGitHubId) {
         result.push({
           ...autoGiveUpQuery,
-          number: c.issue.issueNumber,
+          issue_number: c.issue.issueNumber,
           message: autoGiveUpdMessage(
             c.currentChallengerGitHubId,
             autoGiveUpQuery.timeout || DEFAULT_TIMEOUT

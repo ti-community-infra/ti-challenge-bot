@@ -11,10 +11,11 @@ const autoGiveUp = async (
   context: Context,
   autoGiveUpService: AutoGiveUpService
 ) => {
+  const issueKey = context.issue();
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
 
   const autoGiveUpQuery: AutoGiveUpQuery = {
-    ...context.issue(),
+    ...issueKey,
     timeout: config?.timeout,
   };
 
@@ -22,11 +23,11 @@ const autoGiveUp = async (
 
   for (let i = 0; i < autoGiveUpResults.length; i++) {
     const result = autoGiveUpResults[i];
-    await context.github.issues.createComment({
+    await context.octokit.issues.createComment({
       ...result,
       body: result.message,
     });
-    await context.github.issues.removeLabel({ ...result, name: PICKED_LABEL });
+    await context.octokit.issues.removeLabel({ ...result, name: PICKED_LABEL });
     context.log.info(`Auto give up ${result} success.`);
   }
 };

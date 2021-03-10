@@ -9,7 +9,6 @@ import { Pull } from "../../db/entities/Pull";
 import ScoreRepository, { IssueOrPullStatus } from "../../repositoies/score";
 
 import { RewardQuery } from "../../queries/RewardQuery";
-
 import { LabelQuery } from "../../queries/LabelQuery";
 
 import { Reply, Status } from "../reply";
@@ -63,6 +62,8 @@ export default class ChallengePullService implements IChallengePullService {
     let pull = await this.pullRepository.findOne({
       relations: ["challengePull"],
       where: {
+        owner: query.owner,
+        repo: query.repo,
         pullNumber: pullQuery.number,
       },
     });
@@ -74,7 +75,7 @@ export default class ChallengePullService implements IChallengePullService {
       newPull.pullNumber = pullQuery.number;
       newPull.title = pullQuery.title;
       newPull.body = pullQuery.body;
-      newPull.user = pullQuery.user.login;
+      newPull.user = pullQuery.user?.login;
       // FIXME: add relations.
       newPull.association = pullQuery.authorAssociation;
       newPull.label = pullQuery.labels
@@ -105,6 +106,8 @@ export default class ChallengePullService implements IChallengePullService {
     const issue = await this.issueRepository.findOne({
       relations: ["challengeIssue"],
       where: {
+        owner: rewardQuery.owner,
+        repo: rewardQuery.repo,
         issueNumber: rewardQuery.linkedIssueNumber,
       },
     });
@@ -230,6 +233,8 @@ export default class ChallengePullService implements IChallengePullService {
     const pull = await this.pullRepository.findOne({
       relations: ["challengePull"],
       where: {
+        owner: pullPayload.owner,
+        repo: pullPayload.repo,
         pullNumber: pullPayload.number,
       },
     });
@@ -243,6 +248,7 @@ export default class ChallengePullService implements IChallengePullService {
       return;
     }
 
+    // Notice: Only supports linked issues of the same repo currently.
     // Can not find linked issue.
     const issueNumber = findLinkedIssueNumber(pullQuery.body);
     if (issueNumber === null) {
@@ -253,6 +259,8 @@ export default class ChallengePullService implements IChallengePullService {
     const issue = await this.issueRepository.findOne({
       relations: ["challengeIssue", "challengeIssue.challengeProgram"],
       where: {
+        owner: pullPayload.owner,
+        repo: pullPayload.repo,
         issueNumber,
       },
     });
@@ -260,7 +268,9 @@ export default class ChallengePullService implements IChallengePullService {
     if (
       issue === undefined ||
       issue.challengeIssue === undefined ||
-      issue.challengeIssue === null
+      issue.challengeIssue === null ||
+      pullQuery.user === undefined ||
+      pullQuery.user === null
     ) {
       return;
     }
@@ -335,6 +345,8 @@ export default class ChallengePullService implements IChallengePullService {
     let pull = await this.pullRepository.findOne({
       relations: ["challengePull"],
       where: {
+        owner: challengePullQuery.owner,
+        repo: challengePullQuery.repo,
         pullNumber: pullQuery.number,
       },
     });
@@ -344,6 +356,7 @@ export default class ChallengePullService implements IChallengePullService {
       pull = await this.findOrCreatePull(challengePullQuery);
     }
 
+    // Notice: Only linked issues of the same repo are supported currently.
     // Try to find linked issue number.
     const issueNumber = findLinkedIssueNumber(pullQuery.body);
     if (issueNumber === null) {
@@ -354,6 +367,8 @@ export default class ChallengePullService implements IChallengePullService {
     const issue = await this.issueRepository.findOne({
       relations: ["challengeIssue"],
       where: {
+        owner: challengePullQuery.owner,
+        repo: challengePullQuery.repo,
         issueNumber,
       },
     });

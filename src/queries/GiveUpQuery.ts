@@ -2,6 +2,8 @@ import { LabelQuery } from "./LabelQuery";
 
 export interface GiveUpQuery {
   challenger: string;
-  issueId: number;
+  owner: string;
+  repo: string;
+  issueNumber: number;
   labels: LabelQuery[];
 }

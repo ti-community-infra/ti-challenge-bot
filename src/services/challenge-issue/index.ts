@@ -1,22 +1,24 @@
 import { Service, Token } from "typedi";
 import { InjectRepository } from "typeorm-typedi-extensions";
-import { ChallengeIssue } from "../../db/entities/ChallengeIssue";
-
 import { Repository } from "typeorm/repository/Repository";
-import { Issue } from "../../db/entities/Issue";
 
 import { ChallengeIssueQuery } from "../../queries/ChallengeIssueQuery";
-
+import { PickUpQuery } from "../../queries/PickUpQuery";
+import { LabelQuery } from "../../queries/LabelQuery";
+import { GiveUpQuery } from "../../queries/GiveUpQuery";
 import { Reply, Status } from "../reply";
 
-import { PickUpQuery } from "../../queries/PickUpQuery";
+import { ChallengeIssue } from "../../db/entities/ChallengeIssue";
+import { Issue } from "../../db/entities/Issue";
+import { ChallengeTeam } from "../../db/entities/ChallengeTeam";
+import { ChallengersChallengeTeams } from "../../db/entities/ChallengersChallengeTeams";
+import { GithubLabelSig } from "../../db/entities/GithubLabelSig";
 import { ProjectSig } from "../../db/entities/ProjectSig";
-
-import { LabelQuery } from "../../queries/LabelQuery";
 import {
   ChallengeProgram,
   ChallengeProgramType,
 } from "../../db/entities/ChallengeProgram";
+
 import {
   alreadyPickedMessage,
   assignFlowNeedHelpMessage,
@@ -33,11 +35,7 @@ import {
   isClosed,
   needHelp,
 } from "../utils/IssueUtil";
-import { GithubLabelSig } from "../../db/entities/GithubLabelSig";
 
-import { GiveUpQuery } from "../../queries/GiveUpQuery";
-import { ChallengeTeam } from "../../db/entities/ChallengeTeam";
-import { ChallengersChallengeTeams } from "../../db/entities/ChallengersChallengeTeams";
 import { DEFAULT_CHALLENGE_PROGRAM_THEME } from "../../config/Config";
 
 export interface IChallengeIssueService {
@@ -77,6 +75,8 @@ export default class ChallengeIssueService implements IChallengeIssueService {
     let issue = await this.issueRepository.findOne({
       relations: ["challengeIssue"],
       where: {
+        owner: query.owner,
+        repo: query.repo,
         issueNumber: issueQuery.number,
       },
     });
@@ -89,7 +89,7 @@ export default class ChallengeIssueService implements IChallengeIssueService {
       newIssue.issueNumber = issueQuery.number;
       newIssue.title = issueQuery.title;
       newIssue.body = issueQuery.body;
-      newIssue.user = issueQuery.user.login;
+      newIssue.user = issueQuery.user?.login;
       // FIXME: we need add association and relation.
       newIssue.label = issueQuery.labels
         .map((label) => {
@@ -223,7 +223,7 @@ export default class ChallengeIssueService implements IChallengeIssueService {
     let inAssignFlow = false;
     let warning, tip;
     if (mentorAndScore === undefined) {
-      warning = pickUpSuccessMissInfoWarning(issueQuery.user.login);
+      warning = pickUpSuccessMissInfoWarning(issueQuery.user?.login);
       tip = ChallengeIssueTip.RefineIssueFormat;
     } else {
       inAssignFlow = checkIsInAssignFlow(
@@ -238,6 +238,7 @@ export default class ChallengeIssueService implements IChallengeIssueService {
 
     // TODO: maybe we should check the ONLY_INDIVIDUAL case.
     if (program?.type === ChallengeProgramType.ONLY_TEAM) {
+      // FIXME: Challengers may participate in different teams in different seasons of the same match.
       const team = await this.findTeam(
         pickUpQuery.challenger,
         program.programTheme
@@ -284,7 +285,7 @@ export default class ChallengeIssueService implements IChallengeIssueService {
       } else {
         challengeIssue.hasPicked = true;
         challengeIssue.currentChallengerGitHubId = pickUpQuery.challenger;
-        challengeIssue.pickedAt = new Date().toLocaleString();
+        challengeIssue.pickedAt = new Date().toISOString();
         await this.challengeIssueRepository.save(challengeIssue);
         return {
           data: null,
@@ -331,7 +332,9 @@ export default class ChallengeIssueService implements IChallengeIssueService {
     const issue = await this.issueRepository.findOne({
       relations: ["challengeIssue"],
       where: {
-        issueNumber: giveUpQuery.issueId,
+        owner: giveUpQuery.owner,
+        repo: giveUpQuery.repo,
+        issueNumber: giveUpQuery.issueNumber,
       },
     });
     // Also not a challenge issue.

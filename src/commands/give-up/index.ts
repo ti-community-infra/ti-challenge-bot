@@ -1,13 +1,15 @@
 import { Context } from "probot";
+import { EventPayloads } from "@octokit/webhooks";
 
 import { GiveUpQuery } from "../../queries/GiveUpQuery";
+import { LabelQuery } from "../../queries/LabelQuery";
 
 import { IChallengeIssueService } from "../../services/challenge-issue";
-
-import { LabelQuery } from "../../queries/LabelQuery";
 import { Status } from "../../services/reply";
-import { PICKED_LABEL } from "../labels";
 import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMessage";
+
+import { PICKED_LABEL } from "../labels";
+import { Label } from "../../types";
 
 /**
  * Give up challenge issue.
@@ -15,32 +17,31 @@ import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMes
  * @param challengeIssueService
  */
 const giveUp = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssueComment>,
   challengeIssueService: IChallengeIssueService
 ) => {
-  const issue = context.issue();
-  const issueResponse = await context.github.issues.get({
-    owner: issue.owner,
-    repo: issue.repo,
-    issue_number: issue.number,
-  });
-  const { data } = issueResponse;
+  const issueKey = context.issue();
+  const { owner, repo, issue_number: issueNumber } = issueKey;
+  const issueSignature = `${owner}/${repo}#${issueNumber}`;
+  const { data: issue } = await context.octokit.issues.get(issueKey);
 
   // Check if an issue, if it is a pull request, no response.
-  if (data.pull_request != null) {
+  if (issue.pull_request != null) {
     context.log.warn(ChallengeIssueWarning.NotAllowedToGiveUpAPullRequest);
     return;
   }
 
   const { sender } = context.payload;
-  const labels: LabelQuery[] = data.labels.map((label) => {
+  const labels: LabelQuery[] = issue.labels.map((label) => {
     return {
-      ...label,
+      ...(label as Label),
     };
   });
   const giveUpQuery: GiveUpQuery = {
     challenger: sender.login,
-    issueId: data.number,
+    owner: issueKey.owner,
+    repo: issueKey.repo,
+    issueNumber: issueKey.issue_number,
     labels,
   };
 
@@ -53,22 +54,23 @@ const giveUp = async (
   switch (reply.status) {
     case Status.Failed: {
       context.log.error(
-        `Give up ${giveUpQuery} failed because ${reply.message}.`
+        giveUpQuery,
+        `Give up ${issueSignature} failed because ${reply.message}.`
       );
       break;
     }
     case Status.Success: {
-      await context.github.issues.removeLabel(
+      await context.octokit.issues.removeLabel(
         context.issue({
           name: PICKED_LABEL,
         })
       );
-      context.log.info(`Give up ${giveUpQuery} success.`);
+      context.log.info(giveUpQuery, `Give up ${issueSignature} success.`);
       break;
     }
   }
 
-  await context.github.issues.createComment(
+  await context.octokit.issues.createComment(
     context.issue({ body: reply.message })
   );
 };

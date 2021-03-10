@@ -25,10 +25,10 @@ export class Pull {
   title: string;
 
   @Column({ type: "text" })
-  body: string;
+  body: string | null;
 
   @Column({ default: null })
-  user: string;
+  user?: string;
 
   @Column({ default: null })
   association: string;
@@ -65,7 +65,7 @@ export class Pull {
     nullable: true,
     default: null,
   })
-  closedAt: string;
+  closedAt: string | null;
 
   @Column({
     name: "merged_at",
@@ -73,7 +73,7 @@ export class Pull {
     nullable: true,
     default: null,
   })
-  mergedAt: string;
+  mergedAt: string | null;
 
   // @ts-ignore
   @OneToOne((type) => ChallengePull, (challengePull) => challengePull.pull)

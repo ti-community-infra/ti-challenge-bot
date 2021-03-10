@@ -1,19 +1,19 @@
 import { Context } from "probot";
+import { EventPayloads } from "@octokit/webhooks";
 
 import { LabelQuery } from "../../queries/LabelQuery";
+import { ChallengePullQuery } from "../../queries/ChallengePullQuery";
 
 import { Status } from "../../services/reply";
-
 import ChallengePullService from "../../services/challenge-pull";
 import { combineReplay } from "../../services/utils/ReplyUtil";
+import { isValidBranch } from "../../services/utils/PullUtil";
 
-import { ChallengePullQuery } from "../../queries/ChallengePullQuery";
 import {
   Config,
   DEFAULT_BRANCHES,
   DEFAULT_CONFIG_FILE_PATH,
 } from "../../config/Config";
-import { isValidBranch } from "../../services/utils/PullUtil";
 
 /**
  * Handle LGTM custom event.
@@ -22,26 +22,29 @@ import { isValidBranch } from "../../services/utils/PullUtil";
  * @param challengePullService
  */
 const handleLgtm = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssueComment>,
   challengePullService: ChallengePullService
 ) => {
-  const pullResponse = await context.github.pulls.get(context.issue());
+  const { owner, repo, issue_number: issueNumber } = context.issue();
+  const pullResponse = await context.octokit.pulls.get({
+    owner,
+    repo,
+    pull_number: issueNumber,
+  });
   const { data } = pullResponse;
   const labels: LabelQuery[] = data.labels.map((label) => {
     return {
       ...label,
     };
   });
-  const issue = context.issue();
   const { user } = data;
 
   const challengePullQuery: ChallengePullQuery = {
-    ...issue,
+    owner,
+    repo,
     pull: {
       ...data,
-      user: {
-        ...user,
-      },
+      user: user,
       labels: labels,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
@@ -73,7 +76,7 @@ const handleLgtm = async (
       return;
     }
     case Status.Problematic: {
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
       break;

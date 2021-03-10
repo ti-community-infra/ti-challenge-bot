@@ -1,16 +1,15 @@
 import { Context } from "probot";
-
-import { PullPayload } from "../payloads/PullPayload";
-
-import { LabelQuery } from "../../queries/LabelQuery";
-
-import { Status } from "../../services/reply";
+import { EventPayloads } from "@octokit/webhooks";
 
 import ChallengePullService from "../../services/challenge-pull";
 import { combineReplay } from "../../services/utils/ReplyUtil";
+import { Status } from "../../services/reply";
 import { IssueOrPullActions } from "../issues";
 
+import { LabelQuery } from "../../queries/LabelQuery";
 import { ChallengePullQuery } from "../../queries/ChallengePullQuery";
+import { PullPayload } from "../payloads/PullPayload";
+
 import {
   Config,
   DEFAULT_BRANCHES,
@@ -19,20 +18,23 @@ import {
 import { isValidBranch } from "../../services/utils/PullUtil";
 
 const handlePullClosed = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadPullRequest>,
   challengePullService: ChallengePullService
 ) => {
-  const { pull_request: pullRequest } = context.payload;
+  const pullKey = context.pullRequest();
+  const { action, pull_request: pullRequest } = context.payload;
   const labels: LabelQuery[] = pullRequest.labels.map((label: LabelQuery) => {
     return {
       ...label,
     };
   });
-  const { payload } = context;
   const { user } = pullRequest;
 
   const pullPayload: PullPayload = {
-    ...payload,
+    action: action,
+    owner: pullKey.owner,
+    repo: pullKey.repo,
+    number: pullKey.pull_number,
     pull: {
       ...pullRequest,
       user: {
@@ -67,21 +69,21 @@ const handlePullClosed = async (
       context.log.error(
         `Count ${pullPayload} failed because ${reply.message}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Success: {
       context.log.info(`Count ${pullPayload} success.`);
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Problematic: {
       context.log.warn(`Count ${pullPayload} has some problems.`);
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
       break;
@@ -95,21 +97,24 @@ const handlePullClosed = async (
  * @param challengePullService
  */
 const handleChallengePullOpen = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadPullRequest>,
   challengePullService: ChallengePullService
 ) => {
+  const pullKey = context.pullRequest();
+  const { owner, repo, pull_number: pullNumber } = pullKey;
+  const pullSignature = `${owner}/${repo}#${pullNumber}`;
+
   const { pull_request: pullRequest } = context.payload;
   const labels: LabelQuery[] = pullRequest.labels.map((label: LabelQuery) => {
     return {
       ...label,
     };
   });
-  const { payload } = context;
   const { user } = pullRequest;
 
   const pullPayload: ChallengePullQuery = {
-    ...payload,
-    ...context.issue(),
+    owner: owner,
+    repo: repo,
     pull: {
       ...pullRequest,
       user: {
@@ -142,31 +147,37 @@ const handleChallengePullOpen = async (
 
   switch (reply.status) {
     case Status.Failed: {
-      context.log.error(`${pullPayload} not reward ${reply.message}.`);
-      await context.github.issues.createComment(
+      context.log.error(
+        pullPayload,
+        `${pullSignature} not reward ${reply.message}.`
+      );
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Success: {
-      context.log.info(`${pullPayload} already rewarded.`);
-      await context.github.issues.createComment(
+      context.log.info(pullPayload, `${pullSignature} already rewarded.`);
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Problematic: {
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
-      context.log.warn(`${pullPayload} check reward has some problems.`);
+      context.log.warn(
+        pullPayload,
+        `${pullSignature} check reward has some problems.`
+      );
       break;
     }
   }
 };
 
 const handlePullEvents = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadPullRequest>,
   challengePullService: ChallengePullService
 ) => {
   if (context.payload.action === IssueOrPullActions.Closed) {

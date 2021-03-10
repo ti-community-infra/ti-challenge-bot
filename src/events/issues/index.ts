@@ -1,24 +1,20 @@
 import { Context } from "probot";
+import { EventPayloads } from "@octokit/webhooks";
 
 import IssueService from "../../services/issue";
-
 import ChallengeIssueService from "../../services/challenge-issue";
-
-import { LabelQuery } from "../../queries/LabelQuery";
-
-import { IssuePayload } from "../payloads/IssuePayload";
-import { isChallengeIssue } from "../../services/utils/IssueUtil";
-
-import { Config, DEFAULT_CONFIG_FILE_PATH } from "../../config/Config";
-
-import { ChallengeIssueQuery } from "../../queries/ChallengeIssueQuery";
-
 import { Reply, Status } from "../../services/reply";
 import { combineReplay } from "../../services/utils/ReplyUtil";
+import { isChallengeIssue } from "../../services/utils/IssueUtil";
 
+import { IssuePayload } from "../payloads/IssuePayload";
+import { UserQuery } from "../../queries/UserQuery";
+import { LabelQuery } from "../../queries/LabelQuery";
+import { ChallengeIssueQuery } from "../../queries/ChallengeIssueQuery";
+
+import { Config, DEFAULT_CONFIG_FILE_PATH } from "../../config/Config";
 import { ChallengeIssue } from "../../db/entities/ChallengeIssue";
 import { CHALLENGE_PROGRAM_LABEL } from "../../commands/labels";
-import { UserQuery } from "../../queries/UserQuery";
 
 export enum IssueOrPullActions {
   Opened = "opened",
@@ -41,8 +37,9 @@ export enum IssueOrPullActions {
  * @param context
  */
 const constructIssuePayloadAndLabels = (
-  context: Context
+  context: Context<EventPayloads.WebhookPayloadIssues>
 ): { payload: IssuePayload; labels: LabelQuery[] } => {
+  const issueKey = context.issue();
   const { issue: issuePayload } = context.payload;
   const labels: LabelQuery[] = issuePayload.labels.map((label: LabelQuery) => {
     return {
@@ -57,7 +54,10 @@ const constructIssuePayloadAndLabels = (
 
   return {
     payload: {
-      ...context.issue(),
+      action: context.payload.action,
+      owner: issueKey.owner,
+      repo: issueKey.repo,
+      number: issueKey.issue_number,
       issue: {
         ...issuePayload,
         user: {
@@ -67,7 +67,6 @@ const constructIssuePayloadAndLabels = (
         createdAt: issuePayload.created_at,
         updatedAt: issuePayload.updated_at,
         closedAt: issuePayload.closed_at,
-        mergedAt: issuePayload.merged_at,
         authorAssociation: issuePayload.author_association,
         assignees,
       },
@@ -83,7 +82,7 @@ const constructIssuePayloadAndLabels = (
  * @param challengeIssueService
  */
 const handleIssuesOpened = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssues>,
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
@@ -95,7 +94,8 @@ const handleIssuesOpened = async (
     // Get config form repo.
     const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
     const challengeIssueQuery: ChallengeIssueQuery = {
-      ...context.issue(),
+      owner: payload.owner,
+      repo: payload.repo,
       issue: payload.issue,
       defaultSigLabel: config?.defaultSigLabel,
     };
@@ -109,7 +109,7 @@ const handleIssuesOpened = async (
       context.log.error(
         `Create challenge issue failed ${challengeIssueQuery}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
     }
@@ -118,7 +118,7 @@ const handleIssuesOpened = async (
       context.log.warn(
         `Create challenge issue have some problems ${challengeIssueQuery}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
     }
@@ -132,7 +132,7 @@ const handleIssuesOpened = async (
  * @param challengeIssueService
  */
 const handleIssuesEdited = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssues>,
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
@@ -145,7 +145,8 @@ const handleIssuesEdited = async (
   if (isChallengeIssue(labels)) {
     const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
     const challengeIssueQuery: ChallengeIssueQuery = {
-      ...context.issue(),
+      owner: payload.owner,
+      repo: payload.repo,
       issue: payload.issue,
       defaultSigLabel: config?.defaultSigLabel,
     };
@@ -164,7 +165,7 @@ const handleIssuesEdited = async (
       context.log.error(
         `Update challenge issue failed ${challengeIssueQuery}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
     }
@@ -173,7 +174,7 @@ const handleIssuesEdited = async (
       context.log.warn(
         `Update challenge issue have some problems ${challengeIssueQuery}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
     }
@@ -187,7 +188,7 @@ const handleIssuesEdited = async (
  * @param challengeIssueService
  */
 const handleIssuesLabeled = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssues>,
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
@@ -196,14 +197,17 @@ const handleIssuesLabeled = async (
   // Try to find old issue.
   const oldIssue = await issueService.findOne({
     where: {
-      issueNumber: payload.number,
+      owner: payload.owner,
+      repo: payload.repo,
+      issueNumber: payload.issue.number,
     },
   });
 
   let reply: Reply<ChallengeIssue | undefined> | undefined;
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
   const challengeIssueQuery: ChallengeIssueQuery = {
-    ...context.issue(),
+    owner: payload.owner,
+    repo: payload.repo,
     issue: payload.issue,
     defaultSigLabel: config?.defaultSigLabel,
   };
@@ -244,7 +248,7 @@ const handleIssuesLabeled = async (
     context.log.error(
       `Labeled challenge program and try to update or add challenge issue failed ${challengeIssueQuery}.`
     );
-    await context.github.issues.createComment(
+    await context.octokit.issues.createComment(
       context.issue({ body: reply.message })
     );
   }
@@ -253,20 +257,20 @@ const handleIssuesLabeled = async (
     context.log.warn(
       `Labeled challenge program and try to update or add challenge issue have some problems ${challengeIssueQuery}.`
     );
-    await context.github.issues.createComment(
+    await context.octokit.issues.createComment(
       context.issue({ body: combineReplay(reply) })
     );
   }
 };
 
 /**
- * Handl;e issue unlabeled event.
+ * Handle issue unlabeled event.
  * @param context
  * @param issueService
  * @param challengeIssueService
  */
 const handleIssuesUnlabeled = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssues>,
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
@@ -275,6 +279,8 @@ const handleIssuesUnlabeled = async (
   // Try to find old issue.
   const oldIssue = await issueService.findOne({
     where: {
+      owner: payload.owner,
+      repo: payload.repo,
       issueNumber: payload.number,
     },
   });
@@ -313,10 +319,10 @@ const handleIssuesUnlabeled = async (
     context.log.error(
       `Unlabeled challenge program and try to remove challenge issue failed ${oldIssue}.`
     );
-    await context.github.issues.createComment(
+    await context.octokit.issues.createComment(
       context.issue({ body: reply.message })
     );
-    await context.github.issues.addLabels(
+    await context.octokit.issues.addLabels(
       context.issue({ labels: [CHALLENGE_PROGRAM_LABEL] })
     );
   }
@@ -325,7 +331,7 @@ const handleIssuesUnlabeled = async (
     context.log.info(
       `Unlabeled challenge program and try to remove challenge issue have some problems ${oldIssue}.`
     );
-    await context.github.issues.createComment(
+    await context.octokit.issues.createComment(
       context.issue({ body: reply.message })
     );
   }
@@ -338,7 +344,7 @@ const handleIssuesUnlabeled = async (
  * @param issueService
  */
 const handleIssuesClosedOrReopened = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssues>,
   issueService: IssueService
 ) => {
   const { payload } = constructIssuePayloadAndLabels(context);
@@ -351,7 +357,7 @@ const handleIssuesClosedOrReopened = async (
 };
 
 const handleIssueEvents = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssues>,
   issueService: IssueService,
   challengeIssueService: ChallengeIssueService
 ) => {
@@ -372,12 +378,10 @@ const handleIssueEvents = async (
       await handleIssuesUnlabeled(context, issueService, challengeIssueService);
       break;
     }
-
     case IssueOrPullActions.Closed: {
       await handleIssuesClosedOrReopened(context, issueService);
       break;
     }
-
     case IssueOrPullActions.Reopened: {
       await handleIssuesClosedOrReopened(context, issueService);
       break;

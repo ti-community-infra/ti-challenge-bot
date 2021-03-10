@@ -1,4 +1,5 @@
 import { Context } from "probot";
+import { EventPayloads } from "@octokit/webhooks";
 
 import { RewardQuery } from "../../queries/RewardQuery";
 import { LabelQuery } from "../../queries/LabelQuery";
@@ -14,7 +15,7 @@ import {
   ChallengePullMessage,
   ChallengePullTips,
 } from "../../services/messages/ChallengePullMessage";
-import { UserQuery } from "../../queries/UserQuery";
+
 import {
   Config,
   DEFAULT_BRANCHES,
@@ -28,51 +29,48 @@ import {
  * @param challengePullService
  */
 const reward = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssueComment>,
   score: number,
   challengePullService: IChallengePullService
 ) => {
+  const pullKey = context.pullRequest();
+  const { owner, repo, pull_number: pullNumber } = pullKey;
+  const pullSignature = `${owner}/${repo}#${pullNumber}`;
+
   // Notice: because the context come form issue_comment.created, so we need to get the pull.
-  const issue = context.issue();
   let pullResponse = null;
 
   try {
-    pullResponse = await context.github.pulls.get({
-      owner: issue.owner,
-      repo: issue.repo,
-      pull_number: issue.number,
-    });
-  } catch (e) {
+    pullResponse = await context.octokit.pulls.get(pullKey);
+  } catch (err) {
     context.log.error(
-      `Reward pull request ${JSON.stringify(
-        issue
-      )} failed because fail to get the pull request, maybe it is an issue.`,
-      e
+      err,
+      `Reward pull request ${pullSignature} failed because fail to get the pull request, maybe it is an issue.`
     );
     return;
   }
 
-  const { data } = pullResponse;
+  const { data: pullRequest } = pullResponse;
   const { sender } = context.payload;
-  const labels: LabelQuery[] = data.labels.map((label) => {
+  const labels: LabelQuery[] = pullRequest.labels.map((label) => {
     return {
       ...label,
     };
   });
-  const { user } = data;
+  const { user } = pullRequest;
 
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH, {
     branches: DEFAULT_BRANCHES,
   });
-  if (!isValidBranch(config!.branches!, data.base.ref)) {
+  if (!isValidBranch(config!.branches!, pullRequest.base.ref)) {
     return;
   }
 
   // Find linked issue assignees.
-  const issueNumber = findLinkedIssueNumber(data.body);
+  const linkedIssueNumber = findLinkedIssueNumber(pullRequest.body);
 
-  if (issueNumber === null) {
-    await context.github.issues.createComment(
+  if (linkedIssueNumber === null) {
+    await context.octokit.issues.createComment(
       context.issue({
         body: combineReplay({
           data: null,
@@ -85,33 +83,35 @@ const reward = async (
     return;
   }
 
-  const { data: issueData } = await context.github.issues.get({
-    ...context.repo(),
-    issue_number: issueNumber,
-  });
+  const { data: issue } = await context.octokit.issues.get(
+    context.repo({
+      issue_number: linkedIssueNumber,
+    })
+  );
 
-  const issueAssignees = issueData.assignees.map((a: UserQuery) => {
-    return { ...a };
+  const issueAssignees = (issue.assignees || []).map((assignee) => {
+    return {
+      ...(assignee as any),
+    };
   });
 
   const rewardQuery: RewardQuery = {
     mentor: sender.login,
-    ...issue,
+    owner: owner,
+    repo: repo,
     pull: {
-      ...data,
-      user: {
-        ...user,
-      },
+      ...pullRequest,
+      user: user,
       labels: labels,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-      closedAt: data.closed_at,
-      mergedAt: data.merged_at,
-      authorAssociation: data.author_association,
+      createdAt: pullRequest.created_at,
+      updatedAt: pullRequest.updated_at,
+      closedAt: pullRequest.closed_at,
+      mergedAt: pullRequest.merged_at,
+      authorAssociation: pullRequest.author_association,
     },
     reward: score,
     issueAssignees,
-    linkedIssueNumber: issueNumber,
+    linkedIssueNumber: linkedIssueNumber,
   };
 
   const reply = await challengePullService.reward(rewardQuery);
@@ -119,27 +119,31 @@ const reward = async (
   switch (reply.status) {
     case Status.Failed: {
       context.log.error(
-        `Reward ${rewardQuery} failed because ${reply.message}.`
+        rewardQuery,
+        `Reward ${pullSignature} failed because ${reply.message}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Success: {
       // Add rewarded label.
-      context.log.info(`Reward ${rewardQuery} success.`);
-      await context.github.issues.addLabels(
+      context.log.info(rewardQuery, `Reward ${pullSignature} success.`);
+      await context.octokit.issues.addLabels(
         context.issue({ labels: [REWARDED_LABEL] })
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Problematic: {
-      context.log.info(`Reward ${rewardQuery} has some problems.`);
-      await context.github.issues.createComment(
+      context.log.info(
+        rewardQuery,
+        `Reward ${pullSignature} has some problems.`
+      );
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
       break;

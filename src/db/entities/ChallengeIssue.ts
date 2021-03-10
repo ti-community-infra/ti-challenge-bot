@@ -30,6 +30,7 @@ export class ChallengeIssue {
   @Column({ name: "has_picked", nullable: false, default: false })
   hasPicked: boolean;
 
+  // FIXME: Should be current_challenger_github_login
   @Column({
     name: "current_challenger_github_id",
     type: "varchar",

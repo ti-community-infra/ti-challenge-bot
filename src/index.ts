@@ -1,28 +1,32 @@
-import { Application, Context } from "probot";
+import "reflect-metadata";
+
+import { ApplicationFunctionOptions, Context, Probot } from "probot";
+import { EventPayloads } from "@octokit/webhooks";
 import { createConnection, useContainer } from "typeorm";
 import { Container } from "typedi";
 
 import pickUp from "./commands/pick-up";
-import giveUp from "./commands/give-up";
 import reward from "./commands/reward";
-import { handlePullEvents } from "./events/pull";
 import help from "./commands/help";
+import giveUp from "./commands/give-up";
 import autoGiveUp from "./tasks/auto-give-up";
+
+import { handlePullEvents } from "./events/pull";
+import handleIssueEvents from "./events/issues";
+import { handleLgtm } from "./events/custom";
+
 import AutoGiveUpService from "./services/auto-give-up";
 import IssueService from "./services/issue";
 import ChallengeIssueService, {
   IChallengeIssueServiceToken,
 } from "./services/challenge-issue";
-import handleIssueEvents from "./events/issues";
 import ChallengePullService, {
   IChallengePullServiceToken,
 } from "./services/challenge-pull";
 import ChallengeTeamService from "./services/challenge-team";
-import { handleLgtm } from "./events/custom";
-
-import "reflect-metadata";
-import createTeam from "./api/challenge-team";
 import ChallengeProgramService from "./services/challenge-program";
+
+import createTeam from "./api/challenge-team";
 import { findAllChallengePrograms, ranking } from "./api/challenge-program";
 
 const commands = require("probot-commands-pro");
@@ -33,20 +37,20 @@ const allowedAccounts = (process.env.ALLOWED_ACCOUNTS || "")
   .toLowerCase()
   .split(",");
 
-export = (app: Application) => {
+const SCHEDULE_REPOSITORY_EVENT: any = "schedule.repository";
+
+export = async (app: Probot, { getRouter }: ApplicationFunctionOptions) => {
   useContainer(Container);
 
   createScheduler(app);
 
-  app.log.target.addStream({
-    type: "rotating-file",
-    path: "./bot-logs/ti-challenge-bot.log",
-    period: "1d", // daily rotation
-    count: 10, // keep 10 back copies
-  });
-
   // Get an express router to expose new HTTP endpoints.
-  const router = app.route("/ti-challenge-bot");
+  if (!getRouter) {
+    app.log.fatal("Failed to obtain getRouter.");
+    return;
+  }
+
+  const router = getRouter("/ti-challenge-bot");
   router.use(bodyParser.json());
   router.use(cors());
 
@@ -55,35 +59,44 @@ export = (app: Application) => {
       app.log.info("App starting...");
 
       commands(app, "ping", async (context: Context) => {
-        const issue = context.issue();
-        await context.github.issues.createComment({
-          repo: issue.repo,
-          owner: issue.owner,
-          issue_number: issue.number,
-          body: "pong! I am challenge bot.",
-        });
+        await context.octokit.issues.createComment(
+          context.issue({
+            body: "pong! I am challenge bot.",
+          })
+        );
       });
 
       commands(app, "help", async (context: Context) => {
         await help(context);
       });
 
-      commands(app, "pick-up", async (context: Context) => {
-        await pickUp(context, Container.get(IChallengeIssueServiceToken));
-      });
+      commands(
+        app,
+        "pick-up",
+        async (context: Context<EventPayloads.WebhookPayloadIssueComment>) => {
+          await pickUp(context, Container.get(IChallengeIssueServiceToken));
+        }
+      );
 
-      commands(app, "give-up", async (context: Context) => {
-        await giveUp(context, Container.get(IChallengeIssueServiceToken));
-      });
+      commands(
+        app,
+        "give-up",
+        async (context: Context<EventPayloads.WebhookPayloadIssueComment>) => {
+          await giveUp(context, Container.get(IChallengeIssueServiceToken));
+        }
+      );
 
       commands(
         app,
         "reward",
-        async (context: Context, command: { arguments: string }) => {
+        async (
+          context: Context<EventPayloads.WebhookPayloadIssueComment>,
+          command: { arguments: string }
+        ) => {
           const rewardData = command.arguments;
           const rewardValue = Number(rewardData);
           if (!Number.isInteger(rewardValue)) {
-            await context.github.issues.createComment(
+            await context.octokit.issues.createComment(
               context.issue({ body: "The reward invalid." })
             );
             return;
@@ -104,7 +117,7 @@ export = (app: Application) => {
         }
       });
 
-      app.on("issues", async (context: Context) => {
+      app.on("issues", async (context) => {
         await handleIssueEvents(
           context,
           Container.get(IssueService),
@@ -112,17 +125,17 @@ export = (app: Application) => {
         );
       });
 
-      app.on("pull_request", async (context: Context) => {
+      app.on("pull_request", async (context) => {
         await handlePullEvents(context, Container.get(ChallengePullService));
       });
 
-      app.on("schedule.repository", async (context: Context) => {
+      app.on(SCHEDULE_REPOSITORY_EVENT, async (context) => {
         app.log.info("Scheduling coming...");
         await autoGiveUp(context, Container.get(AutoGiveUpService));
       });
 
       // TODO: move this into events.
-      app.on("installation.created", async (context: Context) => {
+      app.on("installation.created", async (context) => {
         const { installation } = context.payload;
         // Notice: if not allowed account we need to uninstall itself.
         if (!allowedAccounts.includes(installation.account.login)) {
@@ -152,7 +165,6 @@ export = (app: Application) => {
       });
     })
     .catch((err) => {
-      // TODO: this log format is wrong.
-      app.log.fatal("Connect to db failed", err);
+      app.log.fatal(err, "Connect to db failed.");
     });
 };

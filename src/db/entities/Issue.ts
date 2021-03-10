@@ -18,10 +18,10 @@ export class Issue {
   title: string;
 
   @Column({ type: "text" })
-  body: string;
+  body?: string;
 
   @Column({ default: null })
-  user: string;
+  user?: string;
 
   @Column({ default: null })
   association: string;
@@ -58,9 +58,9 @@ export class Issue {
     nullable: true,
     default: null,
   })
-  closedAt: string;
+  closedAt: string | null;
 
   // @ts-ignore
-  @OneToOne((type) => ChallengeIssue, (challengeIssue) => challengeIssue.issue)
+  @OneToOne(() => ChallengeIssue, (challengeIssue) => challengeIssue.issue)
   challengeIssue: ChallengeIssue;
 }

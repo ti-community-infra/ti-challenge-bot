@@ -1,16 +1,17 @@
 import { Context } from "probot";
+import { EventPayloads } from "@octokit/webhooks";
 
 import { PickUpQuery } from "../../queries/PickUpQuery";
-
 import { LabelQuery } from "../../queries/LabelQuery";
-import { Status } from "../../services/reply";
 
 import { Config, DEFAULT_CONFIG_FILE_PATH } from "../../config/Config";
 import { PICKED_LABEL } from "../labels";
 
 import { IChallengeIssueService } from "../../services/challenge-issue";
+import { Status } from "../../services/reply";
 import { combineReplay } from "../../services/utils/ReplyUtil";
 import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMessage";
+import { Label } from "../../types";
 
 /**
  * Pick up the issue.
@@ -18,47 +19,46 @@ import { ChallengeIssueWarning } from "../../services/messages/ChallengeIssueMes
  * @param challengeIssueService
  */
 const pickUp = async (
-  context: Context,
+  context: Context<EventPayloads.WebhookPayloadIssueComment>,
   challengeIssueService: IChallengeIssueService
 ) => {
+  const issueKey = context.issue();
+  const { owner, repo, issue_number: issueNumber } = issueKey;
+  const issueSignature = `${owner}/${repo}#${issueNumber}`;
+
   // Notice: because the context come form issue_comment.created event,
   // so we need to get this issue.
-  const issue = context.issue();
-  const issueResponse = await context.github.issues.get({
-    owner: issue.owner,
-    repo: issue.repo,
-    issue_number: issue.number,
-  });
-  const { data } = issueResponse;
+  const issueResponse = await context.octokit.issues.get(issueKey);
+  const { data: issue } = issueResponse;
   const { sender } = context.payload;
 
   // Check if an issue, if it is a pull request, no response.
-  if (data.pull_request != null) {
+  if (issue.pull_request != null) {
     context.log.warn(ChallengeIssueWarning.NotAllowedToPickUpAPullRequest);
     return;
   }
 
-  const labels: LabelQuery[] = data.labels.map((label) => {
+  const labels: LabelQuery[] = issue.labels.map((label) => {
     return {
-      ...label,
+      ...(label as Label),
     };
   });
-  const { user } = data;
+  const { user } = issue;
   const config = await context.config<Config>(DEFAULT_CONFIG_FILE_PATH);
 
   const pickUpQuery: PickUpQuery = {
     challenger: sender.login,
-    ...issue,
+    owner: owner,
+    repo: repo,
     issue: {
-      ...data,
-      user: {
-        ...user,
-      },
+      ...issue,
+      user: user,
       labels: labels,
-      // @ts-ignore
-      closedAt: data.closed_at,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
+      authorAssociation: issue.author_association,
+      assignees: issue.assignees,
+      closedAt: issue.closed_at,
+      createdAt: issue.created_at,
+      updatedAt: issue.updated_at,
     },
     defaultSigLabel: config?.defaultSigLabel,
   };
@@ -68,33 +68,37 @@ const pickUp = async (
   switch (reply.status) {
     case Status.Failed: {
       context.log.error(
-        `Pick up ${pickUpQuery} failed because ${reply.message}.`
+        pickUpQuery,
+        `Pick up ${issueSignature} failed because ${reply.message}.`
       );
-      await context.github.issues.createComment(
+      await context.octokit.issues.createComment(
         context.issue({ body: reply.message })
       );
       break;
     }
     case Status.Success: {
       // Add picked label.
-      context.log.info(`Pick up ${pickUpQuery} success.`);
-      await context.github.issues.addLabels(
+      context.log.info(pickUpQuery, `Pick up ${issueSignature} success.`);
+      await context.octokit.issues.addLabels(
         context.issue({ labels: [PICKED_LABEL] })
       );
       if (reply.warning !== undefined || reply.tip !== undefined) {
-        await context.github.issues.createComment(
+        await context.octokit.issues.createComment(
           context.issue({ body: combineReplay(reply) })
         );
       } else {
-        await context.github.issues.createComment(
+        await context.octokit.issues.createComment(
           context.issue({ body: reply.message })
         );
       }
       break;
     }
     case Status.Problematic: {
-      context.log.warn(`Pick up ${pickUpQuery} has some problems.`);
-      await context.github.issues.createComment(
+      context.log.warn(
+        pickUpQuery,
+        `Pick up ${issueSignature} has some problems.`
+      );
+      await context.octokit.issues.createComment(
         context.issue({ body: combineReplay(reply) })
       );
       break;

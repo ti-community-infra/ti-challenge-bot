@@ -4,7 +4,7 @@ import Container, { Service } from "typedi";
 
 // Requiring our app implementation
 import myProbotApp from "../src";
-import { Probot } from "probot";
+import { Probot, ProbotOctokit, Server } from "probot";
 import {
   IChallengeIssueService,
   IChallengeIssueServiceToken,
@@ -19,26 +19,20 @@ const pongBody = { body: "pong! I am challenge bot." };
 const fs = require("fs");
 const path = require("path");
 
+const privateKey = fs.readFileSync(
+  path.join(__dirname, "fixtures/mock-cert.pem"),
+  "utf-8"
+);
+
 describe("My Probot app", () => {
-  let probot: any;
-  let mockCert: string;
+  let probot: Probot;
 
   const mockGiveUpMethod = jest.fn();
   const mockPickUpMethod = jest.fn();
 
-  beforeAll((done: Function) => {
-    fs.readFile(
-      path.join(__dirname, "fixtures/mock-cert.pem"),
-      (err: Error, cert: string) => {
-        if (err) return done(err);
-        mockCert = cert;
-        done();
-      }
-    );
-
+  beforeAll(() => {
     // Mock the challenge-issue service.
     @Service(IChallengeIssueServiceToken)
-    // TODO: remove the experimentalDecorators warning.
     class MockChallengeIssueService implements IChallengeIssueService {
       giveUp = mockGiveUpMethod.mockResolvedValue(undefined);
       createWhenIssueOpened = jest.fn().mockResolvedValue(undefined);
@@ -50,20 +44,38 @@ describe("My Probot app", () => {
     Container.set(IChallengeIssueServiceToken, new MockChallengeIssueService());
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // @ts-ignore
     typeorm.createConnection = jest.fn().mockResolvedValue(null);
     nock.disableNetConnect();
-    probot = new Probot({ id: 123, cert: mockCert });
     // Load our app into probot
-    probot.load(myProbotApp);
+    let server = new Server({
+      Probot: Probot.defaults({
+        appId: 123,
+        privateKey: privateKey,
+        secret: "secret",
+        // disable request throttling and retries for testing
+        Octokit: ProbotOctokit.defaults({
+          retry: { enabled: false },
+          throttle: { enabled: false },
+        }),
+      }),
+    });
+    probot = server.probotApp;
+    await server.load(myProbotApp);
   });
 
   test("creates a comment with ping command to an issue", async (done) => {
     // Test that we correctly return a test token
     nock("https://api.github.com")
       .post("/app/installations/2/access_tokens")
-      .reply(200, { token: "test" });
+      .reply(200, { token: "test" })
+      .get("/app/installations?per_page=100")
+      .reply(200, {
+        account: {
+          login: "ti-community-infra",
+        },
+      });
 
     // Test that a comment is posted
     nock("https://api.github.com")
@@ -77,13 +89,15 @@ describe("My Probot app", () => {
       .reply(200);
 
     // Receive a webhook event
-    await probot.receive({ name: "issue_comment", payload });
+    await probot.receive({ id: "1000", name: "issue_comment", payload });
   });
 
   test("creates a comment with pick-up command to a pull request", async () => {
     nock("https://api.github.com")
       .post("/app/installations/2/access_tokens")
       .reply(200, { token: "test" })
+      .get("/app/installations?per_page=100")
+      .reply(200, [])
       // Notice: Actually, it returns the pull request information here.
       .get(`/repos/Rustin-Liu/ti-challenge-bot/issues/1`)
       .reply(200, {
@@ -114,7 +128,11 @@ describe("My Probot app", () => {
       });
 
     // Receive a webhook event.
-    await probot.receive({ name: "issue_comment", payload: pickUpPayload });
+    await probot.receive({
+      id: "1000",
+      name: "issue_comment",
+      payload: pickUpPayload,
+    });
 
     // If the robot receive a pick-up command to a pull request, the `pickUp` method will not be called.
     expect(mockPickUpMethod).not.toHaveBeenCalled();
@@ -124,6 +142,8 @@ describe("My Probot app", () => {
     nock("https://api.github.com")
       .post("/app/installations/2/access_tokens")
       .reply(200, { token: "test" })
+      .get("/app/installations?per_page=100")
+      .reply(200, [])
       // Notice: Actually, it returns the pull request information here.
       .get(`/repos/Rustin-Liu/ti-challenge-bot/issues/1`)
       .reply(200, {
@@ -154,7 +174,11 @@ describe("My Probot app", () => {
       });
 
     // Receive a webhook event.
-    await probot.receive({ name: "issue_comment", payload: giveUpPayload });
+    await probot.receive({
+      id: "1000",
+      name: "issue_comment",
+      payload: giveUpPayload,
+    });
 
     // If the robot receive a give-up command to a pull request, the `giveUp` method will not be called.
     expect(mockGiveUpMethod).not.toHaveBeenCalled();
