@@ -44,7 +44,7 @@
     "@semantic-release/release-notes-generator": "^9.0.2",
     "@types/jest": "^26.0.23",
     "@types/nock": "^11.1.0",
-    "@types/node": "^15.0.0",
+    "@types/node": "^15.0.1",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint-plugin-typescript": "^0.14.0",
     "husky": "^6.0.0",
