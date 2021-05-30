@@ -1,0 +1,28 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  assignees:
+  - hi-rustin
+  ignore:
+  - dependency-name: probot
+    versions:
+    - ">= 10.a, < 11"
+  - dependency-name: probot
+    versions:
+    - 11.0.6
+    - 11.1.0
+    - 11.2.1
+    - 11.2.2
+    - 11.2.3
+    - 11.2.4
+    - 11.3.0
+  - dependency-name: "@semantic-release/github"
+    versions:
+    - 7.2.1
+  - dependency-name: typescript
+    versions:
+    - 3.9.8
