@@ -34,7 +34,7 @@
     "probot-scheduler-pro": "^1.1.0",
     "reflect-metadata": "^0.1.10",
     "typedi": "^0.8.0",
-    "typeorm": "0.2.34",
+    "typeorm": "0.2.37",
     "typeorm-typedi-extensions": "^0.2.3"
   },
   "devDependencies": {
