@@ -1,6 +1,6 @@
 name: Surge PR Preview
 
-on: [pull_request_target]
+on: [ pull_request_target, push ]
 
 jobs:
   preview:
@@ -11,9 +11,9 @@ jobs:
         working-directory: ./docs
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2.4.0
         with:
-          node-version: 10.21.0
+          node-version: 12
       - name: Build
         run: |
           npx gitbook-cli@2.3.2 install
