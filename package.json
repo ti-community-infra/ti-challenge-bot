@@ -51,7 +51,7 @@
     "jest": "^25.1.0",
     "nock": "^13.1.1",
     "nodemon": "^2.0.12",
-    "semantic-release": "^17.4.4",
+    "semantic-release": "^17.4.6",
     "smee-client": "^1.1.0",
     "prettier": "2.3.2",
     "ts-jest": "^25.1.0",
